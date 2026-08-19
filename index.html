@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="es-CL">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Forestal Robur SpA · Cosecha forestal en pendiente | Sur de Chile</title>
+
+<!-- ============================================================
+     SEO / METADATOS
+     ============================================================ -->
+<meta name="description" content="Forestal Robur SpA: servicios de cosecha forestal de pino y eucalipto en el sur de Chile. Madereo con torre en pendiente, excavadora con garra, trineumático Bell y cuadrillas de motosierristas. Del volteo al despacho.">
+<meta name="theme-color" content="#241C15">
+<meta name="author" content="Forestal Robur SpA">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="es_CL">
+<meta property="og:title" content="Forestal Robur SpA · Cosecha forestal en pendiente">
+<meta property="og:description" content="Torre de madereo, excavadora con garra, trineumático Bell y motosierristas. Pino y eucalipto, del volteo al despacho. Empresa familiar del sur de Chile.">
+
+<!-- Favicon: la sección de fuste (anillos de crecimiento) del expediente,
+     tinta sobre papel. Es la FIG. 01 del sitio en miniatura. -->
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' fill='%23F2EDE1'/%3E%3Cg fill='none' stroke='%23241C15' stroke-width='2'%3E%3Ccircle cx='32' cy='32' r='24'/%3E%3Ccircle cx='33' cy='31' r='18'/%3E%3Ccircle cx='31' cy='33' r='12'/%3E%3Ccircle cx='32' cy='32' r='6'/%3E%3C/g%3E%3Ccircle cx='32' cy='32' r='2' fill='%23E1701A'/%3E%3C/svg%3E">
+
+<!-- ============================================================
+     TIPOGRAFÍA — el corazón del expediente
+       · Besley 900     → titulares. Slab serif inglesa con peso de
+                          maquinaria; solo se usa en negro 900.
+       · Piazzolla      → el cuerpo. Serifa de Huerta Tipográfica
+                          (fundición sudamericana), 400 + itálica.
+       · IBM Plex Mono  → TODO metadato: folios, cotas, etiquetas,
+                          unidades, tablas. Es la letra del formulario.
+     Prohibido todo lo demás. Nada de Inter, nada de system-ui.
+     ============================================================ -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<!-- Las fuentes NO bloquean el render: se cargan con media="print" y se
+     activan al llegar (con JS muerto, el <noscript> las carga normal).
+     El visitante con señal rural ve el documento al tiro, en las serifas
+     de reemplazo, y las fuentes entran cuando entran. -->
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Besley:wght@900&family=Piazzolla:ital,opsz,wght@0,7..30,400;1,7..30,400&family=IBM+Plex+Mono:wght@400;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Besley:wght@900&family=Piazzolla:ital,opsz,wght@0,7..30,400;1,7..30,400&family=IBM+Plex+Mono:wght@400;600&display=swap" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Besley:wght@900&family=Piazzolla:ital,opsz,wght@0,7..30,400;1,7..30,400&family=IBM+Plex+Mono:wght@400;600&display=swap"></noscript>
+
+<link rel="stylesheet" href="assets/css/estilo.css">
+
+<!-- Marca que el JS está vivo. Si no corre, el documento llega entero y
+     pintado. Y si main.js no llegara a ejecutarse (red caída a medias),
+     a los 2,5 s se fuerza el estado pintado: la página nunca queda a
+     oscuras esperando un script que no viene. -->
+<script>
+document.documentElement.classList.add('js');
+setTimeout(function(){
+  if (!window.__mainVivo) document.documentElement.classList.add('sin-anim');
+}, 2500);
+</script>
+
+<!-- Datos duros de la empresa. ÚNICO archivo a editar: mientras un dato
+     esté vacío, la página lo estampa como [POR COMPLETAR] y no lo inventa. -->
+<script defer src="assets/js/datos.js"></script>
+
+<!-- JSON-LD mínimo y verdadero: solo lo que sabemos hoy. Los datos de
+     contacto los agrega main.js desde datos.js si existen. -->
+<script type="application/ld+json" id="jsonld">
+{
+  "@context": "https://schema.org",
+  "@type": "LocalBusiness",
+  "name": "Forestal Robur SpA",
+  "description": "Servicios de cosecha forestal de pino y eucalipto en el sur de Chile: madereo con torre en pendiente, excavadora con garra forestal, trineumático Bell y cuadrillas de motosierristas.",
+  "areaServed": "Sur de Chile",
+  "knowsAbout": ["Cosecha forestal", "Madereo con torre", "Pino radiata", "Eucalipto"]
+}
+</script>
+</head>
+<body>
+
+<!-- ╔══════════════════════════════════════════════════════════════╗
+     ║  FOLIO 00 · MEMBRETE Y PORTADA                                ║
+     ║  Sin foto, sin overlay, sin centrado: un rótulo de plano de   ║
+     ║  ingeniería y un titular que ocupa el papel como estampado.   ║
+     ╚══════════════════════════════════════════════════════════════╝ -->
+<header class="folio folio--portada" id="folio-00">
+
+  <!-- Membrete: grilla de celdas con bordes compartidos, como el
+       rótulo de un plano. Los datos pendientes se estampan. -->
+  <div class="membrete" role="banner">
+    <div class="membrete__celda membrete__celda--sello" aria-hidden="true">
+      <!-- Sello circular: texto girando alrededor de una hoja de roble.
+           Robur = Quercus robur. El sello gira 60s en CSS, como timbre vivo. -->
+      <svg class="sello" viewBox="0 0 100 100" width="72" height="72">
+        <defs>
+          <path id="sello-arco" d="M50,50 m-38,0 a38,38 0 1,1 76,0 a38,38 0 1,1 -76,0"/>
+        </defs>
+        <circle cx="50" cy="50" r="47" fill="none" stroke="currentColor" stroke-width="1.5"/>
+        <circle cx="50" cy="50" r="28" fill="none" stroke="currentColor" stroke-width="1"/>
+        <text class="sello__texto">
+          <textPath href="#sello-arco" startOffset="0">FORESTAL ROBUR SpA · COSECHA FORESTAL · SUR DE CHILE ·</textPath>
+        </text>
+        <!-- Hoja de roble esquemática: nervio central + lóbulos -->
+        <g fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round">
+          <path d="M50,66 L50,36"/>
+          <path d="M50,38 C44,38 41,35 42,31 C38,32 35,29 36,25 C40,22 44,23 46,26 C46,21 48,18 50,17 C52,18 54,21 54,26 C56,23 60,22 64,25 C65,29 62,32 58,31 C59,35 56,38 50,38 Z"/>
+          <path d="M50,60 C47,57 44,57 42,58"/>
+        </g>
+      </svg>
+    </div>
+    <div class="membrete__celda membrete__celda--razon">
+      <p class="membrete__nombre">Forestal Robur <span class="membrete__spa">SpA</span></p>
+      <p class="membrete__giro">SERVICIOS DE COSECHA FORESTAL — PINO Y EUCALIPTO</p>
+    </div>
+    <div class="membrete__celda membrete__celda--dato">
+      <span class="membrete__etq">RUT</span>
+      <span class="membrete__val" data-dato="rut">[POR COMPLETAR]</span>
+    </div>
+    <div class="membrete__celda membrete__celda--dato">
+      <span class="membrete__etq">REGIÓN</span>
+      <span class="membrete__val" data-dato="region">Sur de Chile</span>
+    </div>
+    <div class="membrete__celda membrete__celda--dato">
+      <span class="membrete__etq">DOCUMENTO</span>
+      <span class="membrete__val">REV. 2026-08 · FOLIO 00</span>
+    </div>
+  </div>
+  <div class="regla-doble" aria-hidden="true"><span></span><span></span></div>
+
+  <!-- Portada: titular + columna de metadatos + FIG. 01 -->
+  <div class="portada">
+    <h1 class="portada__titular">
+      <span class="linea"><span class="linea__int">Cosecha</span></span>
+      <span class="linea"><span class="linea__int">en pendiente,</span></span>
+      <span class="linea"><span class="linea__int">del volteo</span></span>
+      <span class="linea"><span class="linea__int">al despacho.</span></span>
+    </h1>
+
+    <aside class="portada__meta" aria-label="Resumen de la faena">
+      <div class="cota" aria-hidden="true"></div>
+      <dl class="meta-lista">
+        <div><dt>SISTEMA</dt><dd>TORRE DE MADEREO</dd></div>
+        <div><dt>TERRENO</dt><dd>PENDIENTE &gt;30%</dd></div>
+        <div><dt>ESPECIES</dt><dd>PINO RADIATA — EUCALIPTO</dd></div>
+        <div><dt>FAENAS</dt><dd>PARA FORESTALES Y PARTICULARES</dd></div>
+      </dl>
+      <a class="cta" href="#folio-06">SOLICITAR EVALUACIÓN DE FAENA <span aria-hidden="true">→</span></a>
+    </aside>
+
+    <!-- FIG. 01 — la firma del sitio: sección de fuste generativa,
+         acotada como plano. La dibuja main.js con semilla fija:
+         siempre el mismo árbol. -->
+    <figure class="fig fig--corte" id="fig-corte">
+      <div class="fig__lienzo" data-fig="corte" role="img" aria-label="Dibujo técnico: sección transversal de un fuste de pino con sus anillos de crecimiento acotados"></div>
+      <figcaption class="fig__leyenda">FIG. 01 — SECCIÓN DE FUSTE. UN ANILLO POR AÑO.</figcaption>
+    </figure>
+  </div>
+
+  <p class="portada__intro">
+    Somos una empresa familiar del sur de Chile. Cosechamos pino y eucalipto
+    con un sistema tradicional que sigue vigente porque funciona: torre de
+    madereo para la ladera, máquina para la cancha y motosierristas donde
+    ninguna máquina reemplaza el oficio. Este documento es nuestra carta de
+    presentación: léalo como se lee una faena bien llevada.
+  </p>
+</header>
+
+<!-- ── MARQUESINA DE INVENTARIO ─────────────────────────────────────
+     Franja amarillo CAT. CSS puro: dos copias del contenido y un
+     translateX infinito. Con reduced-motion queda quieta. -->
+<div class="marquesina" aria-hidden="true">
+  <div class="marquesina__tira">
+    <span>TORRE DE MADEREO · EXCAVADORA DOOSAN DX225LC-A CON GARRA · TRINEUMÁTICO BELL · CUADRILLAS DE MOTOSIERRISTAS · PINO RADIATA · EUCALIPTO ·&nbsp;</span><span>TORRE DE MADEREO · EXCAVADORA DOOSAN DX225LC-A CON GARRA · TRINEUMÁTICO BELL · CUADRILLAS DE MOTOSIERRISTAS · PINO RADIATA · EUCALIPTO ·&nbsp;</span>
+  </div>
+</div>
+
+<main>
+
+<!-- ╔══════════════════════════════════════════════════════════════╗
+     ║  FOLIO 01 · LA FAENA COMPLETA                                 ║
+     ║  El ciclo de cosecha como formulario de 7 celdas.             ║
+     ╚══════════════════════════════════════════════════════════════╝ -->
+<section class="folio" id="folio-01" aria-labelledby="t-folio-01">
+  <div class="folio__cabecera">
+    <span class="folio__numero" aria-hidden="true">01</span>
+    <div class="folio__rotulo">
+      <span class="folio__etq">FOLIO 01</span>
+      <h2 class="folio__titulo" id="t-folio-01">La faena completa</h2>
+    </div>
+  </div>
+  <div class="regla-doble" aria-hidden="true"><span></span><span></span></div>
+
+  <p class="folio__baja">
+    Tomamos el rodal en pie y entregamos trozas despachadas. Siete
+    operaciones, un solo responsable.
+  </p>
+
+  <ol class="ciclo">
+    <li class="ciclo__celda">
+      <span class="ciclo__n">01</span>
+      <h3 class="ciclo__termino">Volteo dirigido</h3>
+      <p>El motosierrista derriba cada árbol orientando su caída hacia la línea de madereo. Corte de dirección, corte de caída: oficio puro.</p>
+    </li>
+    <li class="ciclo__celda">
+      <span class="ciclo__n">02</span>
+      <h3 class="ciclo__termino">Desrame</h3>
+      <p>Se limpia el fuste de ramas con motosierra, en el mismo punto de volteo o en cancha según el sistema.</p>
+    </li>
+    <li class="ciclo__celda">
+      <span class="ciclo__n">03</span>
+      <h3 class="ciclo__termino">Madereo</h3>
+      <p>Los fustes suben a la cancha por el cable de la torre. En terreno plano o moderado, los mueve el Bell o la excavadora.</p>
+    </li>
+    <li class="ciclo__celda">
+      <span class="ciclo__n">04</span>
+      <h3 class="ciclo__termino">Trozado</h3>
+      <p>Trozas a los largos de la pauta del mandante: pulpable de 2,44 m, aserrable según pedido. Una troza mal cortada pierde valor; por eso se corta bien.</p>
+    </li>
+    <li class="ciclo__celda">
+      <span class="ciclo__n">05</span>
+      <h3 class="ciclo__termino">Clasificación</h3>
+      <p>Separación por producto, diámetro y largo. El Bell hace aquí su mejor trabajo: canchas chicas, radio de giro corto.</p>
+    </li>
+    <li class="ciclo__celda">
+      <span class="ciclo__n">06</span>
+      <h3 class="ciclo__termino">Acopio y carguío</h3>
+      <p>Rumas ordenadas y camiones cargados con la garra de la excavadora. Una cancha ordenada es una faena segura.</p>
+    </li>
+    <li class="ciclo__celda">
+      <span class="ciclo__n">07</span>
+      <h3 class="ciclo__termino">Despacho</h3>
+      <p>Salida controlada con guía de despacho electrónica: cada troza acredita su origen desde el rodal hasta la romana.</p>
+    </li>
+    <li class="ciclo__celda ciclo__celda--cierre" aria-hidden="false">
+      <p class="ciclo__regla">EN PENDIENTE &gt;30%, TORRE.</p>
+      <p class="ciclo__regla">EN PLANO, BELL Y EXCAVADORA.</p>
+    </li>
+  </ol>
+</section>
+
+<!-- ╔══════════════════════════════════════════════════════════════╗
+     ║  FOLIO 02 · PENDIENTE (quiebre nocturno)                      ║
+     ║  El único folio oscuro: la ladera, la torre y el cable.       ║
+     ╚══════════════════════════════════════════════════════════════╝ -->
+<section class="folio folio--nocturno" id="folio-02" aria-labelledby="t-folio-02">
+  <canvas class="lluvia" data-lluvia aria-hidden="true"></canvas>
+  <div class="folio__cabecera">
+    <span class="folio__numero" aria-hidden="true">02</span>
+    <div class="folio__rotulo">
+      <span class="folio__etq">FOLIO 02 — MADEREO CON TORRE</span>
+      <h2 class="folio__titulo" id="t-folio-02">Donde las máquinas no llegan, llega el cable.</h2>
+    </div>
+  </div>
+  <div class="regla-doble" aria-hidden="true"><span></span><span></span></div>
+
+  <div class="pendiente">
+    <div class="pendiente__texto">
+      <p>
+        Sobre 30% de pendiente, un skidder ya no debe entrar: compacta el
+        suelo, erosiona la ladera y expone a la gente. La torre se instala
+        arriba, en la cancha, se afianza con vientos, y tiende un cable por
+        el que los fustes suben suspendidos o semisuspendidos. Ninguna
+        máquina pisa la ladera.
+      </p>
+      <p>
+        Abajo trabaja el estrobero — el oficio más duro de la faena —
+        enganchando cada fuste al carro. Línea por línea, claro por claro,
+        el bosque de la ladera se convierte en rumas en la cancha. Menor
+        daño al suelo, cursos de agua protegidos y madera donde otros no
+        pueden cosechar.
+      </p>
+    </div>
+
+    <!-- FIG. 02: perfil topográfico generativo. Cerros con semilla fija,
+         torre con vientos, cable en catenaria que se tensa al entrar y
+         carro que viaja con su punto naranja. Lo dibuja main.js. -->
+    <figure class="fig fig--perfil">
+      <div class="fig__lienzo" data-fig="perfil" role="img" aria-label="Dibujo técnico: perfil de una ladera con torre de madereo, cable tendido y carro transportando un fuste hacia la cancha"></div>
+      <figcaption class="fig__leyenda fig__leyenda--nocturna">FIG. 02 — LÍNEA DE MADEREO. PENDIENTE &gt;30% → TORRE.</figcaption>
+    </figure>
+
+    <!-- Cifras del rubro con odómetro: datos generales, no de la empresa. -->
+    <dl class="romana">
+      <div class="romana__cifra">
+        <dt>LARGO PULPABLE</dt>
+        <dd><span class="odometro" data-odometro="2,44">2,44</span> <span class="romana__unidad">M</span></dd>
+      </div>
+      <div class="romana__cifra">
+        <dt>ROTACIÓN DEL PINO</dt>
+        <dd><span class="odometro" data-odometro="22–28">22–28</span> <span class="romana__unidad">AÑOS</span></dd>
+      </div>
+      <div class="romana__cifra">
+        <dt>PENDIENTE DE TORRE</dt>
+        <dd><span class="odometro" data-odometro=">30">&gt;30</span> <span class="romana__unidad">%</span></dd>
+      </div>
+    </dl>
+  </div>
+</section>
+
+<!-- ╔══════════════════════════════════════════════════════════════╗
+     ║  FOLIO 03 · PARQUE DE MAQUINARIA                              ║
+     ║  Fichas técnicas tipo catálogo industrial de los 90.          ║
+     ╚══════════════════════════════════════════════════════════════╝ -->
+<section class="folio" id="folio-03" aria-labelledby="t-folio-03">
+  <div class="folio__cabecera">
+    <span class="folio__numero" aria-hidden="true">03</span>
+    <div class="folio__rotulo">
+      <span class="folio__etq">FOLIO 03 — EQUIPOS PROPIOS</span>
+      <h2 class="folio__titulo" id="t-folio-03">Parque de maquinaria</h2>
+    </div>
+  </div>
+  <div class="regla-doble" aria-hidden="true"><span></span><span></span></div>
+
+  <ul class="parque">
+    <li class="ficha">
+      <div class="ficha__datos">
+        <h3 class="ficha__nombre">Torre de madereo</h3>
+        <dl class="specs">
+          <div><dt>SISTEMA</dt><dd>CABLE AÉREO — SKYLINE Y CARRO</dd></div>
+          <div><dt>FUNCIÓN</dt><dd>EXTRACCIÓN EN PENDIENTE &gt;30%</dd></div>
+          <div><dt>ANCLAJE</dt><dd>VIENTOS A TOCONES O MUERTOS</dd></div>
+          <div><dt>CUADRILLA</dt><dd>ESTROBEROS · OPERADOR · DESESTROBADOR</dd></div>
+        </dl>
+      </div>
+      <figure class="fig fig--marco">
+        <div class="fig__lienzo fig__lienzo--veta" data-fig="veta" aria-hidden="true"></div>
+        <figcaption class="fig__leyenda">FIG. 03 — [FOTO DE FAENA PENDIENTE]</figcaption>
+      </figure>
+    </li>
+    <li class="ficha">
+      <div class="ficha__datos">
+        <h3 class="ficha__nombre">Excavadora Doosan DX225LC-A</h3>
+        <dl class="specs">
+          <div><dt>CLASE</dt><dd>22 TONELADAS</dd></div>
+          <div><dt>IMPLEMENTO</dt><dd>GARRA FORESTAL, ROTACIÓN 360°</dd></div>
+          <div><dt>ROLES</dt><dd>MADEREO POR PALEO (SHOVEL LOGGING) · CANCHA · CARGUÍO</dd></div>
+          <div><dt>APOYO</dt><dd>CONSTRUCCIÓN DE CANCHAS Y ACCESOS</dd></div>
+        </dl>
+      </div>
+      <figure class="fig fig--marco">
+        <div class="fig__lienzo fig__lienzo--veta" data-fig="veta" aria-hidden="true"></div>
+        <figcaption class="fig__leyenda">FIG. 04 — [FOTO DE FAENA PENDIENTE]</figcaption>
+      </figure>
+    </li>
+    <li class="ficha">
+      <div class="ficha__datos">
+        <h3 class="ficha__nombre">Trineumático Bell</h3>
+        <dl class="specs">
+          <div><dt>TIPO</dt><dd>LOGGER DE 3 RUEDAS</dd></div>
+          <div><dt>FUERTE</dt><dd>CLASIFICACIÓN Y ACOPIO EN CANCHA</dd></div>
+          <div><dt>MADEREO</dt><dd>TERRENO PLANO A MODERADO — RALEOS Y TALA RASA</dd></div>
+          <div><dt>VENTAJA</dt><dd>RADIO DE GIRO CORTO — DOS FRENTES A LA VEZ</dd></div>
+        </dl>
+      </div>
+      <figure class="fig fig--marco">
+        <div class="fig__lienzo fig__lienzo--veta" data-fig="veta" aria-hidden="true"></div>
+        <figcaption class="fig__leyenda">FIG. 05 — [FOTO DE FAENA PENDIENTE]</figcaption>
+      </figure>
+    </li>
+    <li class="ficha">
+      <div class="ficha__datos">
+        <h3 class="ficha__nombre">Cuadrilla de motosierristas</h3>
+        <dl class="specs">
+          <div><dt>OFICIO</dt><dd>VOLTEO DIRIGIDO · DESRAME · TROZADO</dd></div>
+          <div><dt>EPP</dt><dd>CASCO · FACIAL · AUDITIVA · PANTALÓN ANTICORTE</dd></div>
+          <div><dt>MÉTODO</dt><dd>CORTE DE DIRECCIÓN + CORTE DE CAÍDA</dd></div>
+          <div><dt>TERRENO</dt><dd>DONDE NINGUNA MÁQUINA REEMPLAZA EL OFICIO</dd></div>
+        </dl>
+      </div>
+      <figure class="fig fig--marco">
+        <div class="fig__lienzo fig__lienzo--veta" data-fig="veta" aria-hidden="true"></div>
+        <figcaption class="fig__leyenda">FIG. 06 — [FOTO DE FAENA PENDIENTE]</figcaption>
+      </figure>
+    </li>
+  </ul>
+</section>
+
+<!-- ── DIVISOR: FRANJA DE ESTIBA ────────────────────────────────────
+     La ruma vista de frente: testas de trozas como lámina impresa.
+     La dibuja main.js con la misma semilla del expediente. -->
+<div class="estiba" data-fig="estiba" aria-hidden="true"></div>
+
+<!-- ╔══════════════════════════════════════════════════════════════╗
+     ║  FOLIO 04 · BITÁCORA DE FAMILIA                               ║
+     ╚══════════════════════════════════════════════════════════════╝ -->
+<section class="folio folio--bitacora" id="folio-04" aria-labelledby="t-folio-04">
+  <span class="folio__vertical" aria-hidden="true">EMPRESA FAMILIAR — SUR DE CHILE</span>
+  <div class="folio__cabecera">
+    <span class="folio__numero" aria-hidden="true">04</span>
+    <div class="folio__rotulo">
+      <span class="folio__etq">FOLIO 04 — REGISTRO</span>
+      <h2 class="folio__titulo" id="t-folio-04">Bitácora de familia</h2>
+    </div>
+  </div>
+  <div class="regla-doble" aria-hidden="true"><span></span><span></span></div>
+
+  <p class="folio__baja">
+    Esto no es una corporación con gerencias: es una familia que vive de la
+    faena y responde con su nombre. La bitácora se está pasando a limpio;
+    las entradas llegan con las fotos.
+  </p>
+
+  <!-- Las filas las arma main.js desde datos.js. Si la bitácora está
+       vacía, muestra las filas estampadas [POR COMPLETAR]. -->
+  <ol class="bitacora" data-bitacora></ol>
+
+  <p class="bitacora__cierre">
+    Trato directo con los dueños. Cuadrillas estables de la zona.
+    Decisiones en el día, no en un directorio.
+  </p>
+</section>
+
+<!-- ╔══════════════════════════════════════════════════════════════╗
+     ║  FOLIO 05 · SEGURIDAD Y ESTÁNDARES                            ║
+     ╚══════════════════════════════════════════════════════════════╝ -->
+<section class="folio folio--seguridad" id="folio-05" aria-labelledby="t-folio-05">
+  <div class="folio__cabecera">
+    <span class="folio__numero" aria-hidden="true">05</span>
+    <div class="folio__rotulo">
+      <span class="folio__etq">FOLIO 05 — CUMPLIMIENTO</span>
+      <h2 class="folio__titulo" id="t-folio-05">La cuadrilla vuelve a casa.</h2>
+    </div>
+  </div>
+  <div class="regla-doble" aria-hidden="true"><span></span><span></span></div>
+
+  <p class="folio__baja">
+    Es la única meta de producción que no se negocia. Todo lo demás de este
+    folio existe para cumplirla.
+  </p>
+
+  <ul class="cumplimiento">
+    <li class="check"><span class="check__caja" aria-hidden="true"><svg viewBox="0 0 24 24"><path class="check__aspa" d="M4,4 L20,20 M20,4 L4,20"/></svg></span>
+      <p>EPP completo en toda la cuadrilla: casco, protección facial y auditiva, pantalón anticorte.</p></li>
+    <li class="check"><span class="check__caja" aria-hidden="true"><svg viewBox="0 0 24 24"><path class="check__aspa" d="M4,4 L20,20 M20,4 L4,20"/></svg></span>
+      <p>Procedimientos de trabajo seguro por oficio: volteo, desrame, trozado, madereo.</p></li>
+    <li class="check"><span class="check__caja" aria-hidden="true"><svg viewBox="0 0 24 24"><path class="check__aspa" d="M4,4 L20,20 M20,4 L4,20"/></svg></span>
+      <p>Charla diaria de seguridad antes de comenzar cada jornada.</p></li>
+    <li class="check"><span class="check__caja" aria-hidden="true"><svg viewBox="0 0 24 24"><path class="check__aspa" d="M4,4 L20,20 M20,4 L4,20"/></svg></span>
+      <p>Ley 16.744 y mutualidad al día para cada trabajador.</p></li>
+    <li class="check"><span class="check__caja" aria-hidden="true"><svg viewBox="0 0 24 24"><path class="check__aspa" d="M4,4 L20,20 M20,4 L4,20"/></svg></span>
+      <p>Listos para los reglamentos de empresas contratistas de los mandantes: acreditación documental al día.</p></li>
+    <li class="check"><span class="check__caja" aria-hidden="true"><svg viewBox="0 0 24 24"><path class="check__aspa" d="M4,4 L20,20 M20,4 L4,20"/></svg></span>
+      <p>Guía de despacho electrónica y trazabilidad de la madera desde el origen.</p></li>
+    <li class="check"><span class="check__caja" aria-hidden="true"><svg viewBox="0 0 24 24"><path class="check__aspa" d="M4,4 L20,20 M20,4 L4,20"/></svg></span>
+      <p>Operamos bajo los estándares FSC y CERTFOR/PEFC que exigen las principales forestales del país.</p></li>
+  </ul>
+
+  <div class="franja-roja" aria-hidden="true"></div>
+
+  <p class="seguridad__ambiental">
+    En terreno eso también significa cursos de agua con su zona de
+    protección respetada, combustibles y residuos manejados como
+    corresponde todo el año, y prevención de incendios reforzada en
+    temporada. No es un anexo del contrato: es la forma en que se
+    trabaja cuando se vive donde se cosecha.
+  </p>
+</section>
+
+<!-- ╔══════════════════════════════════════════════════════════════╗
+     ║  FOLIO 06 · CONTACTO Y DESPACHO                               ║
+     ║  El formulario es una guía de despacho: campos subrayados,    ║
+     ║  etiquetas mono, y sale a WhatsApp ya redactado.              ║
+     ╚══════════════════════════════════════════════════════════════╝ -->
+<section class="folio folio--contacto" id="folio-06" aria-labelledby="t-folio-06">
+  <div class="folio__cabecera">
+    <span class="folio__numero" aria-hidden="true">06</span>
+    <div class="folio__rotulo">
+      <span class="folio__etq">FOLIO 06 — CONTACTO</span>
+      <h2 class="folio__titulo" id="t-folio-06">Solicitar evaluación de faena</h2>
+    </div>
+  </div>
+  <div class="regla-doble" aria-hidden="true"><span></span><span></span></div>
+
+  <div class="contacto">
+    <div class="contacto__directo">
+      <p class="contacto__nota">
+        Cuéntenos del predio y lo vamos a ver. La evaluación en terreno
+        no lo compromete a nada: pendiente, accesos, canchas posibles y
+        una conversación derecha sobre qué se puede hacer.
+      </p>
+      <div class="contacto__canal" data-canal="whatsapp" hidden>
+        <span class="contacto__etq">WHATSAPP</span>
+        <a class="contacto__valor" data-dato-href="whatsapp" data-dato="whatsappVisible" href="#folio-06">—</a>
+      </div>
+      <div class="contacto__canal" data-canal="telefono" hidden>
+        <span class="contacto__etq">TELÉFONO</span>
+        <a class="contacto__valor" data-dato-href="telefono" data-dato="telefonoVisible" href="#folio-06">—</a>
+      </div>
+      <div class="contacto__canal" data-canal="correo" hidden>
+        <span class="contacto__etq">CORREO</span>
+        <a class="contacto__valor" data-dato-href="correo" data-dato="correo" href="#folio-06">—</a>
+      </div>
+      <!-- Sin JS este aviso queda visible por defecto: la sección de
+           contacto nunca puede quedar en blanco. main.js lo oculta
+           cuando existe al menos un canal real. -->
+      <div class="contacto__canal contacto__canal--pendiente" data-canal="pendiente">
+        <span class="contacto__etq">CANALES</span>
+        <span class="contacto__valor contacto__valor--estampado">[DATOS DE CONTACTO POR COMPLETAR]</span>
+      </div>
+    </div>
+
+    <form class="guia" data-guia>
+      <p class="guia__titulo" aria-hidden="true">GUÍA DE EVALUACIÓN — Nº S/N</p>
+      <noscript><p class="guia__aviso">EL FORMULARIO NECESITA JAVASCRIPT. USE LOS CANALES DE CONTACTO DIRECTOS.</p></noscript>
+      <div class="guia__campo">
+        <label for="g-nombre">REMITENTE</label>
+        <input id="g-nombre" name="nombre" type="text" autocomplete="name" required>
+      </div>
+      <div class="guia__campo">
+        <label for="g-predio">PREDIO O FUNDO</label>
+        <input id="g-predio" name="predio" type="text">
+      </div>
+      <div class="guia__campo guia__campo--medio">
+        <label for="g-comuna">COMUNA</label>
+        <input id="g-comuna" name="comuna" type="text">
+      </div>
+      <div class="guia__campo guia__campo--medio">
+        <label for="g-superficie">SUPERFICIE APROX. (HA)</label>
+        <input id="g-superficie" name="superficie" type="text" inputmode="decimal">
+      </div>
+      <div class="guia__campo">
+        <label for="g-pendiente">PENDIENTE ESTIMADA</label>
+        <select id="g-pendiente" name="pendiente">
+          <option value="">— SIN DATO —</option>
+          <option value="plano">PLANO (0–15%)</option>
+          <option value="moderado">MODERADO (15–30%)</option>
+          <option value="fuerte">FUERTE (&gt;30%) — TERRENO DE TORRE</option>
+        </select>
+      </div>
+      <div class="guia__campo">
+        <label for="g-detalle">OBSERVACIONES</label>
+        <textarea id="g-detalle" name="detalle" rows="3"></textarea>
+      </div>
+      <button class="guia__enviar" type="submit">EMITIR SOLICITUD <span aria-hidden="true">→</span></button>
+      <p class="guia__aviso" id="guia-aviso" data-guia-aviso role="alert" hidden></p>
+    </form>
+  </div>
+
+  <!-- Colofón de imprenta sobre albura -->
+  <footer class="colofon">
+    <svg class="colofon__sello" viewBox="0 0 100 100" width="44" height="44" aria-hidden="true">
+      <circle cx="50" cy="50" r="46" fill="none" stroke="currentColor" stroke-width="2"/>
+      <g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+        <path d="M50,72 L50,34"/>
+        <path d="M50,38 C42,38 38,34 39,28 C44,24 49,26 50,30 C51,26 56,24 61,28 C62,34 58,38 50,38 Z"/>
+      </g>
+    </svg>
+    <p>
+      Forestal Robur SpA — cosecha forestal, sur de Chile.<br>
+      Compuesto en Besley, Piazzolla e IBM Plex Mono.
+      Hecho en el sur de Chile, con lluvia.<br>
+      <span class="colofon__fin">FOLIO 06 — FIN DEL DOCUMENTO</span>
+    </p>
+  </footer>
+</section>
+
+</main>
+
+<script defer src="assets/js/main.js"></script>
+</body>
+</html>

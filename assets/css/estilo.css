@@ -1,0 +1,780 @@
+/* ============================================================================
+   FORESTAL ROBUR SpA · COSECHA FORESTAL — SUR DE CHILE
+   ----------------------------------------------------------------------------
+   IDEA: la página entera es un EXPEDIENTE DE FAENA. Mezcla de plano de
+   ingeniería, guía de despacho y catálogo de maquinaria de los 90. No hay
+   "secciones de landing": hay FOLIOS numerados abiertos por reglas dobles
+   de formulario, metadatos en mono al margen y figuras técnicas (FIG. 01,
+   FIG. 02…) que hoy son dibujo generativo y mañana serán fotos sin tocar
+   el layout.
+
+   REGLAS DEL DOCUMENTO (no negociables):
+   · Bordes y reglas: 1px sólido tinta, 100% opacidad. Cero sombras,
+     cero border-radius, cero gradientes (única excepción: la niebla y
+     el cielo del perfil topográfico del FOLIO 02, y las franjas duras
+     de peligro del FOLIO 05, que son rayas planas, no fundidos).
+   · El naranja se raciona como en la faena: numeración, subrayados,
+     la línea gruesa del membrete y el punto del carro. Nunca en texto
+     chico (a 3,2:1 sobre papel solo aguanta texto grande o gráfico).
+   · Tres familias y ni una más: Besley 900 (titulares), Piazzolla
+     (cuerpo), IBM Plex Mono (todo metadato).
+   ============================================================================ */
+
+/* ─── 0. VARIABLES ─────────────────────────────────────────────────────── */
+:root{
+  /* Paleta del expediente */
+  --papel:    #F2EDE1;   /* fondo global — nunca blanco puro */
+  --tinta:    #241C15;   /* texto, reglas y bordes (13:1 sobre papel) */
+  --albura:   #E9DCC3;   /* franjas de tabla, cabeceras, colofón */
+  --naranja:  #E1701A;   /* señal GRÁFICA — 2,75:1 sobre papel: JAMÁS texto */
+  --naranja-ui: #C9600F; /* el mismo naranja, oscurecido para texto grande
+                            y focos: 3,5:1 sobre papel (medido, no estimado) */
+  --nocturno: #16211B;   /* fondo exclusivo del FOLIO 02 */
+  --ambar:    #D9A45B;   /* acento sobre nocturno */
+  --amarillo: #EBB10E;   /* amarillo CAT: marquesina y cifras nocturnas */
+  --verde:    #1E3226;   /* relleno del sello, frames FIG. */
+  --neblina:  #C6CCC3;   /* curvas de nivel, capas traseras del perfil */
+  --barro:    #5C4732;   /* filas impares y hover, al 6% */
+  --rojo:     #BC3720;   /* cinta de seguridad: timbres y avisos (4,85:1) */
+
+  /* Tipografía */
+  --f-display: "Besley", "Rockwell", "Georgia", serif;
+  --f-cuerpo:  "Piazzolla", "Georgia", serif;
+  --f-mono:    "IBM Plex Mono", "Consolas", monospace;
+
+  /* Medidas del documento */
+  --margen: clamp(1.25rem, 4vw, 4rem);
+  --ancho-max: 1440px;
+
+  /* La curva del expediente: seca, sin rebote */
+  --curva: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* ─── 1. BASE ──────────────────────────────────────────────────────────── */
+*, *::before, *::after{ box-sizing: border-box; margin: 0; padding: 0; }
+
+html{ scroll-behavior: smooth; }
+@media (prefers-reduced-motion: reduce){
+  html{ scroll-behavior: auto; }
+}
+
+body{
+  background-color: var(--papel);
+  /* Grano de papel: feTurbulence estático como imagen de fondo (barato).
+     Jamás como filter sobre contenedores: eso crea capas caras. */
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' seed='7'/%3E%3CfeColorMatrix values='0 0 0 0 0.14 0 0 0 0 0.11 0 0 0 0 0.08 0 0 0 0.045 0'/%3E%3C/filter%3E%3Crect width='240' height='240' filter='url(%23g)'/%3E%3C/svg%3E");
+  color: var(--tinta);
+  font-family: var(--f-cuerpo);
+  font-size: 17px;
+  line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: clip;           /* el titular sangra a propósito */
+}
+
+::selection{ background: var(--naranja); color: var(--papel); }
+
+img, svg, canvas{ display: block; max-width: 100%; }
+
+a{ color: inherit; }
+p a, .contacto__valor{
+  text-decoration: none;
+  border-bottom: 3px solid var(--tinta);
+  transition: border-color 120ms linear;
+}
+p a:hover, .contacto__valor:hover{ border-bottom-color: var(--naranja); }
+
+:focus-visible{ outline: 2px solid var(--tinta); outline-offset: 3px; }
+
+/* Etiqueta mono del expediente: SIEMPRE corta, jamás párrafos */
+.membrete__etq, .folio__etq, .fig__leyenda, dt, .contacto__etq,
+.guia label, .guia__titulo, .romana dt{
+  font-family: var(--f-mono);
+  font-weight: 600;
+  font-size: 12px;
+  letter-spacing: 0.10em;
+  text-transform: uppercase;
+}
+
+/* ─── 2. FOLIOS (estructura común) ─────────────────────────────────────── */
+.folio{
+  max-width: var(--ancho-max);
+  margin: 0 auto;
+  padding: clamp(4rem, 9vh, 7rem) var(--margen) clamp(3rem, 7vh, 5.5rem);
+  position: relative;
+}
+
+/* Cabecera de folio: número gigante recortado + rótulo */
+.folio__cabecera{
+  display: flex;
+  align-items: flex-end;
+  gap: clamp(1rem, 3vw, 2.5rem);
+  overflow: hidden;               /* el recorte del número */
+}
+.folio__numero{
+  font-family: var(--f-display);
+  font-weight: 900;
+  font-size: clamp(5.5rem, 14vw, 12rem);
+  line-height: 0.72;              /* recortado por arriba: sale del folio */
+  margin-top: -0.16em;
+  letter-spacing: -0.02em;
+  /* Outline: relleno transparente con trazo de tinta */
+  -webkit-text-stroke: 1.5px var(--tinta);
+  color: transparent;
+  user-select: none;
+}
+@supports not (-webkit-text-stroke: 1px black){
+  .folio__numero{ color: rgba(36, 28, 21, 0.08); }
+}
+.folio__rotulo{ padding-bottom: 0.35rem; min-width: 0; }
+.folio__etq{ display: block; margin-bottom: 0.5rem; }
+.folio__titulo{
+  font-family: var(--f-display);
+  font-weight: 900;
+  font-size: clamp(2rem, 5.4vw, 4.2rem);
+  line-height: 0.98;
+  letter-spacing: -0.01em;
+  text-wrap: balance;
+}
+.folio__baja{
+  max-width: 68ch;
+  margin-top: 2rem;
+  font-size: 1.12rem;
+}
+
+/* Regla doble oficial: 1px tinta + 3px naranja, separadas 4px */
+.regla-doble{ margin-top: 1.25rem; }
+.regla-doble span{ display: block; background: var(--tinta); height: 1px; }
+.regla-doble span + span{ height: 3px; margin-top: 4px; background: var(--naranja); }
+
+/* Entintado: las reglas nacen cerradas y se abren al entrar el folio.
+   Solo con JS vivo; sin JS todo llega pintado. */
+html.js:not(.sin-anim) .regla-doble span{
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 500ms var(--curva);
+}
+html.js:not(.sin-anim) .regla-doble span + span{ transition-delay: 60ms; }
+html.js:not(.sin-anim) .is-inked .regla-doble span,
+html.js:not(.sin-anim) .is-inked.regla-doble span{ transform: scaleX(1); }
+
+/* ─── 3. FOLIO 00 · MEMBRETE Y PORTADA ─────────────────────────────────── */
+.folio--portada{ padding-top: clamp(1.5rem, 4vh, 3rem); }
+
+/* Membrete tipo rótulo de plano: bordes compartidos de 1px.
+   El truco: fondo tinta + gap de 1px + celdas de papel. */
+.membrete{
+  display: grid;
+  grid-template-columns: auto 1fr repeat(3, auto);
+  background: var(--tinta);
+  border: 1px solid var(--tinta);
+  gap: 1px;
+}
+.membrete__celda{
+  background: var(--papel);
+  padding: 0.9rem 1.1rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0.3rem;
+}
+.membrete__celda--sello{ padding: 0.7rem; }
+.membrete__nombre{
+  font-family: var(--f-display);
+  font-weight: 900;
+  font-size: clamp(1.3rem, 2.6vw, 1.9rem);
+  line-height: 1;
+}
+.membrete__spa{ font-size: 0.55em; vertical-align: 0.45em; letter-spacing: 0.04em; }
+.membrete__giro{
+  font-family: var(--f-mono);
+  font-size: 11px;
+  letter-spacing: 0.10em;
+}
+.membrete__val{
+  font-family: var(--f-mono);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+/* Dato pendiente: estampado al 40%, levemente girado — el hueco es
+   parte del sistema, no un lorem. */
+.dato-pendiente .membrete__val,
+.contacto__valor--estampado, .bitacora__estampado{
+  color: rgba(36, 28, 21, 0.66);   /* 5:1 — el timbre lo dan el giro y el mono */
+  display: inline-block;
+  transform: rotate(-2deg);
+  font-weight: 600;
+  letter-spacing: 0.08em;
+}
+
+/* El sello gira como timbre vivo: 60s lineal, imperceptible y constante */
+.sello{ color: var(--verde); }
+.sello__texto{
+  font-family: var(--f-mono);
+  font-size: 10.5px;
+  letter-spacing: 0.18em;
+  fill: currentColor;
+}
+html.js:not(.sin-anim) .sello{ animation: sello-gira 60s linear infinite; }
+@keyframes sello-gira{ to{ transform: rotate(360deg); } }
+
+/* Portada: grilla de 12 — titular (1–8), metadatos (10–12), FIG (7–12) */
+.portada{
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 0 1rem;
+  margin-top: clamp(2.5rem, 7vh, 5rem);
+}
+.portada__titular{
+  grid-column: 1 / 10;   /* hasta el borde de la meta: la coma de
+                            "EN PENDIENTE," necesita su aire */
+  grid-row: 1;
+  font-family: var(--f-display);
+  font-weight: 900;
+  /* Los tres números del clamp están MEDIDOS contra Besley 900 real
+     ("EN PENDIENTE," ≈ 9 em): mínimo → cabe en 375px con márgenes;
+     preferido → cabe en las columnas 1–9 a 1366px; máximo → cabe en el
+     contenedor tope de 1440px. No tocar sin volver a medir en el
+     navegador las cuatro líneas y su altura (si una línea se parte en
+     dos renglones, el clamp quedó grande). */
+  font-size: clamp(2.1rem, 6.9vw, 6.25rem);   /* L2 = 9,694 em, medida */
+  line-height: 0.95;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+  z-index: 2;
+}
+.portada__titular .linea{ display: block; overflow: hidden; }
+.portada__titular .linea__int{ display: inline-block; }
+.portada__titular .linea:nth-child(2){ padding-left: 0.06em; }
+.portada__titular .linea:nth-child(3){ padding-left: 0.14em; }
+.portada__titular .linea:nth-child(4){ padding-left: 0.05em; }
+
+/* Entrada del titular: cada línea sube desde su recorte */
+html.js:not(.sin-anim) .portada__titular .linea__int{
+  transform: translateY(110%);
+  transition: transform 800ms var(--curva);
+}
+html.js:not(.sin-anim) .portada__titular .linea:nth-child(2) .linea__int{ transition-delay: 90ms; }
+html.js:not(.sin-anim) .portada__titular .linea:nth-child(3) .linea__int{ transition-delay: 180ms; }
+html.js:not(.sin-anim) .portada__titular .linea:nth-child(4) .linea__int{ transition-delay: 270ms; }
+html.js:not(.sin-anim) .hero-listo .portada__titular .linea__int{ transform: translateY(0); }
+
+/* Columna de metadatos con línea de cota apuntando al titular */
+.portada__meta{
+  grid-column: 10 / 13;
+  grid-row: 1;
+  align-self: start;
+  padding-top: 1rem;
+  position: relative;
+  z-index: 3;
+}
+.cota{
+  height: 1px; background: var(--tinta);
+  margin-bottom: 1.5rem; position: relative;
+}
+.cota::before, .cota::after{
+  content: ""; position: absolute; top: -4px;
+  width: 1px; height: 9px; background: var(--tinta);
+}
+.cota::before{ left: 0; } .cota::after{ right: 0; }
+.meta-lista div{ margin-bottom: 0.9rem; }
+.meta-lista dt{ font-size: 10.5px; color: rgba(36,28,21,0.66); }
+.meta-lista dd{
+  font-family: var(--f-mono);
+  font-size: 12.5px;
+  letter-spacing: 0.06em;
+  font-variant-numeric: tabular-nums;
+}
+
+/* CTA único: rectángulo de tinta que se invierte, seco, en 120ms */
+.cta{
+  display: inline-block;
+  margin-top: 1.5rem;
+  padding: 0.85rem 1.2rem;
+  border: 1px solid var(--tinta);
+  font-family: var(--f-mono);
+  font-weight: 600;
+  font-size: 12.5px;
+  letter-spacing: 0.10em;
+  text-decoration: none;
+  background: var(--papel);
+  transition: background 120ms linear, color 120ms linear;
+}
+.cta:hover{ background: var(--tinta); color: var(--papel); }
+
+/* FIG. 01: el corte de troza, solapado tras el titular */
+.fig--corte{
+  grid-column: 6 / 13;
+  grid-row: 2;
+  margin-top: clamp(-3rem, -6vh, -1rem);
+  z-index: 1;
+}
+.fig__lienzo{ width: 100%; }
+.fig__lienzo svg{ width: 100%; height: auto; }
+.fig__leyenda{
+  margin-top: 0.6rem;
+  font-size: 11px;
+  color: rgba(36,28,21,0.72);
+}
+.fig__leyenda--nocturna{ color: rgba(233,220,195,0.75); }
+
+.portada__intro{
+  max-width: 62ch;
+  margin-top: clamp(2.5rem, 6vh, 4rem);
+  font-size: 1.18rem;
+  line-height: 1.7;
+}
+
+/* ─── 4. MARQUESINA DE INVENTARIO ──────────────────────────────────────── */
+.marquesina{
+  background: var(--amarillo);
+  border-top: 1px solid var(--tinta);
+  border-bottom: 1px solid var(--tinta);
+  overflow: hidden;
+  padding: 0.55rem 0;
+}
+.marquesina__tira{
+  display: flex;
+  width: max-content;
+  white-space: nowrap;
+  font-family: var(--f-mono);
+  font-weight: 600;
+  font-size: 13px;
+  letter-spacing: 0.12em;
+}
+html.js:not(.sin-anim) .marquesina__tira{ animation: marquesina 40s linear infinite; }
+@keyframes marquesina{ to{ transform: translateX(-50%); } }
+/* Pausable: al pasar el cursor (WCAG 2.2.2) y fuera del viewport (JS) */
+.marquesina:hover .marquesina__tira{ animation-play-state: paused; }
+.anim-pausada .marquesina__tira,
+.anim-pausada .sello{ animation-play-state: paused !important; }
+/* Sin animación la tira queda quieta y legible, sin cortar palabras */
+html.sin-anim .marquesina__tira, html:not(.js) .marquesina__tira{ white-space: normal; width: auto; }
+
+/* ─── 5. FOLIO 01 · LA FAENA COMPLETA ──────────────────────────────────── */
+/* Formulario de celdas con bordes compartidos: fondo tinta + gap 1px */
+.ciclo{
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  background: var(--tinta);
+  border: 1px solid var(--tinta);
+  gap: 1px;
+  margin-top: 2.5rem;
+  counter-reset: paso;
+}
+.ciclo__celda{
+  background: var(--papel);
+  padding: 1.4rem 1.3rem 1.6rem;
+  min-height: 13rem;
+}
+.ciclo__n{
+  font-family: var(--f-mono);
+  font-weight: 600;
+  font-size: 20px;              /* texto grande: naranja-ui 3,5:1 cumple AA */
+  color: var(--naranja-ui);
+  font-variant-numeric: tabular-nums;
+}
+.ciclo__termino{
+  font-family: var(--f-display);
+  font-weight: 900;
+  font-size: clamp(1.15rem, 1.8vw, 1.5rem);
+  line-height: 1.05;
+  margin: 0.5rem 0 0.7rem;
+}
+.ciclo__celda p{ font-size: 0.95rem; line-height: 1.55; }
+.ciclo__celda--cierre{
+  background: var(--albura);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0.4rem;
+}
+.ciclo__regla{
+  font-family: var(--f-mono);
+  font-weight: 600;
+  font-size: 13px !important;
+  letter-spacing: 0.08em;
+  line-height: 1.5;
+}
+
+/* Entintado de las celdas: aparecen escalonadas */
+html.js:not(.sin-anim) .ciclo__celda{
+  opacity: 0; transform: translateY(8px);
+  transition: opacity 450ms var(--curva), transform 450ms var(--curva);
+}
+html.js:not(.sin-anim) .is-inked .ciclo__celda{ opacity: 1; transform: none; }
+html.js:not(.sin-anim) .is-inked .ciclo__celda:nth-child(2){ transition-delay: 40ms; }
+html.js:not(.sin-anim) .is-inked .ciclo__celda:nth-child(3){ transition-delay: 80ms; }
+html.js:not(.sin-anim) .is-inked .ciclo__celda:nth-child(4){ transition-delay: 120ms; }
+html.js:not(.sin-anim) .is-inked .ciclo__celda:nth-child(5){ transition-delay: 160ms; }
+html.js:not(.sin-anim) .is-inked .ciclo__celda:nth-child(6){ transition-delay: 200ms; }
+html.js:not(.sin-anim) .is-inked .ciclo__celda:nth-child(7){ transition-delay: 240ms; }
+html.js:not(.sin-anim) .is-inked .ciclo__celda:nth-child(8){ transition-delay: 280ms; }
+
+/* ─── 6. FOLIO 02 · PENDIENTE (nocturno) ───────────────────────────────── */
+.folio--nocturno{
+  max-width: none;               /* el quiebre nocturno va de borde a borde */
+  background: var(--nocturno);
+  color: var(--albura);
+  border-top: 1px solid var(--tinta);
+  border-bottom: 1px solid var(--tinta);
+}
+.folio--nocturno > *{ max-width: var(--ancho-max); margin-left: auto; margin-right: auto; }
+.folio--nocturno .folio__numero{ -webkit-text-stroke-color: var(--albura); }
+@supports not (-webkit-text-stroke: 1px black){
+  .folio--nocturno .folio__numero{ color: rgba(233,220,195,0.10); }
+}
+.folio--nocturno .regla-doble span{ background: var(--albura); }
+.folio--nocturno .regla-doble span + span{ background: var(--ambar); }
+
+/* Lluvia fina: canvas fijo del folio, opacidad bajísima. Decorativa. */
+.lluvia{
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  opacity: 0.35; pointer-events: none;
+}
+
+.pendiente{ position: relative; }
+.pendiente__texto{
+  columns: 2; column-gap: 3rem;
+  margin: 2.5rem 0 3rem;
+  max-width: 100ch;
+}
+.pendiente__texto p{
+  break-inside: avoid;
+  margin-bottom: 1rem;
+  font-size: 1.05rem;
+}
+
+.fig--perfil{ position: relative; }
+.fig--perfil .fig__lienzo{ border: 1px solid rgba(233,220,195,0.4); }
+
+/* Cifras de romana con odómetro */
+.romana{
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1px;
+  background: rgba(233,220,195,0.4);
+  border: 1px solid rgba(233,220,195,0.4);
+  margin-top: 3rem;
+}
+.romana__cifra{ background: var(--nocturno); padding: 1.4rem 1.5rem 1.6rem; }
+.romana dt{ color: var(--ambar); font-size: 11px; }
+.romana dd{
+  margin-top: 0.4rem;
+  font-family: var(--f-mono);
+  font-weight: 600;
+  font-size: clamp(2rem, 4.5vw, 3.4rem);
+  color: var(--amarillo);
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+  display: flex; align-items: baseline; gap: 0.35rem;
+}
+.romana__unidad{ font-size: 0.38em; color: var(--ambar); letter-spacing: 0.1em; }
+/* El odómetro: cada dígito es una tira vertical que desliza */
+.odometro{ display: inline-flex; overflow: hidden; }
+.odometro .dig{ display: inline-block; }
+.odometro .dig--rueda{ height: 1em; }
+.odometro .dig--rueda .tira{
+  display: flex; flex-direction: column; line-height: 1;
+  transition: transform 1100ms var(--curva);
+}
+
+/* ─── 7. DIVISOR · FRANJA DE ESTIBA ────────────────────────────────────── */
+.estiba{
+  border-top: 1px solid var(--tinta);
+  border-bottom: 1px solid var(--tinta);
+  line-height: 0;
+}
+.estiba svg{ width: 100%; height: clamp(70px, 12vw, 130px); display: block; }
+
+/* ─── 8. FOLIO 03 · PARQUE DE MAQUINARIA ───────────────────────────────── */
+.parque{ list-style: none; margin-top: 1rem; }
+.ficha{
+  display: grid;
+  grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+  gap: clamp(1.5rem, 4vw, 3.5rem);
+  padding: clamp(2rem, 5vh, 3.5rem) 0;
+  border-bottom: 1px solid var(--tinta);
+  align-items: center;
+}
+.parque .ficha:last-child{ border-bottom: none; }
+.ficha__nombre{
+  font-family: var(--f-display);
+  font-weight: 900;
+  font-size: clamp(1.6rem, 3.4vw, 2.6rem);
+  line-height: 1;
+  margin-bottom: 1.4rem;
+  text-wrap: balance;
+}
+/* Tabla de specs: filas hairline, etiqueta izquierda / valor mono derecha */
+.specs div{
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 1.5rem;
+  padding: 0.55rem 0;
+  border-top: 1px solid var(--tinta);
+  transition: background 120ms linear;
+}
+.specs div:last-child{ border-bottom: 1px solid var(--tinta); }
+.specs div:hover{ background: rgba(92, 71, 50, 0.06); }
+.specs dt{ font-size: 11px; color: rgba(36,28,21,0.66); flex-shrink: 0; }
+.specs dd{
+  font-family: var(--f-mono);
+  font-size: 12.5px;
+  letter-spacing: 0.04em;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Entintado de filas de specs */
+html.js:not(.sin-anim) .specs div{
+  opacity: 0; transform: translateY(8px);
+  transition: opacity 400ms var(--curva), transform 400ms var(--curva), background 120ms linear;
+}
+html.js:not(.sin-anim) .is-inked .specs div{ opacity: 1; transform: none; }
+html.js:not(.sin-anim) .is-inked .specs div:nth-child(2){ transition-delay: 40ms; }
+html.js:not(.sin-anim) .is-inked .specs div:nth-child(3){ transition-delay: 80ms; }
+html.js:not(.sin-anim) .is-inked .specs div:nth-child(4){ transition-delay: 120ms; }
+
+/* Frame FIG. 3:2 — contrato de layout para la foto futura.
+   Hoy: veta de madera generativa. Mañana: .fig--photo (ver LEEME). */
+.fig--marco .fig__lienzo{
+  aspect-ratio: 3 / 2;
+  border: 1px solid var(--tinta);
+  background: var(--papel);
+  overflow: hidden;
+}
+.fig--marco canvas{ width: 100%; height: 100%; }
+/* La foto del futuro entra al mismo frame en duotono documental: */
+.fig--photo img{
+  width: 100%; height: 100%; object-fit: cover;
+  filter: grayscale(1) contrast(1.1);
+  mix-blend-mode: multiply;
+}
+.fig--photo .fig__lienzo{ background: var(--verde); }
+
+/* ─── 9. FOLIO 04 · BITÁCORA DE FAMILIA ────────────────────────────────── */
+.folio--bitacora{ position: relative; }
+.folio__vertical{
+  position: absolute;
+  top: 50%; right: calc(var(--margen) * 0.25);
+  transform: translateY(-50%);
+  writing-mode: vertical-rl;
+  font-family: var(--f-mono);
+  font-size: 11px;
+  letter-spacing: 0.35em;
+  color: rgba(36,28,21,0.5);
+  user-select: none;
+}
+.bitacora{ list-style: none; margin-top: 2.5rem; max-width: 62rem; }
+.bitacora li{
+  display: flex; gap: 2rem; align-items: baseline;
+  padding: 0.8rem 0.5rem;
+  border-top: 1px solid var(--tinta);
+  transition: background 120ms linear;
+}
+.bitacora li:last-child{ border-bottom: 1px solid var(--tinta); }
+.bitacora li:hover{ background: rgba(92, 71, 50, 0.06); }
+.bitacora__anio{
+  font-family: var(--f-mono);
+  font-weight: 600;
+  font-size: 18.7px;             /* texto grande en negrita: 3:1 aplica */
+  color: var(--naranja-ui);
+  font-variant-numeric: tabular-nums;
+  flex-shrink: 0;
+  min-width: 4.5rem;
+}
+.bitacora__cierre{
+  margin-top: 2.5rem;
+  font-size: 1.15rem;
+  max-width: 55ch;
+  font-style: italic;
+}
+
+/* ─── 10. FOLIO 05 · SEGURIDAD ─────────────────────────────────────────── */
+.cumplimiento{ list-style: none; margin-top: 2.5rem; max-width: 62rem; }
+.check{
+  display: flex; gap: 1.2rem; align-items: flex-start;
+  padding: 0.85rem 0.5rem;
+  border-top: 1px solid var(--tinta);
+}
+.check:last-child{ border-bottom: 1px solid var(--tinta); }
+.check p{ font-size: 1.02rem; }
+.check__caja{
+  flex-shrink: 0;
+  width: 22px; height: 22px;
+  border: 1.5px solid var(--tinta);
+  margin-top: 0.2rem;
+}
+.check__caja svg{ width: 100%; height: 100%; overflow: visible; }
+.check__aspa{
+  fill: none; stroke: var(--tinta); stroke-width: 2.5;
+  stroke-dasharray: 46; stroke-dashoffset: 0;
+}
+/* Las casillas se timbran con aspa al entrar el folio */
+html.js:not(.sin-anim) .check__aspa{
+  stroke-dashoffset: 46;
+  transition: stroke-dashoffset 500ms var(--curva);
+}
+html.js:not(.sin-anim) .is-inked .check__aspa{ stroke-dashoffset: 0; }
+html.js:not(.sin-anim) .is-inked .check:nth-child(2) .check__aspa{ transition-delay: 90ms; }
+html.js:not(.sin-anim) .is-inked .check:nth-child(3) .check__aspa{ transition-delay: 180ms; }
+html.js:not(.sin-anim) .is-inked .check:nth-child(4) .check__aspa{ transition-delay: 270ms; }
+html.js:not(.sin-anim) .is-inked .check:nth-child(5) .check__aspa{ transition-delay: 360ms; }
+html.js:not(.sin-anim) .is-inked .check:nth-child(6) .check__aspa{ transition-delay: 450ms; }
+html.js:not(.sin-anim) .is-inked .check:nth-child(7) .check__aspa{ transition-delay: 540ms; }
+
+/* Único uso del rojo: franja de peligro (rayas planas, no fundido) */
+.franja-roja{
+  height: 8px;
+  margin: 3rem 0 2rem;
+  background: repeating-linear-gradient(
+    -45deg,
+    var(--rojo) 0 12px,
+    transparent 12px 24px
+  );
+}
+.seguridad__ambiental{ max-width: 68ch; font-size: 1.05rem; }
+
+/* ─── 11. FOLIO 06 · CONTACTO Y COLOFÓN ────────────────────────────────── */
+.contacto{
+  display: grid;
+  grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+  gap: clamp(2rem, 5vw, 4.5rem);
+  margin-top: 2.5rem;
+}
+.contacto__nota{ max-width: 44ch; margin-bottom: 2rem; font-size: 1.08rem; }
+.contacto__canal{ margin-bottom: 1.6rem; }
+.contacto__etq{ display: block; margin-bottom: 0.35rem; color: rgba(36,28,21,0.66); }
+.contacto__valor{
+  font-family: var(--f-display);
+  font-weight: 900;
+  font-size: clamp(1.4rem, 3vw, 2.1rem);
+  line-height: 1.15;
+  word-break: break-word;
+}
+.contacto__valor--estampado{
+  font-family: var(--f-mono);
+  font-size: 13px;
+  border-bottom: none;
+}
+
+/* La guía de despacho: campos solo subrayados */
+.guia{
+  border: 1px solid var(--tinta);
+  padding: clamp(1.5rem, 3.5vw, 2.5rem);
+  background: var(--papel);
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.4rem 1.5rem;
+}
+.guia__titulo{ grid-column: 1 / -1; color: rgba(36,28,21,0.66); }
+.guia__campo{ grid-column: 1 / -1; display: flex; flex-direction: column; gap: 0.4rem; }
+.guia__campo--medio{ grid-column: auto; }
+.guia label{ font-size: 11px; color: rgba(36,28,21,0.8); }
+.guia input, .guia select, .guia textarea{
+  font-family: var(--f-mono);
+  font-size: 14px;
+  color: var(--tinta);
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid var(--tinta);
+  border-radius: 0;
+  padding: 0.4rem 0.1rem;
+}
+.guia select{ appearance: none; cursor: pointer; }
+.guia textarea{ resize: vertical; }
+.guia input:focus-visible, .guia select:focus-visible, .guia textarea:focus-visible{
+  outline: none;
+  border-bottom: 3px solid var(--naranja-ui);   /* 3,5:1 — indicador válido */
+  padding-bottom: calc(0.4rem - 2px);
+}
+/* Sin JS el formulario no tiene adónde enviar: el botón se esconde y el
+   <noscript> de adentro remite a los canales directos. */
+html:not(.js) .guia__enviar{ display: none; }
+.guia__enviar{
+  grid-column: 1 / -1;
+  justify-self: start;
+  font-family: var(--f-mono);
+  font-weight: 600;
+  font-size: 13px;
+  letter-spacing: 0.10em;
+  color: var(--papel);
+  background: var(--tinta);
+  border: 1px solid var(--tinta);
+  padding: 0.9rem 1.4rem;
+  cursor: pointer;
+  transition: background 120ms linear, color 120ms linear;
+}
+.guia__enviar:hover{ background: var(--papel); color: var(--tinta); }
+.guia__aviso{
+  grid-column: 1 / -1;
+  font-family: var(--f-mono);
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  color: var(--rojo);
+}
+
+/* Colofón de imprenta sobre albura */
+.colofon{
+  margin-top: clamp(4rem, 9vh, 6rem);
+  background: var(--albura);
+  border: 1px solid var(--tinta);
+  padding: 2.2rem;
+  display: flex;
+  gap: 1.6rem;
+  align-items: center;
+}
+.colofon__sello{ color: var(--verde); flex-shrink: 0; }
+.colofon p{
+  font-family: var(--f-mono);
+  font-size: 12px;
+  line-height: 1.8;
+  letter-spacing: 0.03em;
+}
+.colofon__fin{ font-weight: 600; letter-spacing: 0.10em; }
+
+/* ─── 12. RESPONSIVE ───────────────────────────────────────────────────── */
+@media (max-width: 1080px){
+  .ciclo{ grid-template-columns: repeat(2, 1fr); }
+  .ciclo__celda{ min-height: 0; }
+  .pendiente__texto{ columns: 1; }
+  .ficha{ grid-template-columns: 1fr; gap: 1.75rem; }
+  .fig--marco{ max-width: 34rem; }
+}
+
+@media (max-width: 900px){
+  /* El membrete colapsa explícitamente: sello + razón arriba, datos abajo */
+  .membrete{ grid-template-columns: auto 1fr; }
+  .membrete__celda--dato{ grid-column: span 2; flex-direction: row; align-items: baseline; gap: 1rem; padding: 0.6rem 1.1rem; }
+  .portada{ display: block; }
+  .portada__meta{ margin-top: 2.5rem; max-width: 24rem; }
+  .fig--corte{ margin-top: 2.5rem; }
+  .contacto{ grid-template-columns: 1fr; }
+  .romana{ grid-template-columns: 1fr; }
+  .folio__vertical{ display: none; }
+}
+
+@media (max-width: 560px){
+  .ciclo{ grid-template-columns: 1fr; }
+  .guia{ grid-template-columns: 1fr; }
+  .guia__campo--medio{ grid-column: 1 / -1; }
+  .colofon{ flex-direction: column; align-items: flex-start; }
+  .folio__numero{ font-size: 4.5rem; }
+}
+
+/* ─── 13. SIN ANIMACIÓN ────────────────────────────────────────────────── */
+/* Con reduced-motion, pestaña oculta al cargar, o sin JS: el documento
+   llega entero y pintado. main.js añade .sin-anim al <html>; este bloque
+   además cubre el caso de que el JS no alcance a correr. */
+@media (prefers-reduced-motion: reduce){
+  html.js .portada__titular .linea__int{ transform: none !important; transition: none !important; }
+  html.js .regla-doble span{ transform: none !important; transition: none !important; }
+  html.js .ciclo__celda, html.js .specs div{ opacity: 1 !important; transform: none !important; transition: none !important; }
+  html.js .check__aspa{ stroke-dashoffset: 0 !important; transition: none !important; }
+  html.js .sello{ animation: none !important; }
+  html.js .marquesina__tira{ animation: none !important; white-space: normal; width: auto; }
+  html.js .odometro .dig--rueda .tira{ transition: none !important; }
+}
