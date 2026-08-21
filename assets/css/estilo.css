@@ -1,1086 +1,964 @@
 /* ============================================================================
-   FORESTAL ROBUR SpA · COSECHA FORESTAL — SUR DE CHILE
+   FORESTAL ROBUR SpA — INGENIERÍA DE COSECHA
    ----------------------------------------------------------------------------
-   IDEA: el expediente de faena, ahora DENTRO DEL BOSQUE.
+   La referencia no es un documento de archivo: es la ficha técnica de una
+   máquina cara y la señalética de una faena bien gestionada. Superficie
+   oscura de acero, tipografía condensada de letrero, cifras grandes con
+   unidad chica, fotos a sangre y un plano de ingeniería como pieza firma.
 
-   El fondo del sitio es bosque nocturno con partículas vivas (polen,
-   agujas de pino, motas de luz) dibujadas a mano en un canvas fijo. Sobre
-   ese bosque se apoyan HOJAS de papel verde-niebla: los folios de lectura
-   larga. Los folios de impacto (portada, pendiente, anexo de fotos,
-   contacto) no llevan hoja: son el bosque mismo, y las partículas se ven
-   a través del texto.
-
-   Eso da el ritmo del documento:
-     00 portada .............. BOSQUE
-     marquesina .............. franja savia
-     01 la faena completa .... HOJA
-     02 pendiente ............ BOSQUE (profundo, con lluvia)
-     03 parque de maquinaria . HOJA
-     anexo fotográfico ....... BOSQUE
-     04 bitácora ............. HOJA
-     estiba (divisor) ........ BOSQUE
-     05 seguridad ............ HOJA
-     06 contacto y colofón ... BOSQUE
-
-   REGLAS DEL DOCUMENTO (no negociables):
-   · Bordes y reglas: 1px sólido, 100% opacidad. Cero sombras, cero
-     border-radius, cero gradientes suaves (excepciones medidas: la niebla
-     del perfil topográfico y las rayas DURAS de la franja de peligro y la
-     retícula de los marcos de foto, que son rayas planas, no fundidos).
-   · Cada contexto redefine sus tokens (--texto, --linea, --acento…): un
-     mismo componente sirve sobre bosque y sobre hoja sin duplicar reglas.
-   · Tres familias y ni una más: Besley 900 (titulares), Piazzolla
-     (cuerpo), IBM Plex Mono (todo metadato).
+   REGLAS DE LA CASA:
+   · Sin build, sin librerías. Google Fonts es la única petición externa.
+   · Solo se anima transform y opacity.
+   · Todo estado oculto previo a animar cuelga de html.js, que un rescate
+     de 4 s quita si main.js no llega: la página se lee igual.
+   · prefers-reduced-motion apaga lo intrusivo (parallax, partículas) y
+     deja los fundidos y los hover.
    ============================================================================ */
 
-/* ─── 0. VARIABLES ─────────────────────────────────────────────────────── */
+/* ─── 0. TOKENS ─────────────────────────────────────────────────────────── */
 :root{
-  /* — PALETA FORESTAL —
-     Los cinco verdes van del suelo del bosque al helecho iluminado; la
-     madera y la savia son los únicos colores cálidos, y se racionan. */
-  --bosque:    #0C1611;   /* fondo global: suelo de bosque de noche */
-  --bosque-2:  #101C16;   /* celdas y cajas sobre el bosque */
-  --musgo:     #24382B;   /* bordes fuertes sobre hoja, franjas */
-  --pino:      #2F5A3C;   /* verde de texto sobre hoja (6,9:1) */
-  --helecho:   #8FBF9A;   /* acento CLARO sobre bosque (9,1:1) */
-  --niebla:    #E7EFE6;   /* texto principal sobre bosque (15,9:1) */
-  --niebla-2:  #A8B8AC;   /* metadato secundario sobre bosque (9:1) */
-  --hoja:      #EDF0E6;   /* papel verde-niebla de los folios de lectura */
-  --tinta:     #14211A;   /* texto sobre hoja (14,5:1) */
-  --corteza:   #7A5C3E;   /* madera: detalles y hover */
-  --savia:     #E0A94A;   /* ámbar: acento cálido sobre bosque (8,9:1) */
-  --faena:     #E1701A;   /* naranja de señal GRÁFICA (5,8:1 sobre bosque) */
-  --faena-ui:  #C9600F;   /* el naranja para TEXTO GRANDE sobre hoja (3,5:1) */
-  --rojo:      #BC3720;   /* cinta de seguridad: solo avisos */
+  /* — SUPERFICIE: acero frío. Cada ratio está MEDIDO contra su fondo real
+       con la fórmula WCAG, no estimado a ojo. — */
+  --carbon:    #0E1113;   /* fondo base */
+  --acero:     #161A1D;   /* superficie elevada (tarjetas, fichas) */
+  --acero-2:   #1D2327;   /* superficie sobre superficie */
+  --borde:     #2B3339;   /* línea estructural */
+  --borde-vivo:#3D484F;   /* línea de foco / hover */
 
-  /* — TOKENS DE CONTEXTO — valores por defecto: SOBRE BOSQUE.
-     .folio--hoja los reescribe completos más abajo. */
-  --texto:        var(--niebla);
-  --secundario:   var(--niebla-2);
-  --linea:        rgba(231, 239, 230, 0.26);
-  --linea-fuerte: rgba(231, 239, 230, 0.55);
-  --acento:       var(--savia);      /* acento de TEXTO */
-  --acento-graf:  var(--faena);      /* acento GRÁFICO */
-  --celda:        var(--bosque-2);
-  --realce:       rgba(143, 191, 154, 0.09);   /* hover de filas */
+  /* — VERDE: el bosque como estructura, no como decorado — */
+  --pino:      #16301F;   /* bloque verde profundo */
+  --pino-2:    #1E4029;   /* verde de apoyo */
+  --helecho:   #7FC08E;   /* verde claro de acento — 9,2:1 sobre carbón */
 
-  /* Tipografía */
-  --f-display: "Besley", "Rockwell", "Georgia", serif;
-  --f-cuerpo:  "Piazzolla", "Georgia", serif;
-  --f-mono:    "IBM Plex Mono", "Consolas", monospace;
+  /* — TEXTO — */
+  --niebla:    #EAEFF1;   /* principal — 16,1:1 sobre carbón */
+  --niebla-2:  #A6B2B8;   /* secundario — 8,0:1 sobre carbón */
+  --niebla-3:  #7C888E;   /* terciario, solo etiquetas grandes — 4,6:1 */
 
-  /* Medidas del documento */
-  --margen: clamp(1.25rem, 4vw, 4rem);
-  --canal: clamp(0.75rem, 2.5vw, 3rem);   /* el bosque que se ve al borde
-                                             de cada hoja de papel */
-  --ancho-max: 1440px;
+  /* — SEÑAL: ámbar para cifras y CTA, naranja de máquina para gráficos — */
+  --ambar:     #F2A93B;   /* 10,3:1 sobre carbón — cifras y botón */
+  --naranja:   #E1701A;   /* el naranja real de la maquinaria — 5,9:1 */
+  --rojo:      #E05941;   /* alertas — 6,3:1 sobre carbón */
 
-  /* La curva del expediente: seca, sin rebote */
-  --curva: cubic-bezier(0.22, 1, 0.36, 1);
+  /* — TIPOGRAFÍA —
+     Ver el porqué del trío en el comentario del <head> del HTML. */
+  --f-display: "Big Shoulders Display", "Arial Narrow", sans-serif;
+  --f-texto:   "Saira", "Segoe UI", system-ui, sans-serif;
+  --f-mono:    "Azeret Mono", "Consolas", monospace;
+
+  /* — ESCALA FLUIDA — un solo juego de pasos para todo el sitio. */
+  --paso--1: clamp(0.78rem, 0.75rem + 0.15vw, 0.86rem);
+  --paso-0:  clamp(1rem, 0.96rem + 0.2vw, 1.12rem);
+  --paso-1:  clamp(1.2rem, 1.1rem + 0.5vw, 1.5rem);
+  --paso-2:  clamp(1.6rem, 1.3rem + 1.5vw, 2.4rem);
+  --paso-3:  clamp(2.2rem, 1.6rem + 3vw, 4rem);
+  --paso-4:  clamp(3rem, 1.8rem + 6vw, 7rem);
+  /* El tope del paso 5 está MEDIDO contra Big Shoulders real: la línea más
+     larga del titular ("DONDE LA MÁQUINA", 16 caracteres) ocupa ≈0,42 em
+     por carácter, así que a 120 px mide ~806 px y cabe en las columnas del
+     hero a 1440. El mínimo se midió igual a 375 px de ancho. Si se cambia
+     el texto del titular, hay que volver a medir: una línea que se parte
+     en dos rompe el recorte de la animación de entrada. */
+  --paso-5:  clamp(2.9rem, 1.2rem + 7.2vw, 7.5rem);
+
+  /* — RITMO — */
+  --margen: clamp(1.15rem, 4vw, 5rem);
+  --ancho: 1440px;
+  --hueco: clamp(2.5rem, 6vw, 5rem);
+
+  /* — MOVIMIENTO — la salida manda: expo.out, seco, sin rebote. */
+  --curva: cubic-bezier(0.16, 1, 0.3, 1);
+  --rapido: 180ms;
+  --entrada: 620ms;
 }
 
-/* ─── 1. BASE ──────────────────────────────────────────────────────────── */
+/* ─── 1. BASE ───────────────────────────────────────────────────────────── */
 *, *::before, *::after{ box-sizing: border-box; margin: 0; padding: 0; }
-
-html{
-  scroll-behavior: smooth;
-  /* El fondo va en <html>, no en <body>: así el canvas de partículas
-     puede vivir en z-index 0 sobre el bosque y bajo el contenido. */
-  background-color: var(--bosque);
-}
-@media (prefers-reduced-motion: reduce){
-  html{ scroll-behavior: auto; }
-}
-
-body{
-  background-color: transparent;
-  color: var(--texto);
-  font-family: var(--f-cuerpo);
-  font-size: 17px;
-  line-height: 1.65;
-  -webkit-font-smoothing: antialiased;
-  overflow-x: clip;           /* el titular sangra a propósito */
-}
-
-/* El bosque: canvas fijo con las partículas. Detrás de todo el contenido,
-   delante del color de fondo. Nunca intercepta el puntero. */
-.bosque{
-  position: fixed;
-  inset: 0;
-  width: 100%; height: 100%;
-  z-index: 0;
-  pointer-events: none;
-  /* Capa aislada: el canvas se repinta solo, sin invalidar nada del
-     documento que tiene encima. */
-  contain: strict;
-}
-/* Todo el contenido va por encima del bosque */
-body > header, body > main, body > .marquesina{ position: relative; z-index: 1; }
-
-::selection{ background: var(--faena); color: var(--niebla); }
-
-img, svg, canvas{ display: block; max-width: 100%; }
 [hidden]{ display: none !important; }
 
+html{
+  background: var(--carbon);
+  scroll-behavior: smooth;
+  /* La barra superior es fija: las anclas tienen que frenar antes. */
+  scroll-padding-top: 5.5rem;
+  -webkit-text-size-adjust: 100%;
+  /* Sitio oscuro de punta a punta: sin esto la barra de scroll y los
+     controles nativos (el desplegable del formulario, el calendario)
+     salen claros y rompen la superficie. */
+  color-scheme: dark;
+}
+@media (prefers-reduced-motion: reduce){ html{ scroll-behavior: auto; } }
+
+body{
+  background: var(--carbon);
+  color: var(--niebla);
+  font-family: var(--f-texto);
+  font-size: var(--paso-0);
+  line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+  /* Sin esto, el móvil espera ~300 ms por si viene un doble toque y cada
+     toque se siente lento. */
+  touch-action: manipulation;
+  /* El resalte azul por defecto de Android no pega con nada de acá. */
+  -webkit-tap-highlight-color: rgba(242, 169, 59, 0.2);
+}
+
+/* Los bloques a sangre respetan el notch y la barra de gestos: sin esto,
+   en un iPhone en horizontal el texto se mete bajo la muesca. */
+.portada, .plancha__dato, .terreno__cuerpo, .pie, .barra{
+  padding-left: max(var(--margen), env(safe-area-inset-left));
+  padding-right: max(var(--margen), env(safe-area-inset-right));
+}
+
+img, svg, canvas, video{ display: block; max-width: 100%; }
 a{ color: inherit; }
-p a, .contacto__valor{
+::selection{ background: var(--ambar); color: var(--carbon); }
+
+:focus-visible{
+  outline: 2px solid var(--ambar);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+.saltar{
+  position: absolute; left: -9999px; top: 0; z-index: 100;
+  background: var(--ambar); color: var(--carbon);
+  padding: 0.85rem 1.4rem;
+  font-family: var(--f-mono); font-size: var(--paso--1);
   text-decoration: none;
-  border-bottom: 3px solid currentColor;
-  transition: border-color 120ms linear;
 }
-p a:hover, .contacto__valor:hover{ border-bottom-color: var(--acento); }
+.saltar:focus{ left: 0; }
 
-:focus-visible{ outline: 2px solid var(--acento); outline-offset: 3px; }
+/* ─── 2. PIEZAS COMPARTIDAS ─────────────────────────────────────────────── */
 
-/* Etiqueta mono del expediente: SIEMPRE corta, jamás párrafos */
-.membrete__etq, .folio__etq, .fig__leyenda, dt, .contacto__etq,
-.guia label, .guia__titulo, .romana dt{
+/* Etiqueta de sección: mono, chica, en caja. Es el rótulo de la ficha. */
+.etiqueta{
+  display: inline-flex; align-items: center; gap: 0.55rem;
   font-family: var(--f-mono);
+  font-size: var(--paso--1);
   font-weight: 600;
-  font-size: 12px;
-  letter-spacing: 0.10em;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
+  color: var(--helecho);
+  margin-bottom: 1.4rem;
+}
+.etiqueta--claro{ color: var(--ambar); }
+.punto{
+  width: 7px; height: 7px;
+  background: currentColor;
+  flex-shrink: 0;
 }
 
-/* ─── 2. FOLIOS (estructura común) ─────────────────────────────────────── */
-.folio{
-  max-width: var(--ancho-max);
-  margin: 0 auto;
-  padding: clamp(4rem, 9vh, 7rem) var(--margen) clamp(3rem, 7vh, 5.5rem);
-  position: relative;
-  color: var(--texto);
-}
-
-/* LA HOJA: el folio de lectura larga, papel verde-niebla apoyado sobre el
-   bosque. Nunca llega a los bordes de la pantalla — el canal lateral deja
-   ver el bosque y sus partículas, que es lo que la hace parecer una hoja
-   y no una sección. */
-.folio--hoja{
-  --texto:        var(--tinta);
-  --secundario:   #4A5A4E;
-  --linea:        rgba(20, 33, 26, 0.22);
-  --linea-fuerte: var(--musgo);
-  --acento:       var(--faena-ui);
-  --acento-graf:  var(--faena);
-  --celda:        var(--hoja);
-  --realce:       rgba(122, 92, 62, 0.09);
-
-  background-color: var(--hoja);
-  border: 1px solid var(--musgo);
-  max-width: min(var(--ancho-max), calc(100% - 2 * var(--canal)));
-  margin: clamp(1.5rem, 4vh, 3rem) auto;
-  padding: clamp(3rem, 7vh, 5.5rem) var(--margen) clamp(2.5rem, 6vh, 4.5rem);
-}
-
-/* Cabecera de folio: número gigante recortado + rótulo */
-.folio__cabecera{
-  display: flex;
-  align-items: flex-end;
-  gap: clamp(1rem, 3vw, 2.5rem);
-  overflow: hidden;               /* el recorte del número */
-}
-.folio__numero{
+/* Titular: la display condensada, en mayúsculas, apretada. */
+.titulo{
   font-family: var(--f-display);
-  font-weight: 900;
-  font-size: clamp(5.5rem, 14vw, 12rem);
-  line-height: 0.72;              /* recortado por arriba: sale del folio */
-  margin-top: -0.16em;
-  letter-spacing: -0.02em;
-  /* Outline: relleno transparente con trazo del color del contexto */
-  -webkit-text-stroke: 1.5px currentColor;
-  color: transparent;
-  user-select: none;
-}
-/* El truco de arriba deja `color: transparent`, así que el trazo tiene que
-   nombrarse aparte por contexto. */
-.folio{ --trazo-numero: var(--texto); }
-.folio__numero{ -webkit-text-stroke-color: var(--trazo-numero); }
-@supports not (-webkit-text-stroke: 1px black){
-  .folio__numero{ color: var(--linea); }
-}
-.folio__rotulo{ padding-bottom: 0.35rem; min-width: 0; }
-.folio__etq{ display: block; margin-bottom: 0.5rem; color: var(--acento); }
-.folio__titulo{
-  font-family: var(--f-display);
-  font-weight: 900;
-  font-size: clamp(2rem, 5.4vw, 4.2rem);
-  line-height: 0.98;
-  letter-spacing: -0.01em;
+  font-weight: 800;
+  font-size: var(--paso-3);
+  line-height: 0.92;
+  letter-spacing: 0.005em;
+  text-transform: uppercase;
   text-wrap: balance;
 }
-.folio__baja{
-  max-width: 68ch;
-  margin-top: 2rem;
-  font-size: 1.12rem;
+
+.parrafo{
+  max-width: 58ch;
+  color: var(--niebla-2);
+  font-size: var(--paso-1);
+  line-height: 1.55;
+  margin-top: 1.5rem;
 }
 
-/* Regla doble oficial: 1px del color del contexto + 3px de acento gráfico */
-.regla-doble{ margin-top: 1.25rem; }
-.regla-doble span{ display: block; background: var(--texto); height: 1px; }
-.regla-doble span + span{ height: 3px; margin-top: 4px; background: var(--acento-graf); }
-
-/* Entintado: las reglas nacen cerradas y se abren al entrar el folio.
-   Solo con JS vivo; sin JS todo llega pintado. */
-html.js:not(.sin-anim) .regla-doble span{
-  transform: scaleX(0);
-  transform-origin: left;
-  transition: transform 500ms var(--curva);
+.seccion{
+  max-width: var(--ancho);
+  margin: 0 auto;
+  padding: clamp(4.5rem, 11vh, 8.5rem) var(--margen);
 }
-html.js:not(.sin-anim) .regla-doble span + span{ transition-delay: 60ms; }
-html.js:not(.sin-anim) .is-inked .regla-doble span,
-html.js:not(.sin-anim) .is-inked.regla-doble span{ transform: scaleX(1); }
+.seccion--oscura{
+  max-width: none;
+  background: var(--acero);
+  border-top: 1px solid var(--borde);
+  border-bottom: 1px solid var(--borde);
+}
+.seccion--oscura > *{ max-width: var(--ancho); margin-inline: auto; }
+.seccion__cabeza{ max-width: 62rem; margin-bottom: clamp(2.5rem, 6vw, 4.5rem); }
 
-/* ─── 3. FOLIO 00 · MEMBRETE Y PORTADA (fotográfica) ───────────────────── */
-.folio--portada{
-  padding-top: clamp(1.5rem, 4vh, 3rem);
-  padding-bottom: clamp(2rem, 5vh, 4rem);
-  /* La portada respira: la foto necesita alto para leerse como paisaje y
-     no como banda. Tope en rem para que en un monitor vertical no se
-     estire hasta el absurdo. */
-  min-height: min(94vh, 54rem);
-  display: flex;
-  flex-direction: column;
+/* Botones: rectos, macizos, sin redondeo de juguete. */
+.boton{
+  display: inline-flex; align-items: center; justify-content: center;
+  min-height: 52px;                    /* toque cómodo: > 44px */
+  padding: 0.9rem 1.6rem;
+  font-family: var(--f-mono);
+  font-size: var(--paso--1);
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  text-decoration: none;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: background var(--rapido) ease-out,
+              color var(--rapido) ease-out,
+              border-color var(--rapido) ease-out;
+}
+.boton--fuerte{ background: var(--ambar); color: var(--carbon); border-color: var(--ambar); }
+.boton--fuerte:hover{ background: #FFC163; border-color: #FFC163; }
+.boton--linea{ background: transparent; color: var(--niebla); border-color: var(--borde-vivo); }
+.boton--linea:hover{ border-color: var(--niebla); background: rgba(234,239,241,0.06); }
+
+/* ─── 3. BARRA SUPERIOR ─────────────────────────────────────────────────── */
+.barra{
+  position: sticky; top: 0; z-index: 50;
+  display: flex; align-items: center; gap: clamp(1rem, 3vw, 2.5rem);
+  padding: 0.7rem var(--margen);
+  background: rgba(14,17,19,0.88);
+  border-bottom: 1px solid var(--borde);
+  backdrop-filter: blur(10px);
+}
+.barra__marca{
+  display: flex; align-items: center; gap: 0.7rem;
+  text-decoration: none; flex-shrink: 0;
+  min-height: 44px;    /* es un enlace: tiene que ser tocable en móvil */
+}
+.barra__marca img{
+  width: 42px; height: auto;
+  background: #F2EFE7;      /* el logo vive sobre su crema original */
+  padding: 4px 5px;
+}
+.barra__nombre{
+  font-family: var(--f-display);
+  font-weight: 800;
+  font-size: 1.05rem;
+  line-height: 0.9;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+.barra__nombre b{ color: var(--helecho); font-weight: 800; }
+
+/* Nav deslizable en móvil: no se colapsa en hamburguesa, se arrastra.
+   Para seis destinos cortos es más rápido que abrir un menú. */
+.barra__nav{
+  display: flex; align-items: center; gap: clamp(0.9rem, 2vw, 1.9rem);
+  margin-left: auto;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+.barra__nav::-webkit-scrollbar{ display: none; }
+.barra__nav a{
+  display: flex; align-items: center;
+  min-height: 44px;
+  white-space: nowrap;
+  font-family: var(--f-mono);
+  font-size: var(--paso--1);
+  letter-spacing: 0.06em;
+  color: var(--niebla-2);
+  text-decoration: none;
+  border-bottom: 2px solid transparent;
+  transition: color var(--rapido) ease-out, border-color var(--rapido) ease-out;
+}
+.barra__nav a:hover{ color: var(--niebla); border-bottom-color: var(--ambar); }
+.barra__cta{
+  flex-shrink: 0;
+  display: inline-flex; align-items: center;
+  min-height: 44px; padding: 0 1.1rem;
+  background: var(--ambar); color: var(--carbon);
+  font-family: var(--f-mono); font-size: var(--paso--1); font-weight: 600;
+  letter-spacing: 0.08em; text-transform: uppercase; text-decoration: none;
+  transition: background var(--rapido) ease-out;
+}
+.barra__cta:hover{ background: #FFC163; }
+@media (max-width: 900px){
+  .barra__cta{ display: none; }     /* el CTA vive en la portada y al final */
+  .barra__nombre{ display: none; }
 }
 
-/* EL FONDO DE LA PORTADA — la faena detrás del documento.
-   Va a `position: absolute` dentro del folio (no fixed): tiene que
-   scrollear con la portada, no quedarse pegado como el canvas del bosque.
-   El ancho se estira a los bordes de la pantalla aunque el folio esté
-   centrado en 1440 px, porque un paisaje cortado en seco a media
-   pantalla se ve como un error. */
-.hero__fondo{
-  position: absolute;
-  top: 0; bottom: 0;
-  left: 50%; width: 100vw; transform: translateX(-50%);
-  z-index: -1;
+/* ─── 4. PORTADA ────────────────────────────────────────────────────────── */
+.portada{
+  position: relative;
+  /* `isolation` NO es decorativo acá: crea el contexto de apilamiento que
+     mantiene la foto (z-index -2) DENTRO de la portada. Sin él, un hijo con
+     z-index negativo se propaga al contexto raíz y queda tapado por el
+     fondo opaco del body — el hero se ve negro y la foto no aparece. */
+  isolation: isolate;
+  min-height: min(92vh, 56rem);
+  display: flex; flex-direction: column; justify-content: center;
+  padding: clamp(3.5rem, 9vh, 7rem) var(--margen) 0;
+  /* La portada va a SANGRE: sin max-width, para que la foto llegue a los
+     dos bordes de la pantalla. Quien se limita a los 1440 del documento es
+     el contenido, no el fondo. */
   overflow: hidden;
 }
-.hero__fondo img{
-  width: 100%; height: 100%;
-  object-fit: cover;
-  /* El camino y la torre viven en el centro-izquierda del cuadro; el
-     valle y los cerros a la derecha. Encuadrado así, el titular cae
-     sobre el camino y el paisaje queda al costado, respirando. */
-  object-position: 42% 62%;
-  /* Bajada de tono, no apagada: el paisaje tiene que LEERSE detrás del
-     documento. Verde algo desaturado para que converse con el bosque, sin
-     perder el naranja de la máquina ni el azul del valle. */
-  filter: saturate(0.78) brightness(0.66) contrast(1.06);
+.portada__cuerpo,
+.portada .cifras{
+  width: 100%;
+  max-width: var(--ancho);
+  margin-inline: auto;
 }
-/* El velo: dos capas planas de bosque. Es la excepción de degradado del
-   sitio y está aquí por dos razones concretas:
-     · la VERTICAL cierra en el color exacto del bosque, para que la foto
-       no termine en una línea recta a media página — sin ella se ve
-       pegada, no integrada;
-     · la HORIZONTAL carga el lado izquierdo, que es donde vive el
-       titular, y deja respirar el derecho, que es donde se ve el valle.
-   Así el paisaje se ve y el texto igual se lee: el peso del velo está
-   puesto donde hay letras, no repartido por parejo. */
-.hero__fondo::after{
+.portada__foto{
+  position: absolute; inset: 0;
+  left: 50%; width: 100vw; transform: translateX(-50%);
+  z-index: -2;
+}
+.portada__foto img{
+  width: 100%; height: 100%;
+  object-fit: cover; object-position: 42% 60%;
+  filter: saturate(0.72) brightness(0.58) contrast(1.08);
+}
+/* El velo, en dos capas planas: la vertical cierra en el color exacto del
+   fondo para que la foto no termine en una línea recta; la horizontal
+   carga el peso a la izquierda, que es donde vive el titular, y deja
+   respirar la derecha, que es donde se ve el valle. */
+.portada__foto::after{
   content: "";
   position: absolute; inset: 0;
   background:
     linear-gradient(to bottom,
-      rgba(12, 22, 17, 0.42) 0%,
-      rgba(12, 22, 17, 0.30) 45%,
-      rgba(12, 22, 17, 0.80) 84%,
-      var(--bosque) 100%),
+      rgba(14,17,19,0.55) 0%,
+      rgba(14,17,19,0.40) 40%,
+      rgba(14,17,19,0.88) 85%,
+      var(--carbon) 100%),
     linear-gradient(to right,
-      rgba(12, 22, 17, 0.62) 0%,
-      rgba(12, 22, 17, 0.42) 38%,
-      rgba(12, 22, 17, 0.12) 68%,
-      rgba(12, 22, 17, 0.30) 100%);
+      rgba(14,17,19,0.80) 0%,
+      rgba(14,17,19,0.52) 42%,
+      rgba(14,17,19,0.18) 72%,
+      rgba(14,17,19,0.35) 100%);
 }
-/* Con el hero fotográfico, el membrete deja de ser transparente: es la
-   etiqueta pegada ENCIMA de la foto y necesita su propio cuerpo. */
-.folio--portada .membrete__celda{ background: rgba(16, 28, 22, 0.92); }
-.folio--portada .membrete__celda--sello{ background: #F2EFE7; }
-
-/* En pantalla angosta el fondo NO cubre el folio completo: el hero mide
-   ~1400 px de alto y la foto es panorámica (1600×719), así que a `cover`
-   quedaría recortada a una franja vertical del 12% del cuadro — un zoom
-   sin paisaje. Se limita a una banda superior que envuelve membrete y
-   titular, y de ahí abajo el documento sigue sobre el bosque limpio. */
-@media (max-width: 700px){
-  .hero__fondo{ bottom: auto; height: 62vh; min-height: 26rem; }
-  .hero__fondo img{ object-position: 44% 56%; }
-}
-
-/* Pie de la portada: la marca de continuación del expediente, abajo a la
-   derecha. Empuja hacia el fondo del folio con el margen automático. */
-.portada__pie{
-  margin-top: auto;
-  padding-top: clamp(2rem, 5vh, 3.5rem);
-  align-self: flex-end;
-  font-family: var(--f-mono);
-  font-weight: 600;
-  font-size: 11px;
-  letter-spacing: 0.22em;
-  color: var(--helecho);
-  user-select: none;
+/* Profundidad: la foto se desplaza más lento que el contenido. Fuera del
+   hilo principal (scroll-driven CSS) y solo donde hay soporte; sin él
+   queda quieta, que es un fallback digno, no un parche. */
+@supports (animation-timeline: view()){
+  @media (prefers-reduced-motion: no-preference){
+    .portada__foto img{
+      animation: fondo-sube linear both;
+      animation-timeline: view();
+      animation-range: entry 0% exit 100%;
+    }
+    @keyframes fondo-sube{
+      from{ transform: translateY(-3%) scale(1.06); }
+      to  { transform: translateY(4%)  scale(1.06); }
+    }
+  }
 }
 
-/* Membrete tipo rótulo de plano: bordes compartidos de 1px.
-   El truco: fondo de línea + gap de 1px + celdas del color del contexto. */
-.membrete{
-  display: grid;
-  grid-template-columns: auto 1fr repeat(3, auto);
-  background: var(--linea-fuerte);
-  border: 1px solid var(--linea-fuerte);
-  gap: 1px;
-}
-.membrete__celda{
-  background: var(--celda);
-  padding: 0.9rem 1.1rem;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  gap: 0.3rem;
-}
-/* La celda del logo es la etiqueta impresa del expediente: conserva el
-   crema original del arte para que el logo no flote recortado sobre el
-   verde. El crema del PNG (#F2EFE7 aprox.) y el de la celda son el mismo
-   papel a ojo; el borde compartido del membrete hace el resto. */
-.membrete__celda--sello{
-  padding: 0.55rem 0.8rem;
-  background: #F2EFE7;
-}
-.membrete__logo{ width: 64px; height: auto; }
-.membrete__nombre{
-  font-family: var(--f-display);
-  font-weight: 900;
-  font-size: clamp(1.3rem, 2.6vw, 1.9rem);
-  line-height: 1;
-}
-.membrete__spa{ font-size: 0.55em; vertical-align: 0.45em; letter-spacing: 0.04em; }
-.membrete__giro{
-  font-family: var(--f-mono);
-  font-size: 11px;
-  letter-spacing: 0.10em;
-  color: var(--helecho);
-}
-.membrete__etq{ color: var(--secundario); }
-.membrete__val{
-  font-family: var(--f-mono);
-  font-size: 12px;
-  font-variant-numeric: tabular-nums;
-}
-/* Dato pendiente: estampado, levemente girado — el hueco es parte del
-   sistema, no un lorem. */
-.dato-pendiente .membrete__val,
-.contacto__valor--estampado, .bitacora__estampado{
-  color: var(--secundario);
-  display: inline-block;
-  transform: rotate(-2deg);
-  font-weight: 600;
-  letter-spacing: 0.08em;
-}
-
-
-/* Portada: grilla de 12 — titular (1–9), metadatos (10–12) */
-.portada{
-  display: grid;
-  grid-template-columns: repeat(12, 1fr);
-  gap: 0 1rem;
-  margin-top: clamp(2.5rem, 7vh, 5rem);
-}
+.portada__cuerpo{ position: relative; max-width: 60rem; }
+/* El titular NO lleva ninguna palabra resaltada en el color de acento: es
+   el cliché número uno de landing y aquí la fuerza la da el peso de la
+   condensada, no un subrayado de color. El ámbar se guarda para las cifras
+   y los botones, donde significa algo. */
 .portada__titular{
-  grid-column: 1 / 10;   /* hasta el borde de la meta: la coma de
-                            "EN PENDIENTE," necesita su aire */
-  grid-row: 1;
   font-family: var(--f-display);
-  font-weight: 900;
-  /* Los tres números del clamp están MEDIDOS contra Besley 900 real
-     ("EN PENDIENTE," ≈ 9,7 em): mínimo → cabe en 375px con márgenes;
-     preferido → cabe en las columnas 1–9 a 1366px; máximo → cabe en el
-     contenedor tope de 1440px. No tocar sin volver a medir en el
-     navegador las cuatro líneas y su altura. */
-  font-size: clamp(2.1rem, 6.9vw, 6.25rem);
-  line-height: 0.95;
-  letter-spacing: -0.02em;
+  font-weight: 800;
+  font-size: var(--paso-5);
+  /* 0,9 y no 0,86: con menos, la tilde de MÁQUINA choca con la línea de
+     arriba. En una condensada en mayúsculas los diacríticos son el límite
+     real del interlineado. */
+  line-height: 0.9;
+  letter-spacing: 0.004em;
   text-transform: uppercase;
-  z-index: 2;
 }
-.portada__titular .linea{ display: block; overflow: hidden; }
-.portada__titular .linea__int{ display: inline-block; }
-.portada__titular .linea:nth-child(2){ padding-left: 0.06em; }
-.portada__titular .linea:nth-child(3){ padding-left: 0.14em; }
-.portada__titular .linea:nth-child(4){ padding-left: 0.05em; }
-/* La última línea lleva el acento del documento */
-.portada__titular .linea:nth-child(4) .linea__int{ color: var(--savia); }
-
-/* Entrada del titular: cada línea sube desde su recorte */
-html.js:not(.sin-anim) .portada__titular .linea__int{
-  transform: translateY(110%);
-  transition: transform 800ms var(--curva);
-}
-html.js:not(.sin-anim) .portada__titular .linea:nth-child(2) .linea__int{ transition-delay: 90ms; }
-html.js:not(.sin-anim) .portada__titular .linea:nth-child(3) .linea__int{ transition-delay: 180ms; }
-html.js:not(.sin-anim) .portada__titular .linea:nth-child(4) .linea__int{ transition-delay: 270ms; }
-html.js:not(.sin-anim) .hero-listo .portada__titular .linea__int{ transform: translateY(0); }
-
-/* Columna de metadatos con línea de cota apuntando al titular. Sobre la
-   foto lleva su propia caja velada: el mono de 12px no puede depender de
-   lo que haya en el cielo detrás. */
-.portada__meta{
-  grid-column: 10 / 13;
-  grid-row: 1;
-  align-self: start;
-  position: relative;
-  z-index: 3;
-  /* El padding se compensa con margen negativo a los dos lados: la caja
-     crece hacia afuera y el contenido conserva el ancho que tenía, para
-     que el CTA no se parta en tres renglones. */
-  padding: 1rem 0.95rem 1.3rem;
-  margin: 0 -0.95rem;
-  background: rgba(12, 22, 17, 0.62);
-}
-.cota{
-  height: 1px; background: var(--texto);
-  margin-bottom: 1.5rem; position: relative;
-}
-.cota::before, .cota::after{
-  content: ""; position: absolute; top: -4px;
-  width: 1px; height: 9px; background: var(--texto);
-}
-.cota::before{ left: 0; } .cota::after{ right: 0; }
-.meta-lista div{ margin-bottom: 0.9rem; }
-.meta-lista dt{ font-size: 10.5px; color: var(--secundario); }
-.meta-lista dd{
-  font-family: var(--f-mono);
-  font-size: 12.5px;
-  letter-spacing: 0.06em;
-  font-variant-numeric: tabular-nums;
-}
-
-/* CTA único: rectángulo que se invierte, seco, en 120ms */
-.cta{
-  display: inline-block;
-  margin-top: 1.5rem;
-  padding: 0.85rem 1.2rem;
-  border: 1px solid var(--texto);
-  font-family: var(--f-mono);
-  font-weight: 600;
-  font-size: 12.5px;
-  letter-spacing: 0.10em;
-  text-decoration: none;
-  background: transparent;
-  transition: background 120ms linear, color 120ms linear;
-}
-.cta:hover{ background: var(--texto); color: var(--bosque); }
-.folio--hoja .cta:hover{ color: var(--hoja); }
-
-.fig__lienzo{ width: 100%; }
-.fig__lienzo svg{ width: 100%; height: auto; }
-.fig__leyenda{
-  margin-top: 0.6rem;
-  font-size: 11px;
-  color: var(--secundario);
-}
-
-.portada__intro{
-  max-width: 62ch;
-  margin-top: clamp(2.5rem, 6vh, 4rem);
-  font-size: 1.18rem;
-  line-height: 1.7;
-  /* Sobre la foto, el cuerpo necesita algo de cuerpo: el mismo velo del
-     folio nocturno, en una caja de texto. Sin esto el párrafo pelea con
-     las ramas del fondo. */
-  padding: 1.2rem 1.4rem 1.2rem 1.3rem;
-  margin-left: -1.3rem;
-  background: rgba(12, 22, 17, 0.55);
-  border-left: 3px solid var(--savia);
-}
-
-/* ─── 3c. REVELADO DE LAS FOTOS ────────────────────────────────────────────
-   Las fotos entran con el mismo gesto con que se entinta el documento: no
-   aparecen de golpe ni se deslizan, se REVELAN — como una copia que sale
-   del líquido. Un solo fundido de 700 ms más un acercamiento mínimo, sobre
-   el observer de folios que ya existe (ninguna clase nueva en JS).
-   El estado inicial vive bajo html.js:not(.sin-anim): sin JS, o si el
-   script no arranca en 2,5 s, las fotos están simplemente visibles. */
-html.js:not(.sin-anim) .fig--photo img,
-html.js:not(.sin-anim) .pliego__lienzo img,
-html.js:not(.sin-anim) .lamina__lienzo img{
-  opacity: 0;
-  transform: scale(1.04);
-  /* `filter` va en la misma lista a propósito: este selector es más
-     específico que el `.pliego__lienzo img { transition: filter }` de más
-     abajo, y sin nombrarlo aquí el hover de las láminas cambiaría de
-     golpe en vez de fundirse. */
-  transition: opacity 700ms var(--curva), transform 900ms var(--curva), filter 120ms linear;
-}
-html.js:not(.sin-anim) .is-inked .fig--photo img,
-html.js:not(.sin-anim) .is-inked .pliego__lienzo img,
-html.js:not(.sin-anim) .lamina.is-inked .lamina__lienzo img{
-  opacity: 1;
-  transform: none;
-}
-/* Escalonado del pliego: las seis láminas no se revelan a la vez, se
-   revelan como se pasan las hojas. */
-html.js:not(.sin-anim) .is-inked .pliego__celda:nth-child(2) img{ transition-delay: 80ms; }
-html.js:not(.sin-anim) .is-inked .pliego__celda:nth-child(3) img{ transition-delay: 160ms; }
-html.js:not(.sin-anim) .is-inked .pliego__celda:nth-child(4) img{ transition-delay: 240ms; }
-html.js:not(.sin-anim) .is-inked .pliego__celda:nth-child(5) img{ transition-delay: 320ms; }
-html.js:not(.sin-anim) .is-inked .pliego__celda:nth-child(6) img{ transition-delay: 400ms; }
-
-/* ─── 3b. LÁMINA 01 · PLANCHA ANCHA ────────────────────────────────────────
-   Va de borde a borde de la pantalla, sin canal: es la única pieza del
-   documento que rompe el ancho máximo, y por eso funciona como respiro
-   entre la hoja clara del folio 01 y el bosque del folio 02.
-   Ventana 5:2 en escritorio; la foto es 4:3, así que el object-position
-   está medido para dejar dentro los volcanes (arriba) y la máquina
-   (centro-derecha). Bajo 700 px pasa a 3:2: una franja 5:2 de 350 px de
-   ancho es un timbre, no una lámina. */
-.lamina{
-  position: relative; z-index: 1;
-  margin: clamp(1.5rem, 4vh, 3rem) 0;
-  border-top: 1px solid var(--linea);
-  border-bottom: 1px solid var(--linea);
-}
-.lamina__lienzo{
-  aspect-ratio: 5 / 2;
+/* El recorte que hace posible la entrada "desde abajo" también corta los
+   diacríticos que sobresalen por arriba: sin este colchón, la Á de MÁQUINA
+   pierde la tilde. El padding abre la caja hacia arriba y el margen
+   negativo devuelve la línea a su sitio, así el recorte sigue existiendo
+   donde importa (abajo) sin comerse los acentos. */
+.portada__titular .linea{
+  display: block;
   overflow: hidden;
-  background: var(--bosque-2);
+  padding-top: 0.14em;
+  margin-top: -0.14em;
 }
-.lamina__lienzo img{
-  width: 100%; height: 100%;
-  object-fit: cover;
-  object-position: center 34%;
-  filter: saturate(0.94) contrast(1.04);
-}
-/* La leyenda va DENTRO de la plancha, abajo, sobre una banda de bosque
-   casi opaca: así la foto no necesita un pie afuera que la separe del
-   documento, y la banda repite el gesto del membrete. */
-.lamina__leyenda{
-  position: absolute;
-  left: 0; right: 0; bottom: 0;
-  display: flex; justify-content: space-between; gap: 1.5rem;
-  padding: 0.7rem clamp(1rem, 4vw, 4rem);
-  background: rgba(12, 22, 17, 0.86);
-  border-top: 1px solid var(--linea);
-  font-family: var(--f-mono);
-  font-weight: 600;
-  font-size: 10.5px;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
+.portada__titular .linea > span{ display: block; }
+
+.portada__bajada{
+  max-width: 46ch;
+  margin-top: 1.8rem;
+  font-size: var(--paso-1);
+  line-height: 1.5;
   color: var(--niebla-2);
 }
-.lamina__folio{ color: var(--helecho); flex-shrink: 0; }
-@media (max-width: 700px){
-  .lamina__lienzo{ aspect-ratio: 3 / 2; }
-  .lamina__folio{ display: none; }
+.portada__acciones{
+  display: flex; flex-wrap: wrap; gap: 0.9rem;
+  margin-top: 2.4rem;
 }
 
-/* ─── 4. MARQUESINA DE INVENTARIO ──────────────────────────────────────── */
-.marquesina{
-  background: var(--savia);
-  color: var(--bosque);
-  border-top: 1px solid var(--musgo);
-  border-bottom: 1px solid var(--musgo);
-  overflow: hidden;
-  padding: 0.55rem 0;
+/* Cifras de la portada: número grande, unidad chica, mono tabular. */
+.cifras{
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1px;
+  background: var(--borde);
+  border: 1px solid var(--borde);
+  margin-top: clamp(3rem, 8vh, 5.5rem);
 }
-.marquesina__tira{
-  display: flex;
-  width: max-content;
-  white-space: nowrap;
+.cifra{
+  background: rgba(14,17,19,0.82);
+  padding: 1.1rem 1.2rem 1.3rem;
+}
+.cifra dt{
   font-family: var(--f-mono);
-  font-weight: 600;
-  font-size: 13px;
-  letter-spacing: 0.12em;
+  font-size: var(--paso--1);
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--niebla-3);
 }
-html.js:not(.sin-anim) .marquesina__tira{ animation: marquesina 40s linear infinite; }
-@keyframes marquesina{ to{ transform: translateX(-50%); } }
-/* Pausable: al pasar el cursor (WCAG 2.2.2) y fuera del viewport (JS) */
-.marquesina:hover .marquesina__tira{ animation-play-state: paused; }
-.anim-pausada .marquesina__tira{ animation-play-state: paused !important; }
-/* Sin animación la tira queda quieta y legible, sin cortar palabras. Y la
-   SEGUNDA copia se esconde: existe solo para que el translateX del loop
-   sea continuo, y quieta se leía el inventario dos veces seguidas. */
-html.sin-anim .marquesina__tira, html:not(.js) .marquesina__tira{ white-space: normal; width: auto; }
-html.sin-anim .marquesina__tira span + span,
-html:not(.js) .marquesina__tira span + span{ display: none; }
+.cifra dd{
+  display: flex; align-items: baseline; gap: 0.25rem;
+  margin-top: 0.5rem;
+}
+.cifra__valor{
+  font-family: var(--f-display);
+  font-weight: 800;
+  font-size: clamp(2.4rem, 5vw, 3.8rem);
+  line-height: 0.85;
+  color: var(--ambar);
+  font-variant-numeric: tabular-nums;
+}
+.cifra__unidad{
+  font-family: var(--f-mono);
+  font-size: var(--paso-0);
+  color: var(--helecho);
+}
+.cifra__texto{
+  font-family: var(--f-texto);
+  font-size: var(--paso-0);
+  font-weight: 500;
+  line-height: 1.25;
+  color: var(--niebla);
+}
+/* Cifra sin confirmar: se dice, no se inventa. */
+.cifra__valor--pendiente{
+  font-family: var(--f-mono);
+  font-size: var(--paso--1);
+  font-weight: 400;
+  letter-spacing: 0.06em;
+  color: var(--niebla-3);
+  text-transform: uppercase;
+  line-height: 1.4;
+}
 
-/* ─── 5. FOLIO 01 · LA FAENA COMPLETA ──────────────────────────────────── */
-/* Formulario de celdas con bordes compartidos: fondo de línea + gap 1px */
+/* ENTRADA DE LA PORTADA — @keyframes puros.
+   Nada de observer ni rAF: una pestaña abierta en segundo plano no corre
+   rAF, y la portada tiene que estar pintada cuando el visitante llegue. */
+html.js .portada__titular .linea > span{ animation: sube 800ms var(--curva) both; }
+html.js .portada__titular .linea:nth-child(2) > span{ animation-delay: 90ms; }
+html.js .portada__titular .linea:nth-child(3) > span{ animation-delay: 180ms; }
+html.js .portada .etiqueta{ animation: aparece 600ms var(--curva) both; }
+html.js .portada__bajada{ animation: aparece 700ms var(--curva) 300ms both; }
+html.js .portada__acciones{ animation: aparece 700ms var(--curva) 400ms both; }
+html.js .cifras{ animation: aparece 800ms var(--curva) 500ms both; }
+@keyframes sube{ from{ transform: translateY(105%); } to{ transform: translateY(0); } }
+@keyframes aparece{ from{ opacity: 0; transform: translateY(14px); } to{ opacity: 1; transform: none; } }
+
+/* Con reduced-motion la portada NO se queda quieta del todo: se funde.
+   Se quita el desplazamiento, que es lo que molesta, y se conserva un
+   fundido corto — apagarlo entero deja la página con aire de error. */
+@media (prefers-reduced-motion: reduce){
+  html.js .portada__titular .linea > span,
+  html.js .portada .etiqueta,
+  html.js .portada__bajada,
+  html.js .portada__acciones,
+  html.js .cifras{
+    animation: fundido 260ms ease-out both;
+  }
+  @keyframes fundido{ from{ opacity: 0; } to{ opacity: 1; } }
+}
+
+/* ─── 5. REVELADO AL SCROLL ─────────────────────────────────────────────── */
+/* El estado oculto cuelga de html.js. main.js agrega .revelado al entrar.
+   Si el JS muere, el rescate quita .js y todo queda visible. */
+html.js .revelable{
+  opacity: 0;
+  transform: translateY(22px);
+  transition: opacity var(--entrada) var(--curva),
+              transform var(--entrada) var(--curva);
+}
+html.js .revelable.revelado{ opacity: 1; transform: none; }
+@media (prefers-reduced-motion: reduce){
+  html.js .revelable{ transition-duration: 1ms; transform: none; }
+}
+
+/* ─── 6. EL SISTEMA (pieza firma) ───────────────────────────────────────── */
+.seccion--sistema{ position: relative; }
+
+.plano{
+  margin: clamp(2rem, 5vw, 3.5rem) 0 clamp(2.5rem, 6vw, 4rem);
+  border: 1px solid var(--borde);
+  background:
+    /* Retícula de plano: rayas duras de 1px, no un degradado. */
+    repeating-linear-gradient(0deg, rgba(127,192,142,0.055) 0 1px, transparent 1px 40px),
+    repeating-linear-gradient(90deg, rgba(127,192,142,0.055) 0 1px, transparent 1px 40px),
+    var(--acero);
+}
+.plano__lienzo{ width: 100%; }
+.plano__lienzo svg{ width: 100%; height: auto; display: block; }
+.plano__pie{
+  display: flex; justify-content: space-between; gap: 1rem; flex-wrap: wrap;
+  padding: 0.75rem 1rem;
+  border-top: 1px solid var(--borde);
+  font-family: var(--f-mono);
+  font-size: var(--paso--1);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--niebla-3);
+}
+.plano__cota{ color: var(--helecho); }
+/* Control de pausa del carro. Lo crea main.js: sin JS no hay animación
+   que pausar y un botón muerto sería peor que ninguno. */
+.plano__pausa{
+  display: inline-flex; align-items: center; gap: 0.5rem;
+  min-height: 44px; padding: 0 0.9rem;
+  margin-left: auto;
+  background: transparent;
+  border: 1px solid var(--borde-vivo);
+  color: var(--niebla-2);
+  font-family: var(--f-mono);
+  font-size: var(--paso--1);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: color var(--rapido) ease-out, border-color var(--rapido) ease-out;
+}
+.plano__pausa:hover{ color: var(--niebla); border-color: var(--niebla); }
+.plano__pausa svg{ width: 12px; height: 12px; fill: currentColor; }
+
+.piezas{
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1px;
+  background: var(--borde);
+  border: 1px solid var(--borde);
+}
+.pieza{ background: var(--acero); padding: 1.5rem 1.4rem 1.7rem; }
+.pieza__n{
+  font-family: var(--f-mono);
+  font-size: var(--paso--1);
+  font-weight: 600;
+  color: var(--ambar);
+  letter-spacing: 0.1em;
+}
+.pieza h3{
+  font-family: var(--f-display);
+  font-weight: 700;
+  font-size: var(--paso-2);
+  line-height: 0.95;
+  text-transform: uppercase;
+  margin: 0.7rem 0 0.6rem;
+}
+.pieza p{ font-size: var(--paso--1); color: var(--niebla-2); line-height: 1.55; }
+
+/* ─── 7. CICLO DE OPERACIONES ───────────────────────────────────────────── */
 .ciclo{
   list-style: none;
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  background: var(--linea-fuerte);
-  border: 1px solid var(--linea-fuerte);
   gap: 1px;
-  margin-top: 2.5rem;
+  background: var(--borde);
+  border: 1px solid var(--borde);
 }
-.ciclo__celda{
-  background: var(--celda);
-  padding: 1.4rem 1.3rem 1.6rem;
+.paso{
+  background: var(--acero);
+  padding: 1.6rem 1.4rem 1.8rem;
   min-height: 13rem;
+  transition: background var(--rapido) ease-out;
 }
-.ciclo__n{
+.paso:hover{ background: var(--acero-2); }
+.paso__n{
   font-family: var(--f-mono);
+  font-size: var(--paso-1);
   font-weight: 600;
-  font-size: 20px;              /* texto grande: el acento cumple AA */
-  color: var(--acento);
+  color: var(--naranja);
   font-variant-numeric: tabular-nums;
 }
-.ciclo__termino{
+.paso h3{
   font-family: var(--f-display);
-  font-weight: 900;
-  font-size: clamp(1.15rem, 1.8vw, 1.5rem);
-  line-height: 1.05;
-  margin: 0.5rem 0 0.7rem;
+  font-weight: 700;
+  font-size: var(--paso-2);
+  line-height: 0.95;
+  text-transform: uppercase;
+  margin: 0.6rem 0 0.7rem;
 }
-.ciclo__celda p{ font-size: 0.95rem; line-height: 1.55; }
-.ciclo__celda--cierre{
-  background: var(--musgo);
-  color: var(--niebla);
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  gap: 0.4rem;
+.paso p{ font-size: var(--paso--1); color: var(--niebla-2); line-height: 1.55; }
+.paso--nota{
+  background: var(--pino);
+  display: flex; flex-direction: column; justify-content: center; gap: 0.7rem;
 }
-.ciclo__regla{
-  font-family: var(--f-mono);
-  font-weight: 600;
-  font-size: 13px !important;
-  letter-spacing: 0.08em;
-  line-height: 1.5;
-}
-.ciclo__regla + .ciclo__regla{ color: var(--helecho); }
+.paso--nota p{ color: var(--niebla); font-size: var(--paso-0); }
+.paso--nota b{ color: var(--helecho); }
 
-/* Entintado de las celdas: aparecen escalonadas */
-html.js:not(.sin-anim) .ciclo__celda{
-  opacity: 0; transform: translateY(8px);
-  transition: opacity 450ms var(--curva), transform 450ms var(--curva);
+/* ─── 8. PLANCHA — foto a sangre ────────────────────────────────────────── */
+.plancha{
+  position: relative;
+  border-top: 1px solid var(--borde);
+  border-bottom: 1px solid var(--borde);
+  overflow: hidden;
 }
-html.js:not(.sin-anim) .is-inked .ciclo__celda{ opacity: 1; transform: none; }
-html.js:not(.sin-anim) .is-inked .ciclo__celda:nth-child(2){ transition-delay: 40ms; }
-html.js:not(.sin-anim) .is-inked .ciclo__celda:nth-child(3){ transition-delay: 80ms; }
-html.js:not(.sin-anim) .is-inked .ciclo__celda:nth-child(4){ transition-delay: 120ms; }
-html.js:not(.sin-anim) .is-inked .ciclo__celda:nth-child(5){ transition-delay: 160ms; }
-html.js:not(.sin-anim) .is-inked .ciclo__celda:nth-child(6){ transition-delay: 200ms; }
-html.js:not(.sin-anim) .is-inked .ciclo__celda:nth-child(7){ transition-delay: 240ms; }
-html.js:not(.sin-anim) .is-inked .ciclo__celda:nth-child(8){ transition-delay: 280ms; }
-
-/* ─── 6. FOLIO 02 · PENDIENTE (el más profundo del bosque) ─────────────── */
-.folio--nocturno{
-  max-width: none;               /* el quiebre va de borde a borde */
-  /* Fondo semiopaco: las partículas del bosque SE SIGUEN VIENDO, apagadas,
-     como si la niebla las tapara. Es el folio más hondo del documento. */
-  background: rgba(8, 16, 12, 0.72);
-  border-top: 1px solid var(--linea);
-  border-bottom: 1px solid var(--linea);
+.plancha img{
+  width: 100%;
+  aspect-ratio: 21 / 8;
+  object-fit: cover; object-position: center 38%;
+  filter: saturate(0.9) contrast(1.05) brightness(0.82);
 }
-.folio--nocturno > *{ max-width: var(--ancho-max); margin-left: auto; margin-right: auto; }
-
-/* Lluvia fina: canvas del folio, opacidad bajísima. Decorativa. */
-.lluvia{
-  position: absolute; inset: 0;
-  width: 100%; height: 100%;
-  opacity: 0.4; pointer-events: none;
+.plancha__dato{
+  position: absolute; left: 0; bottom: 0;
+  padding: clamp(1.2rem, 4vw, 2.6rem) var(--margen);
+  max-width: 40rem;
+  background: linear-gradient(to top, rgba(14,17,19,0.92), rgba(14,17,19,0));
+  width: 100%;
 }
-
-.pendiente{ position: relative; }
-.pendiente__texto{
-  columns: 2; column-gap: 3rem;
-  margin: 2.5rem 0 3rem;
-  max-width: 100ch;
-}
-.pendiente__texto p{
-  break-inside: avoid;
-  margin-bottom: 1rem;
-  font-size: 1.05rem;
-}
-
-.fig--perfil{ position: relative; }
-.fig--perfil .fig__lienzo{ border: 1px solid var(--linea); }
-
-/* Cifras de romana con odómetro */
-.romana{
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 1px;
-  background: var(--linea);
-  border: 1px solid var(--linea);
-  margin-top: 3rem;
-}
-.romana__cifra{ background: var(--bosque-2); padding: 1.4rem 1.5rem 1.6rem; }
-.romana dt{ color: var(--helecho); font-size: 11px; }
-.romana dd{
-  margin-top: 0.4rem;
-  font-family: var(--f-mono);
-  font-weight: 600;
-  font-size: clamp(2rem, 4.5vw, 3.4rem);
-  color: var(--savia);
-  font-variant-numeric: tabular-nums;
-  line-height: 1;
-  display: flex; align-items: baseline; gap: 0.35rem;
-}
-.romana__unidad{ font-size: 0.38em; color: var(--helecho); letter-spacing: 0.1em; }
-/* El odómetro: cada dígito es una tira vertical que desliza */
-.odometro{ display: inline-flex; overflow: hidden; }
-.odometro .dig{ display: inline-block; }
-.odometro .dig--rueda{ height: 1em; }
-.odometro .dig--rueda .tira{
-  display: flex; flex-direction: column; line-height: 1;
-  transition: transform 1100ms var(--curva);
-}
-
-/* ─── 7. DIVISOR · FRANJA DE ESTIBA ────────────────────────────────────── */
-.estiba{
-  position: relative; z-index: 1;
-  border-top: 1px solid var(--linea);
-  border-bottom: 1px solid var(--linea);
-  line-height: 0;
-}
-.estiba svg{ width: 100%; height: clamp(70px, 12vw, 130px); display: block; }
-
-/* ─── 8. FOLIO 03 · PARQUE DE MAQUINARIA ───────────────────────────────── */
-.parque{ list-style: none; margin-top: 1rem; }
-.ficha{
-  display: grid;
-  grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
-  gap: clamp(1.5rem, 4vw, 3.5rem);
-  padding: clamp(2rem, 5vh, 3.5rem) 0;
-  border-bottom: 1px solid var(--linea-fuerte);
-  align-items: center;
-}
-.parque .ficha:last-child{ border-bottom: none; }
-.ficha__nombre{
+.plancha__dato .etiqueta{ margin-bottom: 0.5rem; }
+.plancha__frase{
   font-family: var(--f-display);
-  font-weight: 900;
-  font-size: clamp(1.6rem, 3.4vw, 2.6rem);
+  font-weight: 700;
+  font-size: var(--paso-2);
   line-height: 1;
-  margin-bottom: 1.4rem;
+  text-transform: uppercase;
   text-wrap: balance;
 }
-/* Tabla de specs: filas hairline, etiqueta izquierda / valor mono derecha */
-.specs div{
-  display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-  gap: 1.5rem;
-  padding: 0.55rem 0;
-  border-top: 1px solid var(--linea);
-  transition: background 120ms linear;
-}
-.specs div:last-child{ border-bottom: 1px solid var(--linea); }
-.specs div:hover{ background: var(--realce); }
-.specs dt{ font-size: 11px; color: var(--secundario); flex-shrink: 0; }
-.specs dd{
-  font-family: var(--f-mono);
-  font-size: 12.5px;
-  letter-spacing: 0.04em;
-  text-align: right;
-  font-variant-numeric: tabular-nums;
+@media (max-width: 700px){
+  .plancha img{ aspect-ratio: 4 / 3; }
 }
 
-/* Entintado de filas de specs */
-html.js:not(.sin-anim) .specs div{
-  opacity: 0; transform: translateY(8px);
-  transition: opacity 400ms var(--curva), transform 400ms var(--curva), background 120ms linear;
-}
-html.js:not(.sin-anim) .is-inked .specs div{ opacity: 1; transform: none; }
-html.js:not(.sin-anim) .is-inked .specs div:nth-child(2){ transition-delay: 40ms; }
-html.js:not(.sin-anim) .is-inked .specs div:nth-child(3){ transition-delay: 80ms; }
-html.js:not(.sin-anim) .is-inked .specs div:nth-child(4){ transition-delay: 120ms; }
-
-/* Frame FIG. 3:2 — contrato de layout para la foto futura.
-   Hoy: veta de madera generativa. Mañana: .fig--photo (ver LEEME). */
-.fig--marco .fig__lienzo{
-  aspect-ratio: 3 / 2;
-  border: 1px solid var(--linea-fuerte);
-  background: var(--celda);
-  overflow: hidden;
-}
-.fig--marco canvas{ width: 100%; height: 100%; }
-/* Las fotos van A COLOR con un grade apenas perceptible: la maquinaria
-   es naranja de fábrica — el mismo naranja de señal del sitio — y
-   apagarla a duotono era regalar el único acento que la faena trae
-   puesto. El marco de 1px y la leyenda mono ya ponen el carácter de
-   documento; la foto pone la verdad. */
-.fig--photo .fig__lienzo{ background: var(--musgo); }
-.fig--photo img{
-  width: 100%; height: 100%; object-fit: cover;
-  filter: saturate(0.94) contrast(1.04);
-}
-
-/* ─── 8b. ANEXO · PLIEGO FOTOGRÁFICO ───────────────────────────────────────
-   Seis láminas 3:2 sobre el bosque, con bordes compartidos de 1px y pie
-   numerado. Cada frame es un contrato de layout: la foto entra con
-   object-fit cover y nada se mueve. */
-.pliego{
-  list-style: none;
+/* ─── 9. PARQUE DE MAQUINARIA ───────────────────────────────────────────── */
+.parque{ display: grid; gap: 1px; background: var(--borde); border: 1px solid var(--borde); }
+.equipo{
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 1px;
-  background: var(--linea);
-  border: 1px solid var(--linea);
-  margin-top: 2.5rem;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  background: var(--acero);
 }
-.pliego__celda{ background: var(--bosque-2); padding: 0; position: relative; }
-.pliego__lienzo{
-  aspect-ratio: 3 / 2;
-  overflow: hidden;
-}
-.pliego__lienzo img{
+.equipo__foto{ overflow: hidden; }
+.equipo__foto img{
   width: 100%; height: 100%;
+  min-height: 17rem;
   object-fit: cover;
-  filter: saturate(0.94) contrast(1.04);
-  transition: filter 120ms linear;
+  filter: saturate(0.92) contrast(1.04);
+  transition: transform 900ms var(--curva);
 }
-/* El hover levanta apenas la lámina, como acercarla a la luz. Seco. */
-.pliego__celda:hover .pliego__lienzo img{ filter: saturate(0.98) contrast(1.04) brightness(1.06); }
-.pliego__pie{
-  display: flex; justify-content: space-between; gap: 1rem;
-  padding: 0.6rem 0.8rem;
-  border-top: 1px solid var(--linea);
-  font-family: var(--f-mono);
-  font-size: 10.5px;
-  letter-spacing: 0.08em;
+.equipo:hover .equipo__foto img{ transform: scale(1.03); }
+@media (prefers-reduced-motion: reduce){
+  .equipo:hover .equipo__foto img{ transform: none; }
+}
+.equipo--invertido .equipo__foto{ order: 2; }
+.equipo__datos{ padding: clamp(1.6rem, 4vw, 3rem); display: flex; flex-direction: column; justify-content: center; }
+.equipo__nombre{
+  font-family: var(--f-display);
+  font-weight: 800;
+  font-size: var(--paso-3);
+  line-height: 0.9;
   text-transform: uppercase;
-  color: var(--secundario);
 }
-.pliego__pie span:last-child{ color: var(--helecho); flex-shrink: 0; }
-
-/* ─── 9. FOLIO 04 · BITÁCORA DE FAMILIA ────────────────────────────────── */
-.folio--bitacora{ position: relative; }
-.folio__vertical{
-  position: absolute;
-  top: 50%; right: calc(var(--margen) * 0.25);
-  transform: translateY(-50%);
-  writing-mode: vertical-rl;
+.equipo__rol{
   font-family: var(--f-mono);
-  font-size: 11px;
-  letter-spacing: 0.35em;
-  color: var(--secundario);
-  user-select: none;
+  font-size: var(--paso--1);
+  letter-spacing: 0.07em;
+  color: var(--ambar);
+  margin: 0.7rem 0 1.6rem;
 }
-.bitacora{ list-style: none; margin-top: 2.5rem; max-width: 62rem; }
-.bitacora li{
-  display: flex; gap: 2rem; align-items: baseline;
-  padding: 0.8rem 0.5rem;
-  border-top: 1px solid var(--linea);
-  transition: background 120ms linear;
+.specs div{
+  display: flex; justify-content: space-between; align-items: baseline; gap: 1.5rem;
+  padding: 0.7rem 0;
+  border-top: 1px solid var(--borde);
 }
-.bitacora li:last-child{ border-bottom: 1px solid var(--linea); }
-.bitacora li:hover{ background: var(--realce); }
-.bitacora__anio{
+.specs div:last-child{ border-bottom: 1px solid var(--borde); }
+.specs dt{
   font-family: var(--f-mono);
-  font-weight: 600;
-  font-size: 18.7px;             /* texto grande en negrita: 3:1 aplica */
-  color: var(--acento);
-  font-variant-numeric: tabular-nums;
+  font-size: var(--paso--1);
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--niebla-3);
   flex-shrink: 0;
-  min-width: 4.5rem;
 }
-.bitacora__cierre{
-  margin-top: 2.5rem;
-  font-size: 1.15rem;
-  max-width: 55ch;
-  font-style: italic;
+.specs dd{ font-size: var(--paso--1); color: var(--niebla); text-align: right; }
+
+/* ─── 10. OFICIOS ───────────────────────────────────────────────────────── */
+.oficios{
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1px;
+  background: var(--borde);
+  border: 1px solid var(--borde);
+}
+.oficio{
+  background: var(--carbon);
+  padding: 1.7rem 1.5rem 1.9rem;
+  display: flex; flex-direction: column;
+}
+.oficio h3{
+  font-family: var(--f-display);
+  font-weight: 800;
+  font-size: var(--paso-2);
+  line-height: 0.95;
+  text-transform: uppercase;
+  color: var(--helecho);
+  margin-bottom: 0.9rem;
+}
+.oficio p{ font-size: var(--paso--1); color: var(--niebla-2); line-height: 1.6; }
+.oficio__epp{
+  margin-top: auto;
+  padding-top: 1.2rem;
+  font-family: var(--f-mono) !important;
+  font-size: var(--paso--1);
+  letter-spacing: 0.04em;
+  color: var(--niebla-3) !important;
+  border-top: 1px solid var(--borde);
 }
 
-/* ─── 10. FOLIO 05 · SEGURIDAD ─────────────────────────────────────────── */
-.cumplimiento{ list-style: none; margin-top: 2.5rem; max-width: 62rem; }
-.check{
-  display: flex; gap: 1.2rem; align-items: flex-start;
-  padding: 0.85rem 0.5rem;
-  border-top: 1px solid var(--linea);
+/* ─── 11. TERRENO ───────────────────────────────────────────────────────── */
+.seccion--terreno{
+  position: relative;
+  max-width: none;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 0;
+  align-items: stretch;
+  padding: 0;
+  border-top: 1px solid var(--borde);
+  border-bottom: 1px solid var(--borde);
 }
-.check:last-child{ border-bottom: 1px solid var(--linea); }
-.check p{ font-size: 1.02rem; }
-.check__caja{
+.terreno__foto{ overflow: hidden; }
+.terreno__foto img{
+  width: 100%; height: 100%;
+  min-height: 22rem;
+  object-fit: cover;
+  filter: saturate(0.85) contrast(1.05) brightness(0.9);
+}
+.terreno__cuerpo{
+  padding: clamp(3rem, 7vw, 5.5rem) var(--margen);
+  background: var(--pino);
+  display: flex; flex-direction: column; justify-content: center;
+}
+.terreno__cuerpo .parrafo{ color: rgba(234,239,241,0.85); }
+.terreno__lista{
+  list-style: none;
+  margin-top: 2rem;
+  display: grid; gap: 0.9rem;
+  max-width: 46rem;
+}
+.terreno__lista li{
+  position: relative;
+  padding-left: 1.6rem;
+  font-size: var(--paso-0);
+  color: rgba(234,239,241,0.9);
+  line-height: 1.5;
+}
+.terreno__lista li::before{
+  content: "";
+  position: absolute; left: 0; top: 0.62em;
+  width: 8px; height: 2px;
+  background: var(--helecho);
+}
+.terreno__lista b{ color: var(--niebla); font-weight: 600; }
+
+/* ─── 12. CUMPLIMIENTO ──────────────────────────────────────────────────── */
+.cumple{ list-style: none; display: grid; gap: 1px; background: var(--borde); border: 1px solid var(--borde); }
+.cumple li{
+  display: flex; align-items: flex-start; gap: 1.1rem;
+  background: var(--acero);
+  padding: 1.15rem 1.4rem;
+}
+.cumple p{ font-size: var(--paso-0); color: var(--niebla-2); }
+.tic{
   flex-shrink: 0;
   width: 22px; height: 22px;
-  border: 1.5px solid var(--linea-fuerte);
-  margin-top: 0.2rem;
+  margin-top: 0.25rem;
+  fill: none;
+  stroke: var(--helecho);
+  stroke-width: 2.4;
+  stroke-linecap: square;
+  stroke-dasharray: 30;
+  stroke-dashoffset: 0;
 }
-.check__caja svg{ width: 100%; height: 100%; overflow: visible; }
-.check__aspa{
-  fill: none; stroke: var(--pino); stroke-width: 2.5;
-  stroke-dasharray: 46; stroke-dashoffset: 0;
-}
-/* Las casillas se timbran con aspa al entrar el folio */
-html.js:not(.sin-anim) .check__aspa{
-  stroke-dashoffset: 46;
-  transition: stroke-dashoffset 500ms var(--curva);
-}
-html.js:not(.sin-anim) .is-inked .check__aspa{ stroke-dashoffset: 0; }
-html.js:not(.sin-anim) .is-inked .check:nth-child(2) .check__aspa{ transition-delay: 90ms; }
-html.js:not(.sin-anim) .is-inked .check:nth-child(3) .check__aspa{ transition-delay: 180ms; }
-html.js:not(.sin-anim) .is-inked .check:nth-child(4) .check__aspa{ transition-delay: 270ms; }
-html.js:not(.sin-anim) .is-inked .check:nth-child(5) .check__aspa{ transition-delay: 360ms; }
-html.js:not(.sin-anim) .is-inked .check:nth-child(6) .check__aspa{ transition-delay: 450ms; }
-html.js:not(.sin-anim) .is-inked .check:nth-child(7) .check__aspa{ transition-delay: 540ms; }
+html.js .revelable .tic{ stroke-dashoffset: 30; transition: stroke-dashoffset 500ms var(--curva); }
+html.js .revelable.revelado .tic{ stroke-dashoffset: 0; }
 
-/* Único uso del rojo: franja de peligro (rayas planas, no fundido) */
-.franja-roja{
-  height: 8px;
-  margin: 3rem 0 2rem;
-  background: repeating-linear-gradient(
-    -45deg,
-    var(--rojo) 0 12px,
-    transparent 12px 24px
-  );
+/* ─── 13. TRAYECTORIA ───────────────────────────────────────────────────── */
+.trayectoria{
+  display: grid;
+  grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+  gap: var(--hueco);
+  align-items: start;
 }
-.seguridad__ambiental{ max-width: 68ch; font-size: 1.05rem; }
+.trayectoria__cifra{
+  display: block;
+  font-family: var(--f-display);
+  font-weight: 800;
+  font-size: var(--paso-4);
+  line-height: 0.8;
+  color: var(--ambar);
+  font-variant-numeric: tabular-nums;
+}
+.hitos{ list-style: none; }
+.hitos li{
+  display: grid;
+  grid-template-columns: 5.5rem 1fr;
+  gap: 1.5rem;
+  align-items: baseline;
+  padding: 1.1rem 0;
+  border-top: 1px solid var(--borde);
+}
+.hitos li:last-child{ border-bottom: 1px solid var(--borde); }
+.hito__anio{
+  font-family: var(--f-mono);
+  font-weight: 600;
+  font-size: var(--paso-1);
+  color: var(--helecho);
+  font-variant-numeric: tabular-nums;
+}
+.hito__texto{ font-size: var(--paso-0); color: var(--niebla-2); }
+.hito--pendiente .hito__anio,
+.hito--pendiente .hito__texto{
+  color: var(--niebla-3);
+  font-family: var(--f-mono);
+  font-size: var(--paso--1);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
 
-/* ─── 11. FOLIO 06 · CONTACTO Y COLOFÓN ────────────────────────────────── */
+/* ─── 14. CONTACTO ──────────────────────────────────────────────────────── */
+.seccion--contacto{ border-top: 1px solid var(--borde); }
 .contacto{
   display: grid;
   grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
-  gap: clamp(2rem, 5vw, 4.5rem);
-  margin-top: 2.5rem;
+  gap: var(--hueco);
+  align-items: start;
 }
-.contacto__nota{ max-width: 44ch; margin-bottom: 2rem; font-size: 1.08rem; }
-.contacto__canal{ margin-bottom: 1.6rem; }
-.contacto__etq{ display: block; margin-bottom: 0.35rem; color: var(--helecho); }
-.contacto__valor{
+.canales{ margin-top: 2.5rem; display: grid; gap: 1.3rem; }
+.canal__etq{
+  display: block;
+  font-family: var(--f-mono);
+  font-size: var(--paso--1);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--niebla-3);
+  margin-bottom: 0.3rem;
+}
+.canal__valor{
+  display: inline-block;
+  min-height: 44px;
   font-family: var(--f-display);
-  font-weight: 900;
-  font-size: clamp(1.4rem, 3vw, 2.1rem);
-  line-height: 1.15;
+  font-weight: 800;
+  font-size: var(--paso-2);
+  line-height: 1.2;
+  text-transform: uppercase;
+  text-decoration: none;
+  color: var(--ambar);
+  border-bottom: 2px solid transparent;
+  transition: border-color var(--rapido) ease-out;
   word-break: break-word;
 }
-.contacto__valor--estampado{
+a.canal__valor:hover{ border-bottom-color: var(--ambar); }
+.canal__valor--pendiente{
   font-family: var(--f-mono);
-  font-size: 13px;
-  border-bottom: none;
+  font-size: var(--paso-0);
+  font-weight: 400;
+  text-transform: none;
+  color: var(--niebla-3);
 }
 
-/* La guía de despacho: campos solo subrayados */
-.guia{
-  border: 1px solid var(--linea-fuerte);
-  padding: clamp(1.5rem, 3.5vw, 2.5rem);
-  background: var(--bosque-2);
+.formulario{
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 1.4rem 1.5rem;
+  gap: 1.3rem 1.4rem;
+  background: var(--acero);
+  border: 1px solid var(--borde);
+  padding: clamp(1.4rem, 4vw, 2.6rem);
 }
-.guia__titulo{ grid-column: 1 / -1; color: var(--helecho); }
-.guia__campo{ grid-column: 1 / -1; display: flex; flex-direction: column; gap: 0.4rem; }
-.guia__campo--medio{ grid-column: auto; }
-.guia label{ font-size: 11px; color: var(--secundario); }
-.guia input, .guia select, .guia textarea{
+.campo{ grid-column: 1 / -1; display: flex; flex-direction: column; gap: 0.45rem; }
+.campo--medio{ grid-column: auto; }
+.formulario label{
   font-family: var(--f-mono);
-  font-size: 14px;
-  color: var(--niebla);
-  background: transparent;
-  border: none;
-  border-bottom: 1px solid var(--linea-fuerte);
-  border-radius: 0;
-  padding: 0.4rem 0.1rem;
-}
-.guia select{ appearance: none; cursor: pointer; }
-/* El desplegable nativo se pinta con el color del sistema: hay que dar
-   fondo oscuro a las opciones o quedan ilegibles en algunos Windows. */
-.guia select option{ background: var(--bosque-2); color: var(--niebla); }
-.guia textarea{ resize: vertical; }
-.guia input:focus-visible, .guia select:focus-visible, .guia textarea:focus-visible{
-  outline: none;
-  border-bottom: 3px solid var(--savia);
-  padding-bottom: calc(0.4rem - 2px);
-}
-/* Sin JS el formulario no tiene adónde enviar: el botón se esconde y el
-   <noscript> de adentro remite a los canales directos. */
-html:not(.js) .guia__enviar{ display: none; }
-.guia__enviar{
-  grid-column: 1 / -1;
-  justify-self: start;
-  font-family: var(--f-mono);
-  font-weight: 600;
-  font-size: 13px;
-  letter-spacing: 0.10em;
-  color: var(--bosque);
-  background: var(--savia);
-  border: 1px solid var(--savia);
-  padding: 0.9rem 1.4rem;
-  cursor: pointer;
-  transition: background 120ms linear, color 120ms linear;
-}
-.guia__enviar:hover{ background: transparent; color: var(--savia); }
-.guia__aviso{
-  grid-column: 1 / -1;
-  font-family: var(--f-mono);
-  font-size: 12px;
-  letter-spacing: 0.04em;
-  color: var(--savia);
-}
-
-/* Colofón de imprenta */
-.colofon{
-  margin-top: clamp(4rem, 9vh, 6rem);
-  background: var(--bosque-2);
-  border: 1px solid var(--linea);
-  padding: 2.2rem;
-  display: flex;
-  gap: 1.6rem;
-  align-items: center;
-}
-/* El logo en el colofón: la misma etiqueta crema del membrete, chica.
-   El crema es el del arte original; el borde la ancla a la caja. */
-.colofon__logo{
-  width: 58px; height: auto; flex-shrink: 0;
-  background: #F2EFE7;
-  border: 1px solid var(--linea);
-  padding: 4px 6px;
-  box-sizing: content-box;
-}
-.colofon p{
-  font-family: var(--f-mono);
-  font-size: 12px;
-  line-height: 1.8;
-  letter-spacing: 0.03em;
+  font-size: var(--paso--1);
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
   color: var(--niebla-2);
 }
-.colofon__fin{ font-weight: 600; letter-spacing: 0.10em; color: var(--helecho); }
+.formulario input,
+.formulario select,
+.formulario textarea{
+  font-family: var(--f-texto);
+  font-size: var(--paso-0);
+  color: var(--niebla);
+  background: var(--carbon);
+  border: 1px solid var(--borde);
+  border-radius: 0;
+  padding: 0.75rem 0.85rem;
+  min-height: 48px;
+  transition: border-color var(--rapido) ease-out;
+}
+.formulario select{ appearance: none; cursor: pointer; }
+.formulario select option{ background: var(--carbon); color: var(--niebla); }
+.formulario textarea{ resize: vertical; min-height: 6rem; }
+.formulario input:hover,
+.formulario select:hover,
+.formulario textarea:hover{ border-color: var(--borde-vivo); }
+.formulario input:focus-visible,
+.formulario select:focus-visible,
+.formulario textarea:focus-visible{ border-color: var(--ambar); outline-offset: 1px; }
+.formulario .boton{ grid-column: 1 / -1; justify-self: start; }
+html:not(.js) .formulario .boton{ display: none; }
+.aviso{
+  grid-column: 1 / -1;
+  font-family: var(--f-mono);
+  font-size: var(--paso--1);
+  color: var(--rojo);
+  line-height: 1.5;
+}
 
-/* ─── 12. RESPONSIVE ───────────────────────────────────────────────────── */
+/* ─── 15. PIE ───────────────────────────────────────────────────────────── */
+.pie{
+  max-width: var(--ancho);
+  margin-inline: auto;
+  padding: clamp(2.5rem, 6vw, 4rem) var(--margen);
+  border-top: 1px solid var(--borde);
+  display: flex; flex-wrap: wrap; gap: var(--hueco);
+  align-items: flex-start; justify-content: space-between;
+}
+.pie__marca{ display: flex; align-items: center; gap: 1rem; }
+.pie__marca img{ width: 54px; height: auto; background: #F2EFE7; padding: 5px 6px; }
+.pie__nombre{
+  font-family: var(--f-display);
+  font-weight: 800;
+  font-size: var(--paso-1);
+  text-transform: uppercase;
+  line-height: 1;
+}
+.pie__lema{
+  font-family: var(--f-mono);
+  font-size: var(--paso--1);
+  letter-spacing: 0.1em;
+  color: var(--helecho);
+  margin-top: 0.3rem;
+}
+.pie__datos{ display: grid; gap: 0.8rem; }
+.pie__datos div{ display: flex; gap: 0.9rem; align-items: baseline; }
+.pie__datos dt{
+  font-family: var(--f-mono);
+  font-size: var(--paso--1);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--niebla-3);
+  min-width: 5.5rem;
+}
+.pie__datos dd{ font-size: var(--paso--1); color: var(--niebla-2); }
+
+/* ─── 16. RESPONSIVE ────────────────────────────────────────────────────── */
 @media (max-width: 1080px){
-  .ciclo{ grid-template-columns: repeat(2, 1fr); }
-  .ciclo__celda{ min-height: 0; }
-  .pendiente__texto{ columns: 1; }
-  .ficha{ grid-template-columns: 1fr; gap: 1.75rem; }
-  .fig--marco{ max-width: 34rem; }
-  .pliego{ grid-template-columns: repeat(2, 1fr); }
+  .ciclo, .piezas, .oficios{ grid-template-columns: repeat(2, 1fr); }
+  .paso{ min-height: 0; }
+  .trayectoria, .contacto{ grid-template-columns: 1fr; }
+  .cifras{ grid-template-columns: repeat(2, 1fr); }
 }
-
-@media (max-width: 900px){
-  /* El membrete colapsa explícitamente: sello + razón arriba, datos abajo */
-  .membrete{ grid-template-columns: auto 1fr; }
-  .membrete__celda--dato{ grid-column: span 2; flex-direction: row; align-items: baseline; gap: 1rem; padding: 0.6rem 1.1rem; }
-  .portada{ display: block; }
-  .portada__meta{ margin-top: 2.5rem; max-width: 24rem; }
-  .fig--corte{ margin-top: 2.5rem; }
-  .contacto{ grid-template-columns: 1fr; }
-  .romana{ grid-template-columns: 1fr; }
-  .folio__vertical{ display: none; }
+@media (max-width: 860px){
+  .equipo{ grid-template-columns: 1fr; }
+  .equipo--invertido .equipo__foto{ order: 0; }
+  .seccion--terreno{ grid-template-columns: 1fr; }
+  .terreno__foto img{ min-height: 15rem; }
 }
-
-@media (max-width: 560px){
-  .ciclo{ grid-template-columns: 1fr; }
-  .pliego{ grid-template-columns: 1fr; }
-  .guia{ grid-template-columns: 1fr; }
-  .guia__campo--medio{ grid-column: 1 / -1; }
-  .colofon{ flex-direction: column; align-items: flex-start; }
-  .folio__numero{ font-size: 4.5rem; }
-}
-
-/* ─── 13. SIN ANIMACIÓN ────────────────────────────────────────────────── */
-/* Con reduced-motion, pestaña oculta al cargar, o sin JS: el documento
-   llega entero y pintado. main.js añade .sin-anim al <html>; este bloque
-   además cubre el caso de que el JS no alcance a correr.
-   OJO: las partículas no se apagan del todo con reduced-motion — quedan
-   quietas, dibujadas una vez. Un fondo vacío se ve roto, no accesible. */
-@media (prefers-reduced-motion: reduce){
-  html.js .portada__titular .linea__int{ transform: none !important; transition: none !important; }
-  html.js .regla-doble span{ transform: none !important; transition: none !important; }
-  html.js .ciclo__celda, html.js .specs div{ opacity: 1 !important; transform: none !important; transition: none !important; }
-  html.js .check__aspa{ stroke-dashoffset: 0 !important; transition: none !important; }
-  html.js .marquesina__tira{ animation: none !important; white-space: normal; width: auto; }
-  html.js .marquesina__tira span + span{ display: none; }
-  html.js .odometro .dig--rueda .tira{ transition: none !important; }
+@media (max-width: 620px){
+  .ciclo, .piezas, .oficios{ grid-template-columns: 1fr; }
+  .formulario{ grid-template-columns: 1fr; }
+  .campo--medio{ grid-column: 1 / -1; }
+  .portada{ min-height: 0; }
+  .hitos li{ grid-template-columns: 1fr; gap: 0.3rem; }
 }

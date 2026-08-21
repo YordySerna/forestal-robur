@@ -3,652 +3,600 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Forestal Robur SpA · Cosecha forestal en pendiente | Sur de Chile</title>
+<title>Forestal Robur SpA · Cosecha en pendiente con torre de madereo | Loncoche</title>
 
 <!-- ============================================================
      SEO / METADATOS
      ============================================================ -->
-<meta name="description" content="Forestal Robur SpA: servicios de cosecha forestal de pino y eucalipto en el sur de Chile. Madereo con torre en pendiente, excavadora con garra, trineumático Bell y cuadrillas de motosierristas. Del volteo al despacho.">
-<meta name="theme-color" content="#0C1611">
+<meta name="description" content="Forestal Robur SpA, Loncoche: cosecha forestal de pino y eucalipto en pendiente sobre 30%. Torre de madereo, skidder, excavadoras con garra, Bell trineumático y cuadrillas propias. Seis años de faena en La Araucanía.">
+<meta name="theme-color" content="#0E1113">
 <meta name="author" content="Forestal Robur SpA">
 <meta property="og:type" content="website">
 <meta property="og:locale" content="es_CL">
-<meta property="og:title" content="Forestal Robur SpA · Cosecha forestal en pendiente">
-<meta property="og:description" content="Torre de madereo, excavadora con garra, trineumático Bell y motosierristas. Pino y eucalipto, del volteo al despacho. Empresa familiar del sur de Chile.">
+<meta property="og:title" content="Forestal Robur SpA · Cosecha en pendiente">
+<meta property="og:description" content="Torre de madereo, skidder, excavadoras y cuadrillas propias. Cosechamos donde la máquina sola no entra. Loncoche, La Araucanía.">
 <meta property="og:image" content="https://yordyserna.github.io/forestal-robur/imagenes/portada.jpg">
 
-<!-- Favicon: el símbolo del logo de la empresa, recortado del arte original. -->
 <link rel="icon" href="imagenes/favicon.png" sizes="64x64">
 
 <!-- ============================================================
-     TIPOGRAFÍA — el corazón del expediente
-       · Besley 900     → titulares. Slab serif inglesa con peso de
-                          maquinaria; solo se usa en negro 900.
-       · Piazzolla      → el cuerpo. Serifa de Huerta Tipográfica
-                          (fundición sudamericana), 400 + itálica.
-       · IBM Plex Mono  → TODO metadato: folios, cotas, etiquetas,
-                          unidades, tablas. Es la letra del formulario.
-     Prohibido todo lo demás. Nada de Inter, nada de system-ui.
+     TIPOGRAFÍA — tres familias, cada una con un trabajo
+       · Big Shoulders Display → titulares. Condensada de señalética
+         urbana (diseñada para letreros de Chicago): aguanta mayúsculas
+         enormes sin romper la línea y tiene el peso de una placa de
+         máquina. Es lo contrario de una serif de imprenta.
+       · Saira                 → cuerpo y navegación. Sans técnica de
+         proporciones estrechas: acompaña a la display sin pelearle y
+         se lee corrido en párrafo.
+       · Azeret Mono           → TODA cifra, cota, unidad y etiqueta.
+         Mono de números tabulares, que es lo que pide una ficha técnica:
+         las columnas de datos tienen que alinearse solas.
+     El trío es deliberado: display expresiva + texto neutro + mono de
+     datos es el esquema de un catálogo de maquinaria, no de un folleto.
      ============================================================ -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<!-- Las fuentes NO bloquean el render: se cargan con media="print" y se
-     activan al llegar (con JS muerto, el <noscript> las carga normal).
-     El visitante con señal rural ve el documento al tiro, en las serifas
-     de reemplazo, y las fuentes entran cuando entran. -->
-<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Besley:wght@900&family=Piazzolla:ital,opsz,wght@0,7..30,400;1,7..30,400&family=IBM+Plex+Mono:wght@400;600&display=swap">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Besley:wght@900&family=Piazzolla:ital,opsz,wght@0,7..30,400;1,7..30,400&family=IBM+Plex+Mono:wght@400;600&display=swap" media="print" onload="this.media='all'">
-<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Besley:wght@900&family=Piazzolla:ital,opsz,wght@0,7..30,400;1,7..30,400&family=IBM+Plex+Mono:wght@400;600&display=swap"></noscript>
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600;800&family=Saira:wght@400;500;600&family=Azeret+Mono:wght@400;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600;800&family=Saira:wght@400;500;600&family=Azeret+Mono:wght@400;600&display=swap" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600;800&family=Saira:wght@400;500;600&family=Azeret+Mono:wght@400;600&display=swap"></noscript>
 
 <link rel="stylesheet" href="assets/css/estilo.css">
 
-<!-- Marca que el JS está vivo. Si no corre, el documento llega entero y
-     pintado. Y si main.js no llegara a ejecutarse (red caída a medias),
-     a los 2,5 s se fuerza el estado pintado: la página nunca queda a
-     oscuras esperando un script que no viene. -->
+<!-- Marca que el JS está vivo, ANTES de que se pinte nada: los estados
+     ocultos previos a animar cuelgan de .js. El rescate quita la clase a
+     los 4 s, así que si main.js no llega (red rural a medias, error de
+     carga), la página se muestra entera igual. main.js cancela este
+     temporizador apenas arranca. -->
 <script>
 document.documentElement.classList.add('js');
-setTimeout(function(){
-  if (!window.__mainVivo) document.documentElement.classList.add('sin-anim');
-}, 2500);
+window.rescate = setTimeout(function(){
+  document.documentElement.classList.remove('js');
+}, 4000);
 </script>
 
-<!-- Datos duros de la empresa. ÚNICO archivo a editar: mientras un dato
-     esté vacío, la página lo estampa como [POR COMPLETAR] y no lo inventa. -->
+<!-- Datos duros de la empresa. ÚNICO archivo a editar. -->
 <script defer src="assets/js/datos.js"></script>
 
-<!-- JSON-LD mínimo y verdadero: solo lo que sabemos hoy. Los datos de
-     contacto los agrega main.js desde datos.js si existen. -->
+<!-- JSON-LD: solo lo verificable. Contacto y cifras los agrega main.js
+     desde datos.js si existen. -->
 <script type="application/ld+json" id="jsonld">
 {
   "@context": "https://schema.org",
   "@type": "LocalBusiness",
   "name": "Forestal Robur SpA",
-  "description": "Servicios de cosecha forestal de pino y eucalipto en el sur de Chile: madereo con torre en pendiente, excavadora con garra forestal, trineumático Bell y cuadrillas de motosierristas.",
-  "areaServed": "Sur de Chile",
+  "description": "Servicios de cosecha forestal de pino y eucalipto en pendiente: madereo con torre, skidder, excavadoras con garra forestal, Bell trineumático y cuadrillas propias de motosierristas, estroberos y calibradores.",
   "slogan": "Raíces de confianza",
   "image": "https://yordyserna.github.io/forestal-robur/imagenes/portada.jpg",
-  "knowsAbout": ["Cosecha forestal", "Madereo con torre", "Pino radiata", "Eucalipto"]
+  "knowsAbout": ["Cosecha forestal", "Madereo con torre", "Skidder", "Pino radiata", "Eucalipto"]
 }
 </script>
 </head>
 <body>
 
+<a class="saltar" href="#contenido">Saltar al contenido</a>
+
 <!-- ══════════════════════════════════════════════════════════════════
-     EL BOSQUE: canvas fijo con las partículas (polen, agujas de pino y
-     motas de luz), dibujadas a mano en main.js. Está detrás de todo el
-     contenido y no intercepta el puntero. Si el JS no corre, queda un
-     canvas vacío sobre el verde profundo: el sitio se lee igual.
+     BARRA SUPERIOR — logo + navegación deslizable en móvil.
      ══════════════════════════════════════════════════════════════════ -->
-<canvas class="bosque" data-bosque aria-hidden="true"></canvas>
+<header class="barra" id="barra">
+  <a class="barra__marca" href="#portada">
+    <img src="imagenes/logo.png" alt="Forestal Robur SpA" width="190" height="172" decoding="async">
+    <span class="barra__nombre">Forestal<br>Robur <b>SpA</b></span>
+  </a>
+  <nav class="barra__nav" aria-label="Secciones">
+    <a href="#sistema">El sistema</a>
+    <a href="#operaciones">Operaciones</a>
+    <a href="#parque">Parque</a>
+    <a href="#cuadrilla">Cuadrilla</a>
+    <a href="#terreno">Terreno</a>
+    <a href="#seguridad">Seguridad</a>
+  </nav>
+  <a class="barra__cta" href="#contacto">Cotizar faena</a>
+</header>
 
-<!-- ╔══════════════════════════════════════════════════════════════╗
-     ║  FOLIO 00 · MEMBRETE Y PORTADA        [FOTOGRÁFICO]          ║
-     ║  La faena de fondo — la torre con el valle detrás — bajo un  ║
-     ║  velo que la funde con el bosque. Encima, el rótulo de plano ║
-     ║  de ingeniería y el titular estampado.                       ║
-     ╚══════════════════════════════════════════════════════════════╝ -->
-<header class="folio folio--portada" id="folio-00">
+<main id="contenido">
 
-  <!-- El paisaje de la faena como fondo del documento. Se funde con el
-       bosque por abajo, así la foto no termina en una línea recta y las
-       partículas siguen cayendo sobre ella. -->
-  <div class="hero__fondo" aria-hidden="true">
+<!-- ══════════════════════════════════════════════════════════════════
+     PORTADA — foto a sangre, titular macizo, cifras duras.
+     La entrada es @keyframes CSS puro: nada de observer ni rAF, para
+     que una pestaña abierta en segundo plano igual llegue pintada.
+     ══════════════════════════════════════════════════════════════════ -->
+<section class="portada" id="portada" aria-labelledby="t-portada">
+
+  <!-- Dos capas de profundidad: la foto se desplaza más lento que el
+       contenido al hacer scroll (scroll-driven CSS, dentro de @supports;
+       sin soporte queda quieta y se ve igual de bien). -->
+  <div class="portada__foto" aria-hidden="true">
     <img src="imagenes/hero-torre.jpg" alt="" width="1600" height="719" decoding="async" fetchpriority="high">
   </div>
 
-  <!-- Membrete: grilla de celdas con bordes compartidos, como el
-       rótulo de un plano. Los datos pendientes se estampan. -->
-  <div class="membrete" role="banner">
-    <div class="membrete__celda membrete__celda--sello" aria-hidden="true">
-      <!-- El logo de la empresa (pino + hoja + sierra), impreso en su
-           crema original: la celda entera es la etiqueta. -->
-      <img class="membrete__logo" src="imagenes/logo.png" alt="" width="190" height="172" decoding="async">
-    </div>
-    <div class="membrete__celda membrete__celda--razon">
-      <p class="membrete__nombre">Forestal Robur <span class="membrete__spa">SpA</span></p>
-      <p class="membrete__giro">COSECHA FORESTAL — PINO Y EUCALIPTO · RAÍCES DE CONFIANZA</p>
-    </div>
-    <div class="membrete__celda membrete__celda--dato">
-      <span class="membrete__etq">RUT</span>
-      <span class="membrete__val" data-dato="rut">[POR COMPLETAR]</span>
-    </div>
-    <div class="membrete__celda membrete__celda--dato">
-      <span class="membrete__etq">REGIÓN</span>
-      <span class="membrete__val" data-dato="region">Sur de Chile</span>
-    </div>
-    <div class="membrete__celda membrete__celda--dato">
-      <span class="membrete__etq">DOCUMENTO</span>
-      <span class="membrete__val">REV. 2026-08 · FOLIO 00</span>
-    </div>
-  </div>
-  <div class="regla-doble" aria-hidden="true"><span></span><span></span></div>
+  <div class="portada__cuerpo">
+    <p class="etiqueta etiqueta--claro">
+      <span class="punto" aria-hidden="true"></span>
+      Loncoche · <span data-dato="region">Región de La Araucanía</span>
+    </p>
 
-  <!-- Portada: titular + columna de metadatos + FIG. 01 -->
-  <div class="portada">
-    <h1 class="portada__titular">
-      <span class="linea"><span class="linea__int">Cosecha</span></span>
-      <span class="linea"><span class="linea__int">en pendiente,</span></span>
-      <span class="linea"><span class="linea__int">del volteo</span></span>
-      <span class="linea"><span class="linea__int">al despacho.</span></span>
+    <h1 class="portada__titular" id="t-portada">
+      <span class="linea"><span>Donde la máquina</span></span>
+      <span class="linea"><span>sola no entra,</span></span>
+      <span class="linea"><span>entra el cable</span></span>
     </h1>
 
-    <aside class="portada__meta" aria-label="Resumen de la faena">
-      <div class="cota" aria-hidden="true"></div>
-      <dl class="meta-lista">
-        <div><dt>SISTEMA</dt><dd>TORRE DE MADEREO</dd></div>
-        <div><dt>TERRENO</dt><dd>PENDIENTE &gt;30%</dd></div>
-        <div><dt>ESPECIES</dt><dd>PINO RADIATA — EUCALIPTO</dd></div>
-        <div><dt>FAENAS</dt><dd>PARA FORESTALES Y PARTICULARES</dd></div>
-      </dl>
-      <a class="cta" href="#folio-06">SOLICITAR EVALUACIÓN DE FAENA <span aria-hidden="true">→</span></a>
-    </aside>
-  </div>
+    <p class="portada__bajada">
+      Torre de madereo para la ladera sobre 30% de pendiente. Skidder,
+      excavadora con garra y Bell trineumático para el plano y la cancha.
+      Cuadrillas propias de motosierristas, estroberos y calibradores.
+    </p>
 
-  <p class="portada__intro">
-    Somos una empresa familiar del sur de Chile. Cosechamos pino y eucalipto
-    con un sistema tradicional que sigue vigente porque funciona: torre de
-    madereo para la ladera, máquina para la cancha y motosierristas donde
-    ninguna máquina reemplaza el oficio. Este documento es nuestra carta de
-    presentación: léalo como se lee una faena bien llevada.
-  </p>
-
-  <p class="portada__pie" aria-hidden="true">FOLIO 00 — SIGUE ▾</p>
-</header>
-
-<!-- ── MARQUESINA DE INVENTARIO ─────────────────────────────────────
-     Franja de savia. CSS puro: dos copias del contenido y un
-     translateX infinito. Con reduced-motion queda quieta. -->
-<div class="marquesina" aria-hidden="true">
-  <div class="marquesina__tira">
-    <span>TORRE DE MADEREO · EXCAVADORA DOOSAN DX225LC-A CON GARRA · TRINEUMÁTICO BELL · CUADRILLAS DE MOTOSIERRISTAS · PINO RADIATA · EUCALIPTO ·&nbsp;</span><span>TORRE DE MADEREO · EXCAVADORA DOOSAN DX225LC-A CON GARRA · TRINEUMÁTICO BELL · CUADRILLAS DE MOTOSIERRISTAS · PINO RADIATA · EUCALIPTO ·&nbsp;</span>
-  </div>
-</div>
-
-<main>
-
-<!-- ╔══════════════════════════════════════════════════════════════╗
-     ║  FOLIO 01 · LA FAENA COMPLETA                    [HOJA]      ║
-     ║  El ciclo de cosecha como formulario de 7 celdas.            ║
-     ╚══════════════════════════════════════════════════════════════╝ -->
-<section class="folio folio--hoja" id="folio-01" aria-labelledby="t-folio-01">
-  <div class="folio__cabecera">
-    <span class="folio__numero" aria-hidden="true">01</span>
-    <div class="folio__rotulo">
-      <span class="folio__etq">FOLIO 01</span>
-      <h2 class="folio__titulo" id="t-folio-01">La faena completa</h2>
+    <div class="portada__acciones">
+      <a class="boton boton--fuerte" href="#contacto">Solicitar evaluación de faena</a>
+      <a class="boton boton--linea" href="#sistema">Ver cómo trabajamos</a>
     </div>
   </div>
-  <div class="regla-doble" aria-hidden="true"><span></span><span></span></div>
 
-  <p class="folio__baja">
-    Tomamos el rodal en pie y entregamos trozas despachadas. Siete
-    operaciones, un solo responsable.
-  </p>
+  <!-- Cifras duras: lo primero que mira un mandante. Las que no tenemos
+       confirmadas las escribe main.js como POR CONFIRMAR — no se inventan. -->
+  <dl class="cifras">
+    <div class="cifra">
+      <dt>Años de faena</dt>
+      <dd><span class="cifra__valor" data-cifra="anios">6</span></dd>
+    </div>
+    <div class="cifra">
+      <dt>Pendiente de torre</dt>
+      <dd><span class="cifra__valor">&gt;30</span><span class="cifra__unidad">%</span></dd>
+    </div>
+    <div class="cifra">
+      <dt>Especies</dt>
+      <dd><span class="cifra__texto">Pino radiata<br>Eucalipto</span></dd>
+    </div>
+    <div class="cifra">
+      <dt>Dotación en faena</dt>
+      <dd><span class="cifra__valor" data-cifra="dotacion">—</span></dd>
+    </div>
+  </dl>
+</section>
 
-  <ol class="ciclo">
-    <li class="ciclo__celda">
-      <span class="ciclo__n">01</span>
-      <h3 class="ciclo__termino">Volteo dirigido</h3>
-      <p>El motosierrista derriba cada árbol orientando su caída hacia la línea de madereo. Corte de dirección, corte de caída: oficio puro.</p>
+<!-- ══════════════════════════════════════════════════════════════════
+     EL SISTEMA — la pieza firma.
+     Corte de la ladera dibujado como plano de ingeniería: torre en la
+     cancha, cable aéreo, carro con la carga, anclaje al tocón, pendiente
+     acotada. Lo dibuja main.js en SVG con relieve de semilla fija.
+     Explica en una pantalla por qué esta empresa entra donde otras no.
+     ══════════════════════════════════════════════════════════════════ -->
+<section class="seccion seccion--sistema" id="sistema" aria-labelledby="t-sistema">
+  <div class="seccion__cabeza">
+    <p class="etiqueta">Sistema de extracción</p>
+    <h2 class="titulo" id="t-sistema">Sobre 30% de pendiente,<br>el cable reemplaza a la rueda</h2>
+    <p class="parrafo">
+      Un skidder en ladera fuerte compacta el suelo, erosiona la
+      quebrada y expone a la gente. La torre se instala arriba, en la
+      cancha, se afianza con vientos y tiende un cable de acero hasta un
+      anclaje al otro extremo. Los fustes suben suspendidos: ninguna
+      máquina pisa la ladera.
+    </p>
+  </div>
+
+  <!-- El plano. role="img" + aria-label porque el contenido es gráfico:
+       la descripción textual completa va en la lista de abajo, que es
+       lo que lee un lector de pantalla. -->
+  <figure class="plano">
+    <div class="plano__lienzo" data-plano role="img"
+         aria-label="Corte de ladera con torre de madereo: la torre montada en la cancha superior, el cable aéreo tendido hasta un anclaje al pie del cerro, y el carro subiendo un fuste suspendido por sobre la pendiente."></div>
+    <figcaption class="plano__pie">
+      <span>Fig. 1 — Línea de madereo por cable aéreo</span>
+      <span class="plano__cota">Corte esquemático · sin escala</span>
+    </figcaption>
+  </figure>
+
+  <ol class="piezas">
+    <li class="pieza">
+      <span class="pieza__n">01</span>
+      <h3>Cancha y torre</h3>
+      <p>La torre se monta arriba, en terreno firme, y se afianza con vientos a tocones o muertos enterrados. Desde ahí manda toda la línea.</p>
     </li>
-    <li class="ciclo__celda">
-      <span class="ciclo__n">02</span>
-      <h3 class="ciclo__termino">Desrame</h3>
-      <p>Se limpia el fuste de ramas con motosierra, en el mismo punto de volteo o en cancha según el sistema.</p>
+    <li class="pieza">
+      <span class="pieza__n">02</span>
+      <h3>Cable y carro</h3>
+      <p>El cable principal se tiende hasta el anclaje del fondo. El carro corre por él, baja vacío y sube cargado.</p>
     </li>
-    <li class="ciclo__celda">
-      <span class="ciclo__n">03</span>
-      <h3 class="ciclo__termino">Madereo</h3>
-      <p>Los fustes suben a la cancha por el cable de la torre. En terreno plano o moderado, los mueve el Bell o la excavadora.</p>
+    <li class="pieza">
+      <span class="pieza__n">03</span>
+      <h3>Estrobado</h3>
+      <p>Abajo, el estrobero engancha cada fuste al carro. Es el oficio más duro de la faena y el que define el rendimiento de la línea.</p>
     </li>
-    <li class="ciclo__celda">
-      <span class="ciclo__n">04</span>
-      <h3 class="ciclo__termino">Trozado</h3>
-      <p>Trozas a los largos de la pauta del mandante: pulpable de 2,44 m, aserrable según pedido. Una troza mal cortada pierde valor; por eso se corta bien.</p>
-    </li>
-    <li class="ciclo__celda">
-      <span class="ciclo__n">05</span>
-      <h3 class="ciclo__termino">Clasificación</h3>
-      <p>Separación por producto, diámetro y largo. El Bell hace aquí su mejor trabajo: canchas chicas, radio de giro corto.</p>
-    </li>
-    <li class="ciclo__celda">
-      <span class="ciclo__n">06</span>
-      <h3 class="ciclo__termino">Acopio y carguío</h3>
-      <p>Rumas ordenadas y camiones cargados con la garra de la excavadora. Una cancha ordenada es una faena segura.</p>
-    </li>
-    <li class="ciclo__celda">
-      <span class="ciclo__n">07</span>
-      <h3 class="ciclo__termino">Despacho</h3>
-      <p>Salida controlada con guía de despacho electrónica: cada troza acredita su origen desde el rodal hasta la romana.</p>
-    </li>
-    <li class="ciclo__celda ciclo__celda--cierre" aria-hidden="false">
-      <p class="ciclo__regla">EN PENDIENTE &gt;30%, TORRE.</p>
-      <p class="ciclo__regla">EN PLANO, BELL Y EXCAVADORA.</p>
+    <li class="pieza">
+      <span class="pieza__n">04</span>
+      <h3>Suelo intacto</h3>
+      <p>El fuste viaja suspendido o semisuspendido. Menor daño al suelo, cursos de agua protegidos y madera donde otros no llegan.</p>
     </li>
   </ol>
 </section>
 
-<!-- ── LÁMINA 01 · PLANCHA ANCHA ────────────────────────────────────
-     Las siete operaciones que se acaban de leer, en una sola foto: la
-     excavadora en la cancha del cerro, la ruma al lado, los volcanes al
-     fondo. Va entre la hoja clara del folio 01 y el bosque del folio 02
-     como respiro, y anuncia la pendiente. -->
-<figure class="lamina">
-  <div class="lamina__lienzo">
-    <img src="imagenes/portada.jpg"
-         alt="Excavadora con garra forestal trabajando en la cancha de un cerro, junto a una ruma de trozas, con volcanes nevados en el horizonte"
-         loading="lazy" decoding="async" width="1500" height="1125">
+<!-- ══════════════════════════════════════════════════════════════════
+     OPERACIONES — el ciclo completo, en grilla técnica.
+     ══════════════════════════════════════════════════════════════════ -->
+<section class="seccion" id="operaciones" aria-labelledby="t-operaciones">
+  <div class="seccion__cabeza">
+    <p class="etiqueta">Alcance del servicio</p>
+    <h2 class="titulo" id="t-operaciones">Del rodal en pie<br>a la troza despachada</h2>
+    <p class="parrafo">
+      Siete operaciones, un solo responsable. El mandante coordina con
+      una empresa, no con seis.
+    </p>
   </div>
-  <figcaption class="lamina__leyenda">
-    <span>LÁMINA 01 — CANCHA EN EL CERRO. DEL VOLTEO AL DESPACHO, EN UN SOLO CUADRO.</span>
-    <span class="lamina__folio">SUR DE CHILE</span>
-  </figcaption>
-</figure>
 
-<!-- ╔══════════════════════════════════════════════════════════════╗
-     ║  FOLIO 02 · PENDIENTE          [BOSQUE PROFUNDO, CON LLUVIA] ║
-     ║  La ladera, la torre y el cable.                             ║
-     ╚══════════════════════════════════════════════════════════════╝ -->
-<section class="folio folio--nocturno" id="folio-02" aria-labelledby="t-folio-02">
-  <canvas class="lluvia" data-lluvia aria-hidden="true"></canvas>
-  <div class="folio__cabecera">
-    <span class="folio__numero" aria-hidden="true">02</span>
-    <div class="folio__rotulo">
-      <span class="folio__etq">FOLIO 02 — MADEREO CON TORRE</span>
-      <h2 class="folio__titulo" id="t-folio-02">Donde las máquinas no llegan, llega el cable.</h2>
-    </div>
-  </div>
-  <div class="regla-doble" aria-hidden="true"><span></span><span></span></div>
+  <ol class="ciclo" data-revelar-hijos>
+    <li class="paso">
+      <span class="paso__n">01</span>
+      <h3>Volteo dirigido</h3>
+      <p>El motosierrista derriba orientando la caída hacia la línea de madereo. Corte de dirección y corte de caída.</p>
+    </li>
+    <li class="paso">
+      <span class="paso__n">02</span>
+      <h3>Desrame</h3>
+      <p>Se limpia el fuste de ramas, en el punto de volteo o en cancha según el sistema que corresponda.</p>
+    </li>
+    <li class="paso">
+      <span class="paso__n">03</span>
+      <h3>Madereo</h3>
+      <p>Torre de cable en pendiente fuerte. Skidder, Bell o excavadora en terreno plano a moderado.</p>
+    </li>
+    <li class="paso">
+      <span class="paso__n">04</span>
+      <h3>Trozado</h3>
+      <p>A los largos de la pauta del mandante: pulpable de 2,44 m, aserrable según pedido. Una troza mal cortada pierde valor.</p>
+    </li>
+    <li class="paso">
+      <span class="paso__n">05</span>
+      <h3>Calibrado y clasificación</h3>
+      <p>El calibrador mide diámetro y largo troza por troza, y separa por producto. De ahí sale el valor real del rodal.</p>
+    </li>
+    <li class="paso">
+      <span class="paso__n">06</span>
+      <h3>Acopio y carguío</h3>
+      <p>Rumas ordenadas y camiones cargados con la garra de la excavadora. Una cancha ordenada es una faena segura.</p>
+    </li>
+    <li class="paso">
+      <span class="paso__n">07</span>
+      <h3>Despacho</h3>
+      <p>Salida controlada con guía electrónica: cada troza acredita su origen desde el rodal hasta la romana.</p>
+    </li>
+    <li class="paso paso--nota">
+      <p><b>En pendiente sobre 30%, torre.</b></p>
+      <p>En plano y moderado, skidder, Bell y excavadora. El terreno decide el sistema, no al revés.</p>
+    </li>
+  </ol>
+</section>
 
-  <div class="pendiente">
-    <div class="pendiente__texto">
-      <p>
-        Sobre 30% de pendiente, un skidder ya no debe entrar: compacta el
-        suelo, erosiona la ladera y expone a la gente. La torre se instala
-        arriba, en la cancha, se afianza con vientos, y tiende un cable por
-        el que los fustes suben suspendidos o semisuspendidos. Ninguna
-        máquina pisa la ladera.
-      </p>
-      <p>
-        Abajo trabaja el estrobero — el oficio más duro de la faena —
-        enganchando cada fuste al carro. Línea por línea, claro por claro,
-        el bosque de la ladera se convierte en rumas en la cancha. Menor
-        daño al suelo, cursos de agua protegidos y madera donde otros no
-        pueden cosechar.
-      </p>
-    </div>
-
-    <!-- FIG. 02: perfil topográfico generativo. Cerros con semilla fija,
-         torre con vientos, cable en catenaria que se tensa al entrar y
-         carro que viaja con su punto naranja. Lo dibuja main.js. -->
-    <figure class="fig fig--perfil">
-      <div class="fig__lienzo" data-fig="perfil" role="img" aria-label="Dibujo técnico: perfil de una ladera con torre de madereo, cable tendido y carro transportando un fuste hacia la cancha"></div>
-      <figcaption class="fig__leyenda">FIG. 02 — LÍNEA DE MADEREO. PENDIENTE &gt;30% → TORRE.</figcaption>
-    </figure>
-
-    <!-- Cifras del rubro con odómetro: datos generales, no de la empresa. -->
-    <dl class="romana">
-      <div class="romana__cifra">
-        <dt>LARGO PULPABLE</dt>
-        <dd><span class="odometro" data-odometro="2,44">2,44</span> <span class="romana__unidad">M</span></dd>
-      </div>
-      <div class="romana__cifra">
-        <dt>ROTACIÓN DEL PINO</dt>
-        <dd><span class="odometro" data-odometro="22–28">22–28</span> <span class="romana__unidad">AÑOS</span></dd>
-      </div>
-      <div class="romana__cifra">
-        <dt>PENDIENTE DE TORRE</dt>
-        <dd><span class="odometro" data-odometro=">30">&gt;30</span> <span class="romana__unidad">%</span></dd>
-      </div>
-    </dl>
+<!-- ══════════════════════════════════════════════════════════════════
+     PLANCHA — foto a sangre entre secciones. Sin marco, sin leyenda de
+     archivo: la faena a ancho completo con el dato encima.
+     ══════════════════════════════════════════════════════════════════ -->
+<section class="plancha" aria-label="Faena en cancha de cerro">
+  <img src="imagenes/portada.jpg"
+       alt="Excavadora Doosan con garra forestal apilando trozas en la cancha de un cerro, con volcanes nevados en el horizonte"
+       loading="lazy" decoding="async" width="1500" height="1125">
+  <div class="plancha__dato">
+    <p class="etiqueta etiqueta--claro">Cancha en altura</p>
+    <p class="plancha__frase">La cancha se construye antes que se corte el primer árbol.</p>
   </div>
 </section>
 
-<!-- ╔══════════════════════════════════════════════════════════════╗
-     ║  FOLIO 03 · PARQUE DE MAQUINARIA                 [HOJA]      ║
-     ║  Fichas técnicas tipo catálogo industrial de los 90.         ║
-     ╚══════════════════════════════════════════════════════════════╝ -->
-<section class="folio folio--hoja" id="folio-03" aria-labelledby="t-folio-03">
-  <div class="folio__cabecera">
-    <span class="folio__numero" aria-hidden="true">03</span>
-    <div class="folio__rotulo">
-      <span class="folio__etq">FOLIO 03 — EQUIPOS PROPIOS</span>
-      <h2 class="folio__titulo" id="t-folio-03">Parque de maquinaria</h2>
-    </div>
+<!-- ══════════════════════════════════════════════════════════════════
+     PARQUE DE MAQUINARIA — fichas técnicas con foto a sangre.
+     ══════════════════════════════════════════════════════════════════ -->
+<section class="seccion" id="parque" aria-labelledby="t-parque">
+  <div class="seccion__cabeza">
+    <p class="etiqueta">Equipos propios</p>
+    <h2 class="titulo" id="t-parque">Parque de maquinaria</h2>
+    <p class="parrafo">
+      Máquinas propias, operadores propios. Sin subcontratar el equipo
+      que hace el trabajo.
+    </p>
   </div>
-  <div class="regla-doble" aria-hidden="true"><span></span><span></span></div>
 
-  <ul class="parque">
-    <li class="ficha">
-      <div class="ficha__datos">
-        <h3 class="ficha__nombre">Torre de madereo</h3>
+  <div class="parque">
+
+    <article class="equipo">
+      <div class="equipo__foto">
+        <img src="imagenes/torre.jpg" style="object-position:32% 50%"
+             alt="Torre de madereo instalada junto al camino forestal, con las líneas tendidas hacia el valle"
+             loading="lazy" decoding="async" width="1600" height="719">
+      </div>
+      <div class="equipo__datos">
+        <h3 class="equipo__nombre">Torre de madereo</h3>
+        <p class="equipo__rol">Extracción en pendiente sobre 30%</p>
         <dl class="specs">
-          <div><dt>SISTEMA</dt><dd>CABLE AÉREO — SKYLINE Y CARRO</dd></div>
-          <div><dt>FUNCIÓN</dt><dd>EXTRACCIÓN EN PENDIENTE &gt;30%</dd></div>
-          <div><dt>ANCLAJE</dt><dd>VIENTOS A TOCONES O MUERTOS</dd></div>
-          <div><dt>CUADRILLA</dt><dd>ESTROBEROS · OPERADOR · DESESTROBADOR</dd></div>
+          <div><dt>Sistema</dt><dd>Cable aéreo — línea y carro</dd></div>
+          <div><dt>Anclaje</dt><dd>Vientos a tocones o muertos</dd></div>
+          <div><dt>Cuadrilla</dt><dd>Operador · estroberos · desestrobador</dd></div>
         </dl>
       </div>
-      <figure class="fig fig--marco fig--photo">
-        <div class="fig__lienzo">
-          <img src="imagenes/torre.jpg" style="object-position: 32% 50%"
-               alt="Torre de madereo amarilla instalada junto al camino forestal, con sus líneas tendidas hacia el valle"
-               loading="lazy" decoding="async" width="1200" height="539">
-        </div>
-        <figcaption class="fig__leyenda">FIG. 03 — LA TORRE EN LÍNEA, CABLES TENDIDOS AL VALLE.</figcaption>
-      </figure>
-    </li>
-    <li class="ficha">
-      <div class="ficha__datos">
-        <h3 class="ficha__nombre">Excavadora Doosan DX225LC-A</h3>
+    </article>
+
+    <article class="equipo equipo--invertido">
+      <div class="equipo__foto">
+        <img src="imagenes/excavadora.jpg"
+             alt="Excavadora Doosan DX225LC-A con garra forestal trabajando al atardecer junto a una ruma de trozas"
+             loading="lazy" decoding="async" width="1200" height="900">
+      </div>
+      <div class="equipo__datos">
+        <h3 class="equipo__nombre">Excavadora Doosan DX225LC-A</h3>
+        <p class="equipo__rol">Cancha, carguío y madereo por paleo</p>
         <dl class="specs">
-          <div><dt>CLASE</dt><dd>22 TONELADAS</dd></div>
-          <div><dt>IMPLEMENTO</dt><dd>GARRA FORESTAL, ROTACIÓN 360°</dd></div>
-          <div><dt>ROLES</dt><dd>MADEREO POR PALEO (SHOVEL LOGGING) · CANCHA · CARGUÍO</dd></div>
-          <div><dt>APOYO</dt><dd>CONSTRUCCIÓN DE CANCHAS Y ACCESOS</dd></div>
+          <div><dt>Clase</dt><dd>22 toneladas</dd></div>
+          <div><dt>Implemento</dt><dd>Garra forestal, rotación 360°</dd></div>
+          <div><dt>Apoyo</dt><dd>Construcción de canchas y accesos</dd></div>
         </dl>
       </div>
-      <figure class="fig fig--marco fig--photo">
-        <div class="fig__lienzo">
-          <img src="imagenes/excavadora.jpg"
-               alt="Excavadora Doosan DX225LC-A con garra forestal apilando trozas al atardecer, con un volcán nevado al fondo"
-               loading="lazy" decoding="async" width="1000" height="750">
-        </div>
-        <figcaption class="fig__leyenda">FIG. 04 — LA DOOSAN EN CANCHA, A ÚLTIMA LUZ.</figcaption>
-      </figure>
-    </li>
-    <li class="ficha">
-      <div class="ficha__datos">
-        <h3 class="ficha__nombre">Trineumático Bell</h3>
-        <dl class="specs">
-          <div><dt>TIPO</dt><dd>LOGGER DE 3 RUEDAS</dd></div>
-          <div><dt>FUERTE</dt><dd>CLASIFICACIÓN Y ACOPIO EN CANCHA</dd></div>
-          <div><dt>MADEREO</dt><dd>TERRENO PLANO A MODERADO — RALEOS Y TALA RASA</dd></div>
-          <div><dt>VENTAJA</dt><dd>RADIO DE GIRO CORTO — DOS FRENTES A LA VEZ</dd></div>
-        </dl>
-      </div>
-      <!-- El Bell es el único equipo que todavía no tiene foto: el frame
-           queda con su veta generativa y el hueco declarado. No se
-           rellena con otra máquina. -->
-      <figure class="fig fig--marco">
-        <div class="fig__lienzo fig__lienzo--veta" data-fig="veta" aria-hidden="true"></div>
-        <figcaption class="fig__leyenda">FIG. 05 — [FOTO DEL BELL PENDIENTE]</figcaption>
-      </figure>
-    </li>
-    <li class="ficha">
-      <div class="ficha__datos">
-        <h3 class="ficha__nombre">Cuadrilla de motosierristas</h3>
-        <dl class="specs">
-          <div><dt>OFICIO</dt><dd>VOLTEO DIRIGIDO · DESRAME · TROZADO</dd></div>
-          <div><dt>EPP</dt><dd>CASCO · FACIAL · AUDITIVA · PANTALÓN ANTICORTE</dd></div>
-          <div><dt>MÉTODO</dt><dd>CORTE DE DIRECCIÓN + CORTE DE CAÍDA</dd></div>
-          <div><dt>TERRENO</dt><dd>DONDE NINGUNA MÁQUINA REEMPLAZA EL OFICIO</dd></div>
-        </dl>
-      </div>
-      <figure class="fig fig--marco fig--photo">
-        <div class="fig__lienzo">
-          <img src="imagenes/trozas.jpg"
-               alt="Trozas recién cortadas con su diámetro marcado a lápiz forestal en la testa, y la huincha de medir tendida encima"
-               loading="lazy" decoding="async" width="719" height="479">
-        </div>
-        <figcaption class="fig__leyenda">FIG. 06 — TROZADO A PAUTA: CADA TROZA MEDIDA Y MARCADA.</figcaption>
-      </figure>
-    </li>
-  </ul>
-</section>
+    </article>
 
-<!-- ╔══════════════════════════════════════════════════════════════╗
-     ║  ANEXO · PLIEGO FOTOGRÁFICO                    [BOSQUE]      ║
-     ║  Seis láminas 3:2 de la faena, con bordes compartidos de 1px ║
-     ║  y pie numerado A-01…A-06.                                   ║
-     ║  Sin número de folio: es un anexo, no rompe la serie 00–06.  ║
-     ╚══════════════════════════════════════════════════════════════╝ -->
-<section class="folio folio--pliego" id="anexo-fotos" aria-labelledby="t-anexo">
-  <div class="folio__cabecera">
-    <span class="folio__numero" aria-hidden="true">A</span>
-    <div class="folio__rotulo">
-      <span class="folio__etq">ANEXO — REGISTRO FOTOGRÁFICO</span>
-      <h2 class="folio__titulo" id="t-anexo">El pliego de la faena</h2>
-    </div>
-  </div>
-  <div class="regla-doble" aria-hidden="true"><span></span><span></span></div>
-
-  <p class="folio__baja">
-    Seis láminas del trabajo en terreno, tal como se ve desde la cancha:
-    la faja, las rumas, el carguío — y los amaneceres que se ganan
-    llegando primero.
-  </p>
-
-  <!-- Cada lámina es un frame 3:2 con marco de plano y pie numerado.
-       Los object-position puntuales mantienen el motivo dentro del
-       recorte (el sol de la A-06 vive en el borde derecho de su foto). -->
-  <ul class="pliego">
-    <li class="pliego__celda">
-      <div class="pliego__lienzo">
+    <article class="equipo">
+      <div class="equipo__foto">
         <img src="imagenes/faja.jpg"
              alt="Dos excavadoras abriendo la faja de madereo entre pinos altos, con la tierra removida en primer plano"
-             loading="lazy" decoding="async" width="1000" height="563">
+             loading="lazy" decoding="async" width="1200" height="675">
       </div>
-      <p class="pliego__pie"><span>Apertura de faja y accesos</span><span>A-01</span></p>
+      <div class="equipo__datos">
+        <h3 class="equipo__nombre">Skidder</h3>
+        <p class="equipo__rol">Arrastre en terreno plano a moderado</p>
+        <dl class="specs">
+          <div><dt>Función</dt><dd>Arrastre de fustes a cancha</dd></div>
+          <div><dt>Terreno</dt><dd>Hasta 30% de pendiente</dd></div>
+          <div><dt>Uso</dt><dd>Tala rasa y raleo comercial</dd></div>
+        </dl>
+      </div>
+    </article>
+
+    <article class="equipo equipo--invertido">
+      <div class="equipo__foto">
+        <img src="imagenes/carguio.jpg" style="object-position:68% 50%"
+             alt="Excavadora cargando un camión Scania junto a la ruma de trozas en una mañana de niebla"
+             loading="lazy" decoding="async" width="1400" height="629">
+      </div>
+      <div class="equipo__datos">
+        <h3 class="equipo__nombre">Bell trineumático</h3>
+        <p class="equipo__rol">Clasificación y acopio en cancha</p>
+        <dl class="specs">
+          <div><dt>Tipo</dt><dd>Logger de tres ruedas</dd></div>
+          <div><dt>Ventaja</dt><dd>Radio de giro corto — canchas chicas</dd></div>
+          <div><dt>Madereo</dt><dd>Plano a moderado, raleos y tala rasa</dd></div>
+        </dl>
+      </div>
+    </article>
+
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════════════════
+     CUADRILLA — los oficios. Lo que ninguna máquina reemplaza.
+     ══════════════════════════════════════════════════════════════════ -->
+<section class="seccion seccion--oscura" id="cuadrilla" aria-labelledby="t-cuadrilla">
+  <div class="seccion__cabeza">
+    <p class="etiqueta">Dotación</p>
+    <h2 class="titulo" id="t-cuadrilla">La faena la hace la gente</h2>
+    <p class="parrafo">
+      Cuadrillas estables de la zona, no gente distinta cada semana. En
+      cosecha, la experiencia del equipo es la diferencia entre una
+      faena rentable y una faena con accidentes.
+    </p>
+  </div>
+
+  <div class="oficios" data-revelar-hijos>
+    <article class="oficio">
+      <h3>Motosierristas</h3>
+      <p>Volteo dirigido, desrame y trozado. Corte de dirección y corte de caída: el oficio base de toda la faena, y el que exige más criterio en ladera.</p>
+      <p class="oficio__epp">EPP completo: casco, facial, auditiva, pantalón anticorte</p>
+    </article>
+    <article class="oficio">
+      <h3>Estroberos</h3>
+      <p>Enganchan cada fuste al carro del cable, abajo en la ladera. De su ritmo depende el rendimiento de toda la línea de madereo.</p>
+      <p class="oficio__epp">Trabajo bajo procedimiento de línea de cable</p>
+    </article>
+    <article class="oficio">
+      <h3>Calibradores</h3>
+      <p>Miden diámetro y largo troza por troza y clasifican por producto según la pauta del mandante. Aquí se decide el valor real del rodal.</p>
+      <p class="oficio__epp">Control de calidad y trazabilidad en cancha</p>
+    </article>
+    <article class="oficio">
+      <h3>Operadores</h3>
+      <p>Torre, excavadora, skidder y Bell. Operadores propios con horas reales en cada máquina, no reemplazos de temporada.</p>
+      <p class="oficio__epp">Mantención preventiva del equipo a cargo</p>
+    </article>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════════════════
+     TERRENO — medio ambiente. Con foto a sangre de la niebla.
+     ══════════════════════════════════════════════════════════════════ -->
+<section class="seccion seccion--terreno" id="terreno" aria-labelledby="t-terreno">
+  <div class="terreno__foto" aria-hidden="true">
+    <img src="imagenes/niebla-1.jpg" alt="" loading="lazy" decoding="async" width="1200" height="675">
+  </div>
+
+  <div class="terreno__cuerpo">
+    <p class="etiqueta etiqueta--claro">Cuidado del terreno</p>
+    <h2 class="titulo" id="t-terreno">Trabajamos donde vivimos</h2>
+    <p class="parrafo">
+      El predio queda después de que nos vamos, y en Loncoche los
+      vecinos son los mismos de siempre. Cuidar el terreno no es una
+      cláusula del contrato: es la condición para que nos vuelvan a
+      llamar.
+    </p>
+
+    <ul class="terreno__lista">
+      <li><b>Cursos de agua</b> con su zona de protección respetada, sin paso de máquina.</li>
+      <li><b>Suelo</b> protegido: el sistema de cable evita la compactación y la erosión en ladera.</li>
+      <li><b>Combustibles y residuos</b> manejados y retirados del predio, todo el año.</li>
+      <li><b>Prevención de incendios</b> reforzada en temporada, con la faena preparada.</li>
+      <li><b>Desechos de cosecha</b> ordenados según lo que indique el plan de manejo.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════════════════
+     SEGURIDAD Y CUMPLIMIENTO
+     ══════════════════════════════════════════════════════════════════ -->
+<section class="seccion" id="seguridad" aria-labelledby="t-seguridad">
+  <div class="seccion__cabeza">
+    <p class="etiqueta">Seguridad y cumplimiento</p>
+    <h2 class="titulo" id="t-seguridad">La cuadrilla vuelve a casa</h2>
+    <p class="parrafo">
+      Es la única meta de producción que no se negocia. Todo lo demás
+      de esta sección existe para cumplirla.
+    </p>
+  </div>
+
+  <ul class="cumple" data-revelar-hijos>
+    <li>
+      <svg class="tic" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12.5 L9.5 18 L20 6.5"/></svg>
+      <p>EPP completo en toda la cuadrilla: casco, protección facial y auditiva, pantalón anticorte.</p>
     </li>
-    <li class="pliego__celda">
-      <div class="pliego__lienzo">
-        <img src="imagenes/rumas.jpg"
-             alt="Ruma de trozas de pino vista de frente, cada testa numerada a lápiz forestal, con el bosque detrás"
-             loading="lazy" decoding="async" width="1000" height="750">
-      </div>
-      <p class="pliego__pie"><span>Cancha y rumas</span><span>A-02</span></p>
+    <li>
+      <svg class="tic" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12.5 L9.5 18 L20 6.5"/></svg>
+      <p>Procedimientos de trabajo seguro por oficio: volteo, desrame, trozado y línea de cable.</p>
     </li>
-    <li class="pliego__celda">
-      <div class="pliego__lienzo">
-        <img src="imagenes/volteo.jpg"
-             alt="Ladera recién volteada con los fustes ordenados pendiente abajo y la excavadora trabajando entre ellos"
-             loading="lazy" decoding="async" width="1000" height="563">
-      </div>
-      <p class="pliego__pie"><span>Volteo en ladera</span><span>A-03</span></p>
+    <li>
+      <svg class="tic" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12.5 L9.5 18 L20 6.5"/></svg>
+      <p>Charla de seguridad antes de comenzar cada jornada, con el frente de trabajo del día.</p>
     </li>
-    <li class="pliego__celda">
-      <div class="pliego__lienzo">
-        <img src="imagenes/carguio.jpg"
-             alt="Excavadora Doosan cargando un camión Scania junto a la ruma, en una mañana de niebla"
-             loading="lazy" decoding="async" width="1100" height="494">
-      </div>
-      <p class="pliego__pie"><span>Carguío y despacho</span><span>A-04</span></p>
+    <li>
+      <svg class="tic" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12.5 L9.5 18 L20 6.5"/></svg>
+      <p>Ley 16.744 y mutualidad al día para cada trabajador de la faena.</p>
     </li>
-    <li class="pliego__celda">
-      <div class="pliego__lienzo">
-        <img src="imagenes/niebla-1.jpg"
-             alt="Mar de nubes visto desde la cancha al amanecer, con el valle entero cubierto por la niebla"
-             loading="lazy" decoding="async" width="1000" height="563">
-      </div>
-      <p class="pliego__pie"><span>La cancha sobre la niebla</span><span>A-05</span></p>
+    <li>
+      <svg class="tic" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12.5 L9.5 18 L20 6.5"/></svg>
+      <p>Acreditación documental al día para los reglamentos de empresas contratistas.</p>
     </li>
-    <li class="pliego__celda">
-      <div class="pliego__lienzo">
-        <img src="imagenes/niebla-2.jpg" style="object-position: 78% 50%"
-             alt="El sol saliendo sobre el mar de nubes, con el suelo de la faena en sombra en primer plano"
-             loading="lazy" decoding="async" width="1000" height="563">
-      </div>
-      <p class="pliego__pie"><span>Amanecer en faena</span><span>A-06</span></p>
+    <li>
+      <svg class="tic" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12.5 L9.5 18 L20 6.5"/></svg>
+      <p>Guía de despacho electrónica y trazabilidad de la madera desde el origen.</p>
+    </li>
+    <li>
+      <svg class="tic" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12.5 L9.5 18 L20 6.5"/></svg>
+      <p>Operamos bajo los estándares FSC y CERTFOR/PEFC que exigen las principales forestales del país.</p>
     </li>
   </ul>
 </section>
 
-<!-- ╔══════════════════════════════════════════════════════════════╗
-     ║  FOLIO 04 · BITÁCORA DE FAMILIA                  [HOJA]      ║
-     ╚══════════════════════════════════════════════════════════════╝ -->
-<section class="folio folio--hoja folio--bitacora" id="folio-04" aria-labelledby="t-folio-04">
-  <span class="folio__vertical" aria-hidden="true">EMPRESA FAMILIAR — SUR DE CHILE</span>
-  <div class="folio__cabecera">
-    <span class="folio__numero" aria-hidden="true">04</span>
-    <div class="folio__rotulo">
-      <span class="folio__etq">FOLIO 04 — REGISTRO</span>
-      <h2 class="folio__titulo" id="t-folio-04">Bitácora de familia</h2>
-    </div>
-  </div>
-  <div class="regla-doble" aria-hidden="true"><span></span><span></span></div>
-
-  <p class="folio__baja">
-    Esto no es una corporación con gerencias: es una familia que vive de la
-    faena y responde con su nombre. La bitácora se está pasando a limpio;
-    las entradas llegan con las fotos.
-  </p>
-
-  <!-- Las filas las arma main.js desde datos.js. Si la bitácora está
-       vacía, muestra las filas estampadas [POR COMPLETAR]. -->
-  <ol class="bitacora" data-bitacora></ol>
-
-  <p class="bitacora__cierre">
-    Trato directo con los dueños. Cuadrillas estables de la zona.
-    Decisiones en el día, no en un directorio.
-  </p>
-</section>
-
-<!-- ── DIVISOR: FRANJA DE ESTIBA ────────────────────────────────────
-     La ruma vista de frente: testas de trozas sobre el bosque.
-     La dibuja main.js con la misma semilla del expediente. -->
-<div class="estiba" data-fig="estiba" aria-hidden="true"></div>
-
-<!-- ╔══════════════════════════════════════════════════════════════╗
-     ║  FOLIO 05 · SEGURIDAD Y ESTÁNDARES               [HOJA]      ║
-     ╚══════════════════════════════════════════════════════════════╝ -->
-<section class="folio folio--hoja folio--seguridad" id="folio-05" aria-labelledby="t-folio-05">
-  <div class="folio__cabecera">
-    <span class="folio__numero" aria-hidden="true">05</span>
-    <div class="folio__rotulo">
-      <span class="folio__etq">FOLIO 05 — CUMPLIMIENTO</span>
-      <h2 class="folio__titulo" id="t-folio-05">La cuadrilla vuelve a casa.</h2>
-    </div>
-  </div>
-  <div class="regla-doble" aria-hidden="true"><span></span><span></span></div>
-
-  <p class="folio__baja">
-    Es la única meta de producción que no se negocia. Todo lo demás de este
-    folio existe para cumplirla.
-  </p>
-
-  <ul class="cumplimiento">
-    <li class="check"><span class="check__caja" aria-hidden="true"><svg viewBox="0 0 24 24"><path class="check__aspa" d="M4,4 L20,20 M20,4 L4,20"/></svg></span>
-      <p>EPP completo en toda la cuadrilla: casco, protección facial y auditiva, pantalón anticorte.</p></li>
-    <li class="check"><span class="check__caja" aria-hidden="true"><svg viewBox="0 0 24 24"><path class="check__aspa" d="M4,4 L20,20 M20,4 L4,20"/></svg></span>
-      <p>Procedimientos de trabajo seguro por oficio: volteo, desrame, trozado, madereo.</p></li>
-    <li class="check"><span class="check__caja" aria-hidden="true"><svg viewBox="0 0 24 24"><path class="check__aspa" d="M4,4 L20,20 M20,4 L4,20"/></svg></span>
-      <p>Charla diaria de seguridad antes de comenzar cada jornada.</p></li>
-    <li class="check"><span class="check__caja" aria-hidden="true"><svg viewBox="0 0 24 24"><path class="check__aspa" d="M4,4 L20,20 M20,4 L4,20"/></svg></span>
-      <p>Ley 16.744 y mutualidad al día para cada trabajador.</p></li>
-    <li class="check"><span class="check__caja" aria-hidden="true"><svg viewBox="0 0 24 24"><path class="check__aspa" d="M4,4 L20,20 M20,4 L4,20"/></svg></span>
-      <p>Listos para los reglamentos de empresas contratistas de los mandantes: acreditación documental al día.</p></li>
-    <li class="check"><span class="check__caja" aria-hidden="true"><svg viewBox="0 0 24 24"><path class="check__aspa" d="M4,4 L20,20 M20,4 L4,20"/></svg></span>
-      <p>Guía de despacho electrónica y trazabilidad de la madera desde el origen.</p></li>
-    <li class="check"><span class="check__caja" aria-hidden="true"><svg viewBox="0 0 24 24"><path class="check__aspa" d="M4,4 L20,20 M20,4 L4,20"/></svg></span>
-      <p>Operamos bajo los estándares FSC y CERTFOR/PEFC que exigen las principales forestales del país.</p></li>
-  </ul>
-
-  <div class="franja-roja" aria-hidden="true"></div>
-
-  <p class="seguridad__ambiental">
-    En terreno eso también significa cursos de agua con su zona de
-    protección respetada, combustibles y residuos manejados como
-    corresponde todo el año, y prevención de incendios reforzada en
-    temporada. No es un anexo del contrato: es la forma en que se
-    trabaja cuando se vive donde se cosecha.
-  </p>
-</section>
-
-<!-- ╔══════════════════════════════════════════════════════════════╗
-     ║  FOLIO 06 · CONTACTO Y DESPACHO                [BOSQUE]      ║
-     ║  El formulario es una guía de despacho: campos subrayados,   ║
-     ║  etiquetas mono, y sale a WhatsApp ya redactado.             ║
-     ╚══════════════════════════════════════════════════════════════╝ -->
-<section class="folio folio--contacto" id="folio-06" aria-labelledby="t-folio-06">
-  <div class="folio__cabecera">
-    <span class="folio__numero" aria-hidden="true">06</span>
-    <div class="folio__rotulo">
-      <span class="folio__etq">FOLIO 06 — CONTACTO</span>
-      <h2 class="folio__titulo" id="t-folio-06">Solicitar evaluación de faena</h2>
-    </div>
-  </div>
-  <div class="regla-doble" aria-hidden="true"><span></span><span></span></div>
-
-  <div class="contacto">
-    <div class="contacto__directo">
-      <p class="contacto__nota">
-        Cuéntenos del predio y lo vamos a ver. La evaluación en terreno
-        no lo compromete a nada: pendiente, accesos, canchas posibles y
-        una conversación derecha sobre qué se puede hacer.
+<!-- ══════════════════════════════════════════════════════════════════
+     TRAYECTORIA — seis años, empresa familiar de Loncoche.
+     ══════════════════════════════════════════════════════════════════ -->
+<section class="seccion seccion--oscura" id="trayectoria" aria-labelledby="t-trayectoria">
+  <div class="trayectoria">
+    <div class="trayectoria__texto">
+      <p class="etiqueta">Trayectoria</p>
+      <h2 class="titulo" id="t-trayectoria">
+        <span class="trayectoria__cifra" data-cifra="anios">6</span>
+        años de faena
+      </h2>
+      <p class="parrafo">
+        Forestal Robur es una empresa familiar de Loncoche. No hay
+        gerencias ni comités: se habla directo con los dueños, y las
+        decisiones se toman en el día.
       </p>
-      <div class="contacto__canal" data-canal="whatsapp" hidden>
-        <span class="contacto__etq">WHATSAPP</span>
-        <a class="contacto__valor" data-dato-href="whatsapp" data-dato="whatsappVisible" href="#folio-06">—</a>
-      </div>
-      <div class="contacto__canal" data-canal="telefono" hidden>
-        <span class="contacto__etq">TELÉFONO</span>
-        <a class="contacto__valor" data-dato-href="telefono" data-dato="telefonoVisible" href="#folio-06">—</a>
-      </div>
-      <div class="contacto__canal" data-canal="correo" hidden>
-        <span class="contacto__etq">CORREO</span>
-        <a class="contacto__valor" data-dato-href="correo" data-dato="correo" href="#folio-06">—</a>
-      </div>
-      <!-- Sin JS este aviso queda visible por defecto: la sección de
-           contacto nunca puede quedar en blanco. main.js lo oculta
-           cuando existe al menos un canal real. -->
-      <div class="contacto__canal contacto__canal--pendiente" data-canal="pendiente">
-        <span class="contacto__etq">CANALES</span>
-        <span class="contacto__valor contacto__valor--estampado">[DATOS DE CONTACTO POR COMPLETAR]</span>
+      <p class="parrafo">
+        Trabajamos para forestales y también para particulares con
+        predios chicos, que muchas veces no encuentran contratista
+        dispuesto a entrar a una ladera difícil.
+      </p>
+    </div>
+    <ol class="hitos" data-trayectoria></ol>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════════════════
+     CONTACTO — el formulario arma el mensaje de WhatsApp.
+     ══════════════════════════════════════════════════════════════════ -->
+<section class="seccion seccion--contacto" id="contacto" aria-labelledby="t-contacto">
+  <div class="contacto">
+
+    <div class="contacto__texto">
+      <p class="etiqueta">Contacto</p>
+      <h2 class="titulo" id="t-contacto">Evaluación de faena<br>sin compromiso</h2>
+      <p class="parrafo">
+        Cuéntenos del predio y vamos a verlo. Revisamos pendiente,
+        accesos y canchas posibles, y le decimos derecho qué se puede
+        hacer y con qué sistema.
+      </p>
+
+      <div class="canales">
+        <div class="canal" data-canal="whatsapp" hidden>
+          <span class="canal__etq">WhatsApp</span>
+          <a class="canal__valor" data-dato="whatsappVisible" href="#contacto">—</a>
+        </div>
+        <div class="canal" data-canal="telefono" hidden>
+          <span class="canal__etq">Teléfono</span>
+          <a class="canal__valor" data-dato="telefonoVisible" href="#contacto">—</a>
+        </div>
+        <div class="canal" data-canal="correo" hidden>
+          <span class="canal__etq">Correo</span>
+          <a class="canal__valor" data-dato="correo" href="#contacto">—</a>
+        </div>
+        <!-- Sin JS este aviso queda visible: la sección de contacto nunca
+             puede quedar en blanco. main.js lo oculta si hay canal real. -->
+        <div class="canal canal--pendiente" data-canal="pendiente">
+          <span class="canal__etq">Canales</span>
+          <span class="canal__valor canal__valor--pendiente">Por confirmar con la empresa</span>
+        </div>
       </div>
     </div>
 
-    <form class="guia" data-guia>
-      <p class="guia__titulo" aria-hidden="true">GUÍA DE EVALUACIÓN — Nº S/N</p>
-      <noscript><p class="guia__aviso">EL FORMULARIO NECESITA JAVASCRIPT. USE LOS CANALES DE CONTACTO DIRECTOS.</p></noscript>
-      <div class="guia__campo">
-        <label for="g-nombre">REMITENTE</label>
-        <input id="g-nombre" name="nombre" type="text" autocomplete="name" required>
+    <form class="formulario" data-formulario>
+      <noscript><p class="aviso">El formulario necesita JavaScript. Use los canales de contacto directos.</p></noscript>
+
+      <div class="campo">
+        <label for="f-nombre">Nombre o empresa</label>
+        <input id="f-nombre" name="nombre" type="text" autocomplete="name" required>
       </div>
-      <div class="guia__campo">
-        <label for="g-predio">PREDIO O FUNDO</label>
-        <input id="g-predio" name="predio" type="text">
+      <div class="campo">
+        <label for="f-predio">Predio o fundo</label>
+        <input id="f-predio" name="predio" type="text" autocomplete="off">
       </div>
-      <div class="guia__campo guia__campo--medio">
-        <label for="g-comuna">COMUNA</label>
-        <input id="g-comuna" name="comuna" type="text">
+      <div class="campo campo--medio">
+        <label for="f-comuna">Comuna</label>
+        <input id="f-comuna" name="comuna" type="text" autocomplete="address-level2">
       </div>
-      <div class="guia__campo guia__campo--medio">
-        <label for="g-superficie">SUPERFICIE APROX. (HA)</label>
-        <input id="g-superficie" name="superficie" type="text" inputmode="decimal">
+      <div class="campo campo--medio">
+        <label for="f-superficie">Superficie aprox. (ha)</label>
+        <input id="f-superficie" name="superficie" type="text" inputmode="decimal">
       </div>
-      <div class="guia__campo">
-        <label for="g-pendiente">PENDIENTE ESTIMADA</label>
-        <select id="g-pendiente" name="pendiente">
-          <option value="">— SIN DATO —</option>
-          <option value="plano">PLANO (0–15%)</option>
-          <option value="moderado">MODERADO (15–30%)</option>
-          <option value="fuerte">FUERTE (&gt;30%) — TERRENO DE TORRE</option>
+      <div class="campo">
+        <label for="f-pendiente">Pendiente estimada</label>
+        <select id="f-pendiente" name="pendiente">
+          <option value="">Sin dato</option>
+          <option value="plano">Plano (0–15%)</option>
+          <option value="moderado">Moderado (15–30%)</option>
+          <option value="fuerte">Fuerte (sobre 30%) — terreno de torre</option>
         </select>
       </div>
-      <div class="guia__campo">
-        <label for="g-detalle">OBSERVACIONES</label>
-        <textarea id="g-detalle" name="detalle" rows="3"></textarea>
+      <div class="campo">
+        <label for="f-detalle">Qué necesita</label>
+        <textarea id="f-detalle" name="detalle" rows="3"></textarea>
       </div>
-      <button class="guia__enviar" type="submit">EMITIR SOLICITUD <span aria-hidden="true">→</span></button>
-      <p class="guia__aviso" id="guia-aviso" data-guia-aviso role="alert" hidden></p>
+      <button class="boton boton--fuerte" type="submit">Enviar solicitud</button>
+      <p class="aviso" id="form-aviso" data-form-aviso role="alert" hidden></p>
     </form>
-  </div>
 
-  <!-- Colofón de imprenta -->
-  <footer class="colofon">
-    <img class="colofon__logo" src="imagenes/logo.png" alt="" width="190" height="172" loading="lazy" decoding="async">
-    <p>
-      Forestal Robur SpA — raíces de confianza.<br>
-      Cosecha forestal, sur de Chile.
-      Compuesto en Besley, Piazzolla e IBM Plex Mono. Hecho con lluvia.<br>
-      <span class="colofon__fin">FOLIO 06 — FIN DEL DOCUMENTO</span>
-    </p>
-  </footer>
+  </div>
 </section>
 
 </main>
+
+<footer class="pie">
+  <div class="pie__marca">
+    <img src="imagenes/logo.png" alt="" width="190" height="172" loading="lazy" decoding="async">
+    <div>
+      <p class="pie__nombre">Forestal Robur SpA</p>
+      <p class="pie__lema">Raíces de confianza</p>
+    </div>
+  </div>
+  <dl class="pie__datos">
+    <div><dt>Base</dt><dd>Loncoche, <span data-dato="region">Región de La Araucanía</span></dd></div>
+    <div><dt>RUT</dt><dd><span data-dato="rut">Por confirmar</span></dd></div>
+    <div><dt>Servicios</dt><dd>Cosecha forestal · pino y eucalipto</dd></div>
+  </dl>
+</footer>
 
 <script defer src="assets/js/main.js"></script>
 </body>
