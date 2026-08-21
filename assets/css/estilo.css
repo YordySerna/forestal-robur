@@ -1,41 +1,68 @@
 /* ============================================================================
    FORESTAL ROBUR SpA · COSECHA FORESTAL — SUR DE CHILE
    ----------------------------------------------------------------------------
-   IDEA: la página entera es un EXPEDIENTE DE FAENA. Mezcla de plano de
-   ingeniería, guía de despacho y catálogo de maquinaria de los 90. No hay
-   "secciones de landing": hay FOLIOS numerados abiertos por reglas dobles
-   de formulario, metadatos en mono al margen y figuras técnicas (FIG. 01,
-   FIG. 02…) que hoy son dibujo generativo y mañana serán fotos sin tocar
-   el layout.
+   IDEA: el expediente de faena, ahora DENTRO DEL BOSQUE.
+
+   El fondo del sitio es bosque nocturno con partículas vivas (polen,
+   agujas de pino, motas de luz) dibujadas a mano en un canvas fijo. Sobre
+   ese bosque se apoyan HOJAS de papel verde-niebla: los folios de lectura
+   larga. Los folios de impacto (portada, pendiente, anexo de fotos,
+   contacto) no llevan hoja: son el bosque mismo, y las partículas se ven
+   a través del texto.
+
+   Eso da el ritmo del documento:
+     00 portada .............. BOSQUE
+     marquesina .............. franja savia
+     01 la faena completa .... HOJA
+     02 pendiente ............ BOSQUE (profundo, con lluvia)
+     03 parque de maquinaria . HOJA
+     anexo fotográfico ....... BOSQUE
+     04 bitácora ............. HOJA
+     estiba (divisor) ........ BOSQUE
+     05 seguridad ............ HOJA
+     06 contacto y colofón ... BOSQUE
 
    REGLAS DEL DOCUMENTO (no negociables):
-   · Bordes y reglas: 1px sólido tinta, 100% opacidad. Cero sombras,
-     cero border-radius, cero gradientes (única excepción: la niebla y
-     el cielo del perfil topográfico del FOLIO 02, y las franjas duras
-     de peligro del FOLIO 05, que son rayas planas, no fundidos).
-   · El naranja se raciona como en la faena: numeración, subrayados,
-     la línea gruesa del membrete y el punto del carro. Nunca en texto
-     chico (a 3,2:1 sobre papel solo aguanta texto grande o gráfico).
+   · Bordes y reglas: 1px sólido, 100% opacidad. Cero sombras, cero
+     border-radius, cero gradientes suaves (excepciones medidas: la niebla
+     del perfil topográfico y las rayas DURAS de la franja de peligro y la
+     retícula de los marcos de foto, que son rayas planas, no fundidos).
+   · Cada contexto redefine sus tokens (--texto, --linea, --acento…): un
+     mismo componente sirve sobre bosque y sobre hoja sin duplicar reglas.
    · Tres familias y ni una más: Besley 900 (titulares), Piazzolla
      (cuerpo), IBM Plex Mono (todo metadato).
    ============================================================================ */
 
 /* ─── 0. VARIABLES ─────────────────────────────────────────────────────── */
 :root{
-  /* Paleta del expediente */
-  --papel:    #F2EDE1;   /* fondo global — nunca blanco puro */
-  --tinta:    #241C15;   /* texto, reglas y bordes (13:1 sobre papel) */
-  --albura:   #E9DCC3;   /* franjas de tabla, cabeceras, colofón */
-  --naranja:  #E1701A;   /* señal GRÁFICA — 2,75:1 sobre papel: JAMÁS texto */
-  --naranja-ui: #C9600F; /* el mismo naranja, oscurecido para texto grande
-                            y focos: 3,5:1 sobre papel (medido, no estimado) */
-  --nocturno: #16211B;   /* fondo exclusivo del FOLIO 02 */
-  --ambar:    #D9A45B;   /* acento sobre nocturno */
-  --amarillo: #EBB10E;   /* amarillo CAT: marquesina y cifras nocturnas */
-  --verde:    #1E3226;   /* relleno del sello, frames FIG. */
-  --neblina:  #C6CCC3;   /* curvas de nivel, capas traseras del perfil */
-  --barro:    #5C4732;   /* filas impares y hover, al 6% */
-  --rojo:     #BC3720;   /* cinta de seguridad: timbres y avisos (4,85:1) */
+  /* — PALETA FORESTAL —
+     Los cinco verdes van del suelo del bosque al helecho iluminado; la
+     madera y la savia son los únicos colores cálidos, y se racionan. */
+  --bosque:    #0C1611;   /* fondo global: suelo de bosque de noche */
+  --bosque-2:  #101C16;   /* celdas y cajas sobre el bosque */
+  --musgo:     #24382B;   /* bordes fuertes sobre hoja, franjas */
+  --pino:      #2F5A3C;   /* verde de texto sobre hoja (6,9:1) */
+  --helecho:   #8FBF9A;   /* acento CLARO sobre bosque (9,1:1) */
+  --niebla:    #E7EFE6;   /* texto principal sobre bosque (15,9:1) */
+  --niebla-2:  #A8B8AC;   /* metadato secundario sobre bosque (9:1) */
+  --hoja:      #EDF0E6;   /* papel verde-niebla de los folios de lectura */
+  --tinta:     #14211A;   /* texto sobre hoja (14,5:1) */
+  --corteza:   #7A5C3E;   /* madera: detalles y hover */
+  --savia:     #E0A94A;   /* ámbar: acento cálido sobre bosque (8,9:1) */
+  --faena:     #E1701A;   /* naranja de señal GRÁFICA (5,8:1 sobre bosque) */
+  --faena-ui:  #C9600F;   /* el naranja para TEXTO GRANDE sobre hoja (3,5:1) */
+  --rojo:      #BC3720;   /* cinta de seguridad: solo avisos */
+
+  /* — TOKENS DE CONTEXTO — valores por defecto: SOBRE BOSQUE.
+     .folio--hoja los reescribe completos más abajo. */
+  --texto:        var(--niebla);
+  --secundario:   var(--niebla-2);
+  --linea:        rgba(231, 239, 230, 0.26);
+  --linea-fuerte: rgba(231, 239, 230, 0.55);
+  --acento:       var(--savia);      /* acento de TEXTO */
+  --acento-graf:  var(--faena);      /* acento GRÁFICO */
+  --celda:        var(--bosque-2);
+  --realce:       rgba(143, 191, 154, 0.09);   /* hover de filas */
 
   /* Tipografía */
   --f-display: "Besley", "Rockwell", "Georgia", serif;
@@ -44,6 +71,8 @@
 
   /* Medidas del documento */
   --margen: clamp(1.25rem, 4vw, 4rem);
+  --canal: clamp(0.75rem, 2.5vw, 3rem);   /* el bosque que se ve al borde
+                                             de cada hoja de papel */
   --ancho-max: 1440px;
 
   /* La curva del expediente: seca, sin rebote */
@@ -53,17 +82,19 @@
 /* ─── 1. BASE ──────────────────────────────────────────────────────────── */
 *, *::before, *::after{ box-sizing: border-box; margin: 0; padding: 0; }
 
-html{ scroll-behavior: smooth; }
+html{
+  scroll-behavior: smooth;
+  /* El fondo va en <html>, no en <body>: así el canvas de partículas
+     puede vivir en z-index 0 sobre el bosque y bajo el contenido. */
+  background-color: var(--bosque);
+}
 @media (prefers-reduced-motion: reduce){
   html{ scroll-behavior: auto; }
 }
 
 body{
-  background-color: var(--papel);
-  /* Grano de papel: feTurbulence estático como imagen de fondo (barato).
-     Jamás como filter sobre contenedores: eso crea capas caras. */
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' seed='7'/%3E%3CfeColorMatrix values='0 0 0 0 0.14 0 0 0 0 0.11 0 0 0 0 0.08 0 0 0 0.045 0'/%3E%3C/filter%3E%3Crect width='240' height='240' filter='url(%23g)'/%3E%3C/svg%3E");
-  color: var(--tinta);
+  background-color: transparent;
+  color: var(--texto);
   font-family: var(--f-cuerpo);
   font-size: 17px;
   line-height: 1.65;
@@ -71,19 +102,35 @@ body{
   overflow-x: clip;           /* el titular sangra a propósito */
 }
 
-::selection{ background: var(--naranja); color: var(--papel); }
+/* El bosque: canvas fijo con las partículas. Detrás de todo el contenido,
+   delante del color de fondo. Nunca intercepta el puntero. */
+.bosque{
+  position: fixed;
+  inset: 0;
+  width: 100%; height: 100%;
+  z-index: 0;
+  pointer-events: none;
+  /* Capa aislada: el canvas se repinta solo, sin invalidar nada del
+     documento que tiene encima. */
+  contain: strict;
+}
+/* Todo el contenido va por encima del bosque */
+body > header, body > main, body > .marquesina{ position: relative; z-index: 1; }
+
+::selection{ background: var(--faena); color: var(--niebla); }
 
 img, svg, canvas{ display: block; max-width: 100%; }
+[hidden]{ display: none !important; }
 
 a{ color: inherit; }
 p a, .contacto__valor{
   text-decoration: none;
-  border-bottom: 3px solid var(--tinta);
+  border-bottom: 3px solid currentColor;
   transition: border-color 120ms linear;
 }
-p a:hover, .contacto__valor:hover{ border-bottom-color: var(--naranja); }
+p a:hover, .contacto__valor:hover{ border-bottom-color: var(--acento); }
 
-:focus-visible{ outline: 2px solid var(--tinta); outline-offset: 3px; }
+:focus-visible{ outline: 2px solid var(--acento); outline-offset: 3px; }
 
 /* Etiqueta mono del expediente: SIEMPRE corta, jamás párrafos */
 .membrete__etq, .folio__etq, .fig__leyenda, dt, .contacto__etq,
@@ -101,6 +148,28 @@ p a:hover, .contacto__valor:hover{ border-bottom-color: var(--naranja); }
   margin: 0 auto;
   padding: clamp(4rem, 9vh, 7rem) var(--margen) clamp(3rem, 7vh, 5.5rem);
   position: relative;
+  color: var(--texto);
+}
+
+/* LA HOJA: el folio de lectura larga, papel verde-niebla apoyado sobre el
+   bosque. Nunca llega a los bordes de la pantalla — el canal lateral deja
+   ver el bosque y sus partículas, que es lo que la hace parecer una hoja
+   y no una sección. */
+.folio--hoja{
+  --texto:        var(--tinta);
+  --secundario:   #4A5A4E;
+  --linea:        rgba(20, 33, 26, 0.22);
+  --linea-fuerte: var(--musgo);
+  --acento:       var(--faena-ui);
+  --acento-graf:  var(--faena);
+  --celda:        var(--hoja);
+  --realce:       rgba(122, 92, 62, 0.09);
+
+  background-color: var(--hoja);
+  border: 1px solid var(--musgo);
+  max-width: min(var(--ancho-max), calc(100% - 2 * var(--canal)));
+  margin: clamp(1.5rem, 4vh, 3rem) auto;
+  padding: clamp(3rem, 7vh, 5.5rem) var(--margen) clamp(2.5rem, 6vh, 4.5rem);
 }
 
 /* Cabecera de folio: número gigante recortado + rótulo */
@@ -117,16 +186,20 @@ p a:hover, .contacto__valor:hover{ border-bottom-color: var(--naranja); }
   line-height: 0.72;              /* recortado por arriba: sale del folio */
   margin-top: -0.16em;
   letter-spacing: -0.02em;
-  /* Outline: relleno transparente con trazo de tinta */
-  -webkit-text-stroke: 1.5px var(--tinta);
+  /* Outline: relleno transparente con trazo del color del contexto */
+  -webkit-text-stroke: 1.5px currentColor;
   color: transparent;
   user-select: none;
 }
+/* El truco de arriba deja `color: transparent`, así que el trazo tiene que
+   nombrarse aparte por contexto. */
+.folio{ --trazo-numero: var(--texto); }
+.folio__numero{ -webkit-text-stroke-color: var(--trazo-numero); }
 @supports not (-webkit-text-stroke: 1px black){
-  .folio__numero{ color: rgba(36, 28, 21, 0.08); }
+  .folio__numero{ color: var(--linea); }
 }
 .folio__rotulo{ padding-bottom: 0.35rem; min-width: 0; }
-.folio__etq{ display: block; margin-bottom: 0.5rem; }
+.folio__etq{ display: block; margin-bottom: 0.5rem; color: var(--acento); }
 .folio__titulo{
   font-family: var(--f-display);
   font-weight: 900;
@@ -141,10 +214,10 @@ p a:hover, .contacto__valor:hover{ border-bottom-color: var(--naranja); }
   font-size: 1.12rem;
 }
 
-/* Regla doble oficial: 1px tinta + 3px naranja, separadas 4px */
+/* Regla doble oficial: 1px del color del contexto + 3px de acento gráfico */
 .regla-doble{ margin-top: 1.25rem; }
-.regla-doble span{ display: block; background: var(--tinta); height: 1px; }
-.regla-doble span + span{ height: 3px; margin-top: 4px; background: var(--naranja); }
+.regla-doble span{ display: block; background: var(--texto); height: 1px; }
+.regla-doble span + span{ height: 3px; margin-top: 4px; background: var(--acento-graf); }
 
 /* Entintado: las reglas nacen cerradas y se abren al entrar el folio.
    Solo con JS vivo; sin JS todo llega pintado. */
@@ -157,27 +230,122 @@ html.js:not(.sin-anim) .regla-doble span + span{ transition-delay: 60ms; }
 html.js:not(.sin-anim) .is-inked .regla-doble span,
 html.js:not(.sin-anim) .is-inked.regla-doble span{ transform: scaleX(1); }
 
-/* ─── 3. FOLIO 00 · MEMBRETE Y PORTADA ─────────────────────────────────── */
-.folio--portada{ padding-top: clamp(1.5rem, 4vh, 3rem); }
+/* ─── 3. FOLIO 00 · MEMBRETE Y PORTADA (fotográfica) ───────────────────── */
+.folio--portada{
+  padding-top: clamp(1.5rem, 4vh, 3rem);
+  padding-bottom: clamp(2rem, 5vh, 4rem);
+  /* La portada respira: la foto necesita alto para leerse como paisaje y
+     no como banda. Tope en rem para que en un monitor vertical no se
+     estire hasta el absurdo. */
+  min-height: min(94vh, 54rem);
+  display: flex;
+  flex-direction: column;
+}
+
+/* EL FONDO DE LA PORTADA — la faena detrás del documento.
+   Va a `position: absolute` dentro del folio (no fixed): tiene que
+   scrollear con la portada, no quedarse pegado como el canvas del bosque.
+   El ancho se estira a los bordes de la pantalla aunque el folio esté
+   centrado en 1440 px, porque un paisaje cortado en seco a media
+   pantalla se ve como un error. */
+.hero__fondo{
+  position: absolute;
+  top: 0; bottom: 0;
+  left: 50%; width: 100vw; transform: translateX(-50%);
+  z-index: -1;
+  overflow: hidden;
+}
+.hero__fondo img{
+  width: 100%; height: 100%;
+  object-fit: cover;
+  /* El camino y la torre viven en el centro-izquierda del cuadro; el
+     valle y los cerros a la derecha. Encuadrado así, el titular cae
+     sobre el camino y el paisaje queda al costado, respirando. */
+  object-position: 42% 62%;
+  /* Bajada de tono, no apagada: el paisaje tiene que LEERSE detrás del
+     documento. Verde algo desaturado para que converse con el bosque, sin
+     perder el naranja de la máquina ni el azul del valle. */
+  filter: saturate(0.78) brightness(0.66) contrast(1.06);
+}
+/* El velo: dos capas planas de bosque. Es la excepción de degradado del
+   sitio y está aquí por dos razones concretas:
+     · la VERTICAL cierra en el color exacto del bosque, para que la foto
+       no termine en una línea recta a media página — sin ella se ve
+       pegada, no integrada;
+     · la HORIZONTAL carga el lado izquierdo, que es donde vive el
+       titular, y deja respirar el derecho, que es donde se ve el valle.
+   Así el paisaje se ve y el texto igual se lee: el peso del velo está
+   puesto donde hay letras, no repartido por parejo. */
+.hero__fondo::after{
+  content: "";
+  position: absolute; inset: 0;
+  background:
+    linear-gradient(to bottom,
+      rgba(12, 22, 17, 0.42) 0%,
+      rgba(12, 22, 17, 0.30) 45%,
+      rgba(12, 22, 17, 0.80) 84%,
+      var(--bosque) 100%),
+    linear-gradient(to right,
+      rgba(12, 22, 17, 0.62) 0%,
+      rgba(12, 22, 17, 0.42) 38%,
+      rgba(12, 22, 17, 0.12) 68%,
+      rgba(12, 22, 17, 0.30) 100%);
+}
+/* Con el hero fotográfico, el membrete deja de ser transparente: es la
+   etiqueta pegada ENCIMA de la foto y necesita su propio cuerpo. */
+.folio--portada .membrete__celda{ background: rgba(16, 28, 22, 0.92); }
+.folio--portada .membrete__celda--sello{ background: #F2EFE7; }
+
+/* En pantalla angosta el fondo NO cubre el folio completo: el hero mide
+   ~1400 px de alto y la foto es panorámica (1600×719), así que a `cover`
+   quedaría recortada a una franja vertical del 12% del cuadro — un zoom
+   sin paisaje. Se limita a una banda superior que envuelve membrete y
+   titular, y de ahí abajo el documento sigue sobre el bosque limpio. */
+@media (max-width: 700px){
+  .hero__fondo{ bottom: auto; height: 62vh; min-height: 26rem; }
+  .hero__fondo img{ object-position: 44% 56%; }
+}
+
+/* Pie de la portada: la marca de continuación del expediente, abajo a la
+   derecha. Empuja hacia el fondo del folio con el margen automático. */
+.portada__pie{
+  margin-top: auto;
+  padding-top: clamp(2rem, 5vh, 3.5rem);
+  align-self: flex-end;
+  font-family: var(--f-mono);
+  font-weight: 600;
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  color: var(--helecho);
+  user-select: none;
+}
 
 /* Membrete tipo rótulo de plano: bordes compartidos de 1px.
-   El truco: fondo tinta + gap de 1px + celdas de papel. */
+   El truco: fondo de línea + gap de 1px + celdas del color del contexto. */
 .membrete{
   display: grid;
   grid-template-columns: auto 1fr repeat(3, auto);
-  background: var(--tinta);
-  border: 1px solid var(--tinta);
+  background: var(--linea-fuerte);
+  border: 1px solid var(--linea-fuerte);
   gap: 1px;
 }
 .membrete__celda{
-  background: var(--papel);
+  background: var(--celda);
   padding: 0.9rem 1.1rem;
   display: flex;
   flex-direction: column;
   justify-content: center;
   gap: 0.3rem;
 }
-.membrete__celda--sello{ padding: 0.7rem; }
+/* La celda del logo es la etiqueta impresa del expediente: conserva el
+   crema original del arte para que el logo no flote recortado sobre el
+   verde. El crema del PNG (#F2EFE7 aprox.) y el de la celda son el mismo
+   papel a ojo; el borde compartido del membrete hace el resto. */
+.membrete__celda--sello{
+  padding: 0.55rem 0.8rem;
+  background: #F2EFE7;
+}
+.membrete__logo{ width: 64px; height: auto; }
 .membrete__nombre{
   font-family: var(--f-display);
   font-weight: 900;
@@ -189,35 +357,27 @@ html.js:not(.sin-anim) .is-inked.regla-doble span{ transform: scaleX(1); }
   font-family: var(--f-mono);
   font-size: 11px;
   letter-spacing: 0.10em;
+  color: var(--helecho);
 }
+.membrete__etq{ color: var(--secundario); }
 .membrete__val{
   font-family: var(--f-mono);
   font-size: 12px;
   font-variant-numeric: tabular-nums;
 }
-/* Dato pendiente: estampado al 40%, levemente girado — el hueco es
-   parte del sistema, no un lorem. */
+/* Dato pendiente: estampado, levemente girado — el hueco es parte del
+   sistema, no un lorem. */
 .dato-pendiente .membrete__val,
 .contacto__valor--estampado, .bitacora__estampado{
-  color: rgba(36, 28, 21, 0.66);   /* 5:1 — el timbre lo dan el giro y el mono */
+  color: var(--secundario);
   display: inline-block;
   transform: rotate(-2deg);
   font-weight: 600;
   letter-spacing: 0.08em;
 }
 
-/* El sello gira como timbre vivo: 60s lineal, imperceptible y constante */
-.sello{ color: var(--verde); }
-.sello__texto{
-  font-family: var(--f-mono);
-  font-size: 10.5px;
-  letter-spacing: 0.18em;
-  fill: currentColor;
-}
-html.js:not(.sin-anim) .sello{ animation: sello-gira 60s linear infinite; }
-@keyframes sello-gira{ to{ transform: rotate(360deg); } }
 
-/* Portada: grilla de 12 — titular (1–8), metadatos (10–12), FIG (7–12) */
+/* Portada: grilla de 12 — titular (1–9), metadatos (10–12) */
 .portada{
   display: grid;
   grid-template-columns: repeat(12, 1fr);
@@ -231,12 +391,11 @@ html.js:not(.sin-anim) .sello{ animation: sello-gira 60s linear infinite; }
   font-family: var(--f-display);
   font-weight: 900;
   /* Los tres números del clamp están MEDIDOS contra Besley 900 real
-     ("EN PENDIENTE," ≈ 9 em): mínimo → cabe en 375px con márgenes;
+     ("EN PENDIENTE," ≈ 9,7 em): mínimo → cabe en 375px con márgenes;
      preferido → cabe en las columnas 1–9 a 1366px; máximo → cabe en el
      contenedor tope de 1440px. No tocar sin volver a medir en el
-     navegador las cuatro líneas y su altura (si una línea se parte en
-     dos renglones, el clamp quedó grande). */
-  font-size: clamp(2.1rem, 6.9vw, 6.25rem);   /* L2 = 9,694 em, medida */
+     navegador las cuatro líneas y su altura. */
+  font-size: clamp(2.1rem, 6.9vw, 6.25rem);
   line-height: 0.95;
   letter-spacing: -0.02em;
   text-transform: uppercase;
@@ -247,6 +406,8 @@ html.js:not(.sin-anim) .sello{ animation: sello-gira 60s linear infinite; }
 .portada__titular .linea:nth-child(2){ padding-left: 0.06em; }
 .portada__titular .linea:nth-child(3){ padding-left: 0.14em; }
 .portada__titular .linea:nth-child(4){ padding-left: 0.05em; }
+/* La última línea lleva el acento del documento */
+.portada__titular .linea:nth-child(4) .linea__int{ color: var(--savia); }
 
 /* Entrada del titular: cada línea sube desde su recorte */
 html.js:not(.sin-anim) .portada__titular .linea__int{
@@ -258,26 +419,33 @@ html.js:not(.sin-anim) .portada__titular .linea:nth-child(3) .linea__int{ transi
 html.js:not(.sin-anim) .portada__titular .linea:nth-child(4) .linea__int{ transition-delay: 270ms; }
 html.js:not(.sin-anim) .hero-listo .portada__titular .linea__int{ transform: translateY(0); }
 
-/* Columna de metadatos con línea de cota apuntando al titular */
+/* Columna de metadatos con línea de cota apuntando al titular. Sobre la
+   foto lleva su propia caja velada: el mono de 12px no puede depender de
+   lo que haya en el cielo detrás. */
 .portada__meta{
   grid-column: 10 / 13;
   grid-row: 1;
   align-self: start;
-  padding-top: 1rem;
   position: relative;
   z-index: 3;
+  /* El padding se compensa con margen negativo a los dos lados: la caja
+     crece hacia afuera y el contenido conserva el ancho que tenía, para
+     que el CTA no se parta en tres renglones. */
+  padding: 1rem 0.95rem 1.3rem;
+  margin: 0 -0.95rem;
+  background: rgba(12, 22, 17, 0.62);
 }
 .cota{
-  height: 1px; background: var(--tinta);
+  height: 1px; background: var(--texto);
   margin-bottom: 1.5rem; position: relative;
 }
 .cota::before, .cota::after{
   content: ""; position: absolute; top: -4px;
-  width: 1px; height: 9px; background: var(--tinta);
+  width: 1px; height: 9px; background: var(--texto);
 }
 .cota::before{ left: 0; } .cota::after{ right: 0; }
 .meta-lista div{ margin-bottom: 0.9rem; }
-.meta-lista dt{ font-size: 10.5px; color: rgba(36,28,21,0.66); }
+.meta-lista dt{ font-size: 10.5px; color: var(--secundario); }
 .meta-lista dd{
   font-family: var(--f-mono);
   font-size: 12.5px;
@@ -285,50 +453,131 @@ html.js:not(.sin-anim) .hero-listo .portada__titular .linea__int{ transform: tra
   font-variant-numeric: tabular-nums;
 }
 
-/* CTA único: rectángulo de tinta que se invierte, seco, en 120ms */
+/* CTA único: rectángulo que se invierte, seco, en 120ms */
 .cta{
   display: inline-block;
   margin-top: 1.5rem;
   padding: 0.85rem 1.2rem;
-  border: 1px solid var(--tinta);
+  border: 1px solid var(--texto);
   font-family: var(--f-mono);
   font-weight: 600;
   font-size: 12.5px;
   letter-spacing: 0.10em;
   text-decoration: none;
-  background: var(--papel);
+  background: transparent;
   transition: background 120ms linear, color 120ms linear;
 }
-.cta:hover{ background: var(--tinta); color: var(--papel); }
+.cta:hover{ background: var(--texto); color: var(--bosque); }
+.folio--hoja .cta:hover{ color: var(--hoja); }
 
-/* FIG. 01: el corte de troza, solapado tras el titular */
-.fig--corte{
-  grid-column: 6 / 13;
-  grid-row: 2;
-  margin-top: clamp(-3rem, -6vh, -1rem);
-  z-index: 1;
-}
 .fig__lienzo{ width: 100%; }
 .fig__lienzo svg{ width: 100%; height: auto; }
 .fig__leyenda{
   margin-top: 0.6rem;
   font-size: 11px;
-  color: rgba(36,28,21,0.72);
+  color: var(--secundario);
 }
-.fig__leyenda--nocturna{ color: rgba(233,220,195,0.75); }
 
 .portada__intro{
   max-width: 62ch;
   margin-top: clamp(2.5rem, 6vh, 4rem);
   font-size: 1.18rem;
   line-height: 1.7;
+  /* Sobre la foto, el cuerpo necesita algo de cuerpo: el mismo velo del
+     folio nocturno, en una caja de texto. Sin esto el párrafo pelea con
+     las ramas del fondo. */
+  padding: 1.2rem 1.4rem 1.2rem 1.3rem;
+  margin-left: -1.3rem;
+  background: rgba(12, 22, 17, 0.55);
+  border-left: 3px solid var(--savia);
+}
+
+/* ─── 3c. REVELADO DE LAS FOTOS ────────────────────────────────────────────
+   Las fotos entran con el mismo gesto con que se entinta el documento: no
+   aparecen de golpe ni se deslizan, se REVELAN — como una copia que sale
+   del líquido. Un solo fundido de 700 ms más un acercamiento mínimo, sobre
+   el observer de folios que ya existe (ninguna clase nueva en JS).
+   El estado inicial vive bajo html.js:not(.sin-anim): sin JS, o si el
+   script no arranca en 2,5 s, las fotos están simplemente visibles. */
+html.js:not(.sin-anim) .fig--photo img,
+html.js:not(.sin-anim) .pliego__lienzo img,
+html.js:not(.sin-anim) .lamina__lienzo img{
+  opacity: 0;
+  transform: scale(1.04);
+  /* `filter` va en la misma lista a propósito: este selector es más
+     específico que el `.pliego__lienzo img { transition: filter }` de más
+     abajo, y sin nombrarlo aquí el hover de las láminas cambiaría de
+     golpe en vez de fundirse. */
+  transition: opacity 700ms var(--curva), transform 900ms var(--curva), filter 120ms linear;
+}
+html.js:not(.sin-anim) .is-inked .fig--photo img,
+html.js:not(.sin-anim) .is-inked .pliego__lienzo img,
+html.js:not(.sin-anim) .lamina.is-inked .lamina__lienzo img{
+  opacity: 1;
+  transform: none;
+}
+/* Escalonado del pliego: las seis láminas no se revelan a la vez, se
+   revelan como se pasan las hojas. */
+html.js:not(.sin-anim) .is-inked .pliego__celda:nth-child(2) img{ transition-delay: 80ms; }
+html.js:not(.sin-anim) .is-inked .pliego__celda:nth-child(3) img{ transition-delay: 160ms; }
+html.js:not(.sin-anim) .is-inked .pliego__celda:nth-child(4) img{ transition-delay: 240ms; }
+html.js:not(.sin-anim) .is-inked .pliego__celda:nth-child(5) img{ transition-delay: 320ms; }
+html.js:not(.sin-anim) .is-inked .pliego__celda:nth-child(6) img{ transition-delay: 400ms; }
+
+/* ─── 3b. LÁMINA 01 · PLANCHA ANCHA ────────────────────────────────────────
+   Va de borde a borde de la pantalla, sin canal: es la única pieza del
+   documento que rompe el ancho máximo, y por eso funciona como respiro
+   entre la hoja clara del folio 01 y el bosque del folio 02.
+   Ventana 5:2 en escritorio; la foto es 4:3, así que el object-position
+   está medido para dejar dentro los volcanes (arriba) y la máquina
+   (centro-derecha). Bajo 700 px pasa a 3:2: una franja 5:2 de 350 px de
+   ancho es un timbre, no una lámina. */
+.lamina{
+  position: relative; z-index: 1;
+  margin: clamp(1.5rem, 4vh, 3rem) 0;
+  border-top: 1px solid var(--linea);
+  border-bottom: 1px solid var(--linea);
+}
+.lamina__lienzo{
+  aspect-ratio: 5 / 2;
+  overflow: hidden;
+  background: var(--bosque-2);
+}
+.lamina__lienzo img{
+  width: 100%; height: 100%;
+  object-fit: cover;
+  object-position: center 34%;
+  filter: saturate(0.94) contrast(1.04);
+}
+/* La leyenda va DENTRO de la plancha, abajo, sobre una banda de bosque
+   casi opaca: así la foto no necesita un pie afuera que la separe del
+   documento, y la banda repite el gesto del membrete. */
+.lamina__leyenda{
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  display: flex; justify-content: space-between; gap: 1.5rem;
+  padding: 0.7rem clamp(1rem, 4vw, 4rem);
+  background: rgba(12, 22, 17, 0.86);
+  border-top: 1px solid var(--linea);
+  font-family: var(--f-mono);
+  font-weight: 600;
+  font-size: 10.5px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--niebla-2);
+}
+.lamina__folio{ color: var(--helecho); flex-shrink: 0; }
+@media (max-width: 700px){
+  .lamina__lienzo{ aspect-ratio: 3 / 2; }
+  .lamina__folio{ display: none; }
 }
 
 /* ─── 4. MARQUESINA DE INVENTARIO ──────────────────────────────────────── */
 .marquesina{
-  background: var(--amarillo);
-  border-top: 1px solid var(--tinta);
-  border-bottom: 1px solid var(--tinta);
+  background: var(--savia);
+  color: var(--bosque);
+  border-top: 1px solid var(--musgo);
+  border-bottom: 1px solid var(--musgo);
   overflow: hidden;
   padding: 0.55rem 0;
 }
@@ -345,33 +594,35 @@ html.js:not(.sin-anim) .marquesina__tira{ animation: marquesina 40s linear infin
 @keyframes marquesina{ to{ transform: translateX(-50%); } }
 /* Pausable: al pasar el cursor (WCAG 2.2.2) y fuera del viewport (JS) */
 .marquesina:hover .marquesina__tira{ animation-play-state: paused; }
-.anim-pausada .marquesina__tira,
-.anim-pausada .sello{ animation-play-state: paused !important; }
-/* Sin animación la tira queda quieta y legible, sin cortar palabras */
+.anim-pausada .marquesina__tira{ animation-play-state: paused !important; }
+/* Sin animación la tira queda quieta y legible, sin cortar palabras. Y la
+   SEGUNDA copia se esconde: existe solo para que el translateX del loop
+   sea continuo, y quieta se leía el inventario dos veces seguidas. */
 html.sin-anim .marquesina__tira, html:not(.js) .marquesina__tira{ white-space: normal; width: auto; }
+html.sin-anim .marquesina__tira span + span,
+html:not(.js) .marquesina__tira span + span{ display: none; }
 
 /* ─── 5. FOLIO 01 · LA FAENA COMPLETA ──────────────────────────────────── */
-/* Formulario de celdas con bordes compartidos: fondo tinta + gap 1px */
+/* Formulario de celdas con bordes compartidos: fondo de línea + gap 1px */
 .ciclo{
   list-style: none;
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  background: var(--tinta);
-  border: 1px solid var(--tinta);
+  background: var(--linea-fuerte);
+  border: 1px solid var(--linea-fuerte);
   gap: 1px;
   margin-top: 2.5rem;
-  counter-reset: paso;
 }
 .ciclo__celda{
-  background: var(--papel);
+  background: var(--celda);
   padding: 1.4rem 1.3rem 1.6rem;
   min-height: 13rem;
 }
 .ciclo__n{
   font-family: var(--f-mono);
   font-weight: 600;
-  font-size: 20px;              /* texto grande: naranja-ui 3,5:1 cumple AA */
-  color: var(--naranja-ui);
+  font-size: 20px;              /* texto grande: el acento cumple AA */
+  color: var(--acento);
   font-variant-numeric: tabular-nums;
 }
 .ciclo__termino{
@@ -383,7 +634,8 @@ html.sin-anim .marquesina__tira, html:not(.js) .marquesina__tira{ white-space: n
 }
 .ciclo__celda p{ font-size: 0.95rem; line-height: 1.55; }
 .ciclo__celda--cierre{
-  background: var(--albura);
+  background: var(--musgo);
+  color: var(--niebla);
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -396,6 +648,7 @@ html.sin-anim .marquesina__tira, html:not(.js) .marquesina__tira{ white-space: n
   letter-spacing: 0.08em;
   line-height: 1.5;
 }
+.ciclo__regla + .ciclo__regla{ color: var(--helecho); }
 
 /* Entintado de las celdas: aparecen escalonadas */
 html.js:not(.sin-anim) .ciclo__celda{
@@ -411,27 +664,22 @@ html.js:not(.sin-anim) .is-inked .ciclo__celda:nth-child(6){ transition-delay: 2
 html.js:not(.sin-anim) .is-inked .ciclo__celda:nth-child(7){ transition-delay: 240ms; }
 html.js:not(.sin-anim) .is-inked .ciclo__celda:nth-child(8){ transition-delay: 280ms; }
 
-/* ─── 6. FOLIO 02 · PENDIENTE (nocturno) ───────────────────────────────── */
+/* ─── 6. FOLIO 02 · PENDIENTE (el más profundo del bosque) ─────────────── */
 .folio--nocturno{
-  max-width: none;               /* el quiebre nocturno va de borde a borde */
-  background: var(--nocturno);
-  color: var(--albura);
-  border-top: 1px solid var(--tinta);
-  border-bottom: 1px solid var(--tinta);
+  max-width: none;               /* el quiebre va de borde a borde */
+  /* Fondo semiopaco: las partículas del bosque SE SIGUEN VIENDO, apagadas,
+     como si la niebla las tapara. Es el folio más hondo del documento. */
+  background: rgba(8, 16, 12, 0.72);
+  border-top: 1px solid var(--linea);
+  border-bottom: 1px solid var(--linea);
 }
 .folio--nocturno > *{ max-width: var(--ancho-max); margin-left: auto; margin-right: auto; }
-.folio--nocturno .folio__numero{ -webkit-text-stroke-color: var(--albura); }
-@supports not (-webkit-text-stroke: 1px black){
-  .folio--nocturno .folio__numero{ color: rgba(233,220,195,0.10); }
-}
-.folio--nocturno .regla-doble span{ background: var(--albura); }
-.folio--nocturno .regla-doble span + span{ background: var(--ambar); }
 
-/* Lluvia fina: canvas fijo del folio, opacidad bajísima. Decorativa. */
+/* Lluvia fina: canvas del folio, opacidad bajísima. Decorativa. */
 .lluvia{
   position: absolute; inset: 0;
   width: 100%; height: 100%;
-  opacity: 0.35; pointer-events: none;
+  opacity: 0.4; pointer-events: none;
 }
 
 .pendiente{ position: relative; }
@@ -447,30 +695,30 @@ html.js:not(.sin-anim) .is-inked .ciclo__celda:nth-child(8){ transition-delay: 2
 }
 
 .fig--perfil{ position: relative; }
-.fig--perfil .fig__lienzo{ border: 1px solid rgba(233,220,195,0.4); }
+.fig--perfil .fig__lienzo{ border: 1px solid var(--linea); }
 
 /* Cifras de romana con odómetro */
 .romana{
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 1px;
-  background: rgba(233,220,195,0.4);
-  border: 1px solid rgba(233,220,195,0.4);
+  background: var(--linea);
+  border: 1px solid var(--linea);
   margin-top: 3rem;
 }
-.romana__cifra{ background: var(--nocturno); padding: 1.4rem 1.5rem 1.6rem; }
-.romana dt{ color: var(--ambar); font-size: 11px; }
+.romana__cifra{ background: var(--bosque-2); padding: 1.4rem 1.5rem 1.6rem; }
+.romana dt{ color: var(--helecho); font-size: 11px; }
 .romana dd{
   margin-top: 0.4rem;
   font-family: var(--f-mono);
   font-weight: 600;
   font-size: clamp(2rem, 4.5vw, 3.4rem);
-  color: var(--amarillo);
+  color: var(--savia);
   font-variant-numeric: tabular-nums;
   line-height: 1;
   display: flex; align-items: baseline; gap: 0.35rem;
 }
-.romana__unidad{ font-size: 0.38em; color: var(--ambar); letter-spacing: 0.1em; }
+.romana__unidad{ font-size: 0.38em; color: var(--helecho); letter-spacing: 0.1em; }
 /* El odómetro: cada dígito es una tira vertical que desliza */
 .odometro{ display: inline-flex; overflow: hidden; }
 .odometro .dig{ display: inline-block; }
@@ -482,8 +730,9 @@ html.js:not(.sin-anim) .is-inked .ciclo__celda:nth-child(8){ transition-delay: 2
 
 /* ─── 7. DIVISOR · FRANJA DE ESTIBA ────────────────────────────────────── */
 .estiba{
-  border-top: 1px solid var(--tinta);
-  border-bottom: 1px solid var(--tinta);
+  position: relative; z-index: 1;
+  border-top: 1px solid var(--linea);
+  border-bottom: 1px solid var(--linea);
   line-height: 0;
 }
 .estiba svg{ width: 100%; height: clamp(70px, 12vw, 130px); display: block; }
@@ -495,7 +744,7 @@ html.js:not(.sin-anim) .is-inked .ciclo__celda:nth-child(8){ transition-delay: 2
   grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
   gap: clamp(1.5rem, 4vw, 3.5rem);
   padding: clamp(2rem, 5vh, 3.5rem) 0;
-  border-bottom: 1px solid var(--tinta);
+  border-bottom: 1px solid var(--linea-fuerte);
   align-items: center;
 }
 .parque .ficha:last-child{ border-bottom: none; }
@@ -514,12 +763,12 @@ html.js:not(.sin-anim) .is-inked .ciclo__celda:nth-child(8){ transition-delay: 2
   align-items: baseline;
   gap: 1.5rem;
   padding: 0.55rem 0;
-  border-top: 1px solid var(--tinta);
+  border-top: 1px solid var(--linea);
   transition: background 120ms linear;
 }
-.specs div:last-child{ border-bottom: 1px solid var(--tinta); }
-.specs div:hover{ background: rgba(92, 71, 50, 0.06); }
-.specs dt{ font-size: 11px; color: rgba(36,28,21,0.66); flex-shrink: 0; }
+.specs div:last-child{ border-bottom: 1px solid var(--linea); }
+.specs div:hover{ background: var(--realce); }
+.specs dt{ font-size: 11px; color: var(--secundario); flex-shrink: 0; }
 .specs dd{
   font-family: var(--f-mono);
   font-size: 12.5px;
@@ -542,18 +791,59 @@ html.js:not(.sin-anim) .is-inked .specs div:nth-child(4){ transition-delay: 120m
    Hoy: veta de madera generativa. Mañana: .fig--photo (ver LEEME). */
 .fig--marco .fig__lienzo{
   aspect-ratio: 3 / 2;
-  border: 1px solid var(--tinta);
-  background: var(--papel);
+  border: 1px solid var(--linea-fuerte);
+  background: var(--celda);
   overflow: hidden;
 }
 .fig--marco canvas{ width: 100%; height: 100%; }
-/* La foto del futuro entra al mismo frame en duotono documental: */
+/* Las fotos van A COLOR con un grade apenas perceptible: la maquinaria
+   es naranja de fábrica — el mismo naranja de señal del sitio — y
+   apagarla a duotono era regalar el único acento que la faena trae
+   puesto. El marco de 1px y la leyenda mono ya ponen el carácter de
+   documento; la foto pone la verdad. */
+.fig--photo .fig__lienzo{ background: var(--musgo); }
 .fig--photo img{
   width: 100%; height: 100%; object-fit: cover;
-  filter: grayscale(1) contrast(1.1);
-  mix-blend-mode: multiply;
+  filter: saturate(0.94) contrast(1.04);
 }
-.fig--photo .fig__lienzo{ background: var(--verde); }
+
+/* ─── 8b. ANEXO · PLIEGO FOTOGRÁFICO ───────────────────────────────────────
+   Seis láminas 3:2 sobre el bosque, con bordes compartidos de 1px y pie
+   numerado. Cada frame es un contrato de layout: la foto entra con
+   object-fit cover y nada se mueve. */
+.pliego{
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1px;
+  background: var(--linea);
+  border: 1px solid var(--linea);
+  margin-top: 2.5rem;
+}
+.pliego__celda{ background: var(--bosque-2); padding: 0; position: relative; }
+.pliego__lienzo{
+  aspect-ratio: 3 / 2;
+  overflow: hidden;
+}
+.pliego__lienzo img{
+  width: 100%; height: 100%;
+  object-fit: cover;
+  filter: saturate(0.94) contrast(1.04);
+  transition: filter 120ms linear;
+}
+/* El hover levanta apenas la lámina, como acercarla a la luz. Seco. */
+.pliego__celda:hover .pliego__lienzo img{ filter: saturate(0.98) contrast(1.04) brightness(1.06); }
+.pliego__pie{
+  display: flex; justify-content: space-between; gap: 1rem;
+  padding: 0.6rem 0.8rem;
+  border-top: 1px solid var(--linea);
+  font-family: var(--f-mono);
+  font-size: 10.5px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--secundario);
+}
+.pliego__pie span:last-child{ color: var(--helecho); flex-shrink: 0; }
 
 /* ─── 9. FOLIO 04 · BITÁCORA DE FAMILIA ────────────────────────────────── */
 .folio--bitacora{ position: relative; }
@@ -565,23 +855,23 @@ html.js:not(.sin-anim) .is-inked .specs div:nth-child(4){ transition-delay: 120m
   font-family: var(--f-mono);
   font-size: 11px;
   letter-spacing: 0.35em;
-  color: rgba(36,28,21,0.5);
+  color: var(--secundario);
   user-select: none;
 }
 .bitacora{ list-style: none; margin-top: 2.5rem; max-width: 62rem; }
 .bitacora li{
   display: flex; gap: 2rem; align-items: baseline;
   padding: 0.8rem 0.5rem;
-  border-top: 1px solid var(--tinta);
+  border-top: 1px solid var(--linea);
   transition: background 120ms linear;
 }
-.bitacora li:last-child{ border-bottom: 1px solid var(--tinta); }
-.bitacora li:hover{ background: rgba(92, 71, 50, 0.06); }
+.bitacora li:last-child{ border-bottom: 1px solid var(--linea); }
+.bitacora li:hover{ background: var(--realce); }
 .bitacora__anio{
   font-family: var(--f-mono);
   font-weight: 600;
   font-size: 18.7px;             /* texto grande en negrita: 3:1 aplica */
-  color: var(--naranja-ui);
+  color: var(--acento);
   font-variant-numeric: tabular-nums;
   flex-shrink: 0;
   min-width: 4.5rem;
@@ -598,19 +888,19 @@ html.js:not(.sin-anim) .is-inked .specs div:nth-child(4){ transition-delay: 120m
 .check{
   display: flex; gap: 1.2rem; align-items: flex-start;
   padding: 0.85rem 0.5rem;
-  border-top: 1px solid var(--tinta);
+  border-top: 1px solid var(--linea);
 }
-.check:last-child{ border-bottom: 1px solid var(--tinta); }
+.check:last-child{ border-bottom: 1px solid var(--linea); }
 .check p{ font-size: 1.02rem; }
 .check__caja{
   flex-shrink: 0;
   width: 22px; height: 22px;
-  border: 1.5px solid var(--tinta);
+  border: 1.5px solid var(--linea-fuerte);
   margin-top: 0.2rem;
 }
 .check__caja svg{ width: 100%; height: 100%; overflow: visible; }
 .check__aspa{
-  fill: none; stroke: var(--tinta); stroke-width: 2.5;
+  fill: none; stroke: var(--pino); stroke-width: 2.5;
   stroke-dasharray: 46; stroke-dashoffset: 0;
 }
 /* Las casillas se timbran con aspa al entrar el folio */
@@ -647,7 +937,7 @@ html.js:not(.sin-anim) .is-inked .check:nth-child(7) .check__aspa{ transition-de
 }
 .contacto__nota{ max-width: 44ch; margin-bottom: 2rem; font-size: 1.08rem; }
 .contacto__canal{ margin-bottom: 1.6rem; }
-.contacto__etq{ display: block; margin-bottom: 0.35rem; color: rgba(36,28,21,0.66); }
+.contacto__etq{ display: block; margin-bottom: 0.35rem; color: var(--helecho); }
 .contacto__valor{
   font-family: var(--f-display);
   font-weight: 900;
@@ -663,32 +953,35 @@ html.js:not(.sin-anim) .is-inked .check:nth-child(7) .check__aspa{ transition-de
 
 /* La guía de despacho: campos solo subrayados */
 .guia{
-  border: 1px solid var(--tinta);
+  border: 1px solid var(--linea-fuerte);
   padding: clamp(1.5rem, 3.5vw, 2.5rem);
-  background: var(--papel);
+  background: var(--bosque-2);
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 1.4rem 1.5rem;
 }
-.guia__titulo{ grid-column: 1 / -1; color: rgba(36,28,21,0.66); }
+.guia__titulo{ grid-column: 1 / -1; color: var(--helecho); }
 .guia__campo{ grid-column: 1 / -1; display: flex; flex-direction: column; gap: 0.4rem; }
 .guia__campo--medio{ grid-column: auto; }
-.guia label{ font-size: 11px; color: rgba(36,28,21,0.8); }
+.guia label{ font-size: 11px; color: var(--secundario); }
 .guia input, .guia select, .guia textarea{
   font-family: var(--f-mono);
   font-size: 14px;
-  color: var(--tinta);
+  color: var(--niebla);
   background: transparent;
   border: none;
-  border-bottom: 1px solid var(--tinta);
+  border-bottom: 1px solid var(--linea-fuerte);
   border-radius: 0;
   padding: 0.4rem 0.1rem;
 }
 .guia select{ appearance: none; cursor: pointer; }
+/* El desplegable nativo se pinta con el color del sistema: hay que dar
+   fondo oscuro a las opciones o quedan ilegibles en algunos Windows. */
+.guia select option{ background: var(--bosque-2); color: var(--niebla); }
 .guia textarea{ resize: vertical; }
 .guia input:focus-visible, .guia select:focus-visible, .guia textarea:focus-visible{
   outline: none;
-  border-bottom: 3px solid var(--naranja-ui);   /* 3,5:1 — indicador válido */
+  border-bottom: 3px solid var(--savia);
   padding-bottom: calc(0.4rem - 2px);
 }
 /* Sin JS el formulario no tiene adónde enviar: el botón se esconde y el
@@ -701,40 +994,49 @@ html:not(.js) .guia__enviar{ display: none; }
   font-weight: 600;
   font-size: 13px;
   letter-spacing: 0.10em;
-  color: var(--papel);
-  background: var(--tinta);
-  border: 1px solid var(--tinta);
+  color: var(--bosque);
+  background: var(--savia);
+  border: 1px solid var(--savia);
   padding: 0.9rem 1.4rem;
   cursor: pointer;
   transition: background 120ms linear, color 120ms linear;
 }
-.guia__enviar:hover{ background: var(--papel); color: var(--tinta); }
+.guia__enviar:hover{ background: transparent; color: var(--savia); }
 .guia__aviso{
   grid-column: 1 / -1;
   font-family: var(--f-mono);
   font-size: 12px;
   letter-spacing: 0.04em;
-  color: var(--rojo);
+  color: var(--savia);
 }
 
-/* Colofón de imprenta sobre albura */
+/* Colofón de imprenta */
 .colofon{
   margin-top: clamp(4rem, 9vh, 6rem);
-  background: var(--albura);
-  border: 1px solid var(--tinta);
+  background: var(--bosque-2);
+  border: 1px solid var(--linea);
   padding: 2.2rem;
   display: flex;
   gap: 1.6rem;
   align-items: center;
 }
-.colofon__sello{ color: var(--verde); flex-shrink: 0; }
+/* El logo en el colofón: la misma etiqueta crema del membrete, chica.
+   El crema es el del arte original; el borde la ancla a la caja. */
+.colofon__logo{
+  width: 58px; height: auto; flex-shrink: 0;
+  background: #F2EFE7;
+  border: 1px solid var(--linea);
+  padding: 4px 6px;
+  box-sizing: content-box;
+}
 .colofon p{
   font-family: var(--f-mono);
   font-size: 12px;
   line-height: 1.8;
   letter-spacing: 0.03em;
+  color: var(--niebla-2);
 }
-.colofon__fin{ font-weight: 600; letter-spacing: 0.10em; }
+.colofon__fin{ font-weight: 600; letter-spacing: 0.10em; color: var(--helecho); }
 
 /* ─── 12. RESPONSIVE ───────────────────────────────────────────────────── */
 @media (max-width: 1080px){
@@ -743,6 +1045,7 @@ html:not(.js) .guia__enviar{ display: none; }
   .pendiente__texto{ columns: 1; }
   .ficha{ grid-template-columns: 1fr; gap: 1.75rem; }
   .fig--marco{ max-width: 34rem; }
+  .pliego{ grid-template-columns: repeat(2, 1fr); }
 }
 
 @media (max-width: 900px){
@@ -759,6 +1062,7 @@ html:not(.js) .guia__enviar{ display: none; }
 
 @media (max-width: 560px){
   .ciclo{ grid-template-columns: 1fr; }
+  .pliego{ grid-template-columns: 1fr; }
   .guia{ grid-template-columns: 1fr; }
   .guia__campo--medio{ grid-column: 1 / -1; }
   .colofon{ flex-direction: column; align-items: flex-start; }
@@ -768,13 +1072,15 @@ html:not(.js) .guia__enviar{ display: none; }
 /* ─── 13. SIN ANIMACIÓN ────────────────────────────────────────────────── */
 /* Con reduced-motion, pestaña oculta al cargar, o sin JS: el documento
    llega entero y pintado. main.js añade .sin-anim al <html>; este bloque
-   además cubre el caso de que el JS no alcance a correr. */
+   además cubre el caso de que el JS no alcance a correr.
+   OJO: las partículas no se apagan del todo con reduced-motion — quedan
+   quietas, dibujadas una vez. Un fondo vacío se ve roto, no accesible. */
 @media (prefers-reduced-motion: reduce){
   html.js .portada__titular .linea__int{ transform: none !important; transition: none !important; }
   html.js .regla-doble span{ transform: none !important; transition: none !important; }
   html.js .ciclo__celda, html.js .specs div{ opacity: 1 !important; transform: none !important; transition: none !important; }
   html.js .check__aspa{ stroke-dashoffset: 0 !important; transition: none !important; }
-  html.js .sello{ animation: none !important; }
   html.js .marquesina__tira{ animation: none !important; white-space: normal; width: auto; }
+  html.js .marquesina__tira span + span{ display: none; }
   html.js .odometro .dig--rueda .tira{ transition: none !important; }
 }

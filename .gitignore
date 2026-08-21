@@ -1,0 +1,4 @@
+# Los originales del teléfono (WhatsApp, sin optimizar) se quedan en la
+# máquina: al repo solo suben las versiones web renombradas y comprimidas.
+imagenes/originales/
+.claude/

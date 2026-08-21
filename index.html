@@ -9,16 +9,16 @@
      SEO / METADATOS
      ============================================================ -->
 <meta name="description" content="Forestal Robur SpA: servicios de cosecha forestal de pino y eucalipto en el sur de Chile. Madereo con torre en pendiente, excavadora con garra, trineumático Bell y cuadrillas de motosierristas. Del volteo al despacho.">
-<meta name="theme-color" content="#241C15">
+<meta name="theme-color" content="#0C1611">
 <meta name="author" content="Forestal Robur SpA">
 <meta property="og:type" content="website">
 <meta property="og:locale" content="es_CL">
 <meta property="og:title" content="Forestal Robur SpA · Cosecha forestal en pendiente">
 <meta property="og:description" content="Torre de madereo, excavadora con garra, trineumático Bell y motosierristas. Pino y eucalipto, del volteo al despacho. Empresa familiar del sur de Chile.">
+<meta property="og:image" content="https://yordyserna.github.io/forestal-robur/imagenes/portada.jpg">
 
-<!-- Favicon: la sección de fuste (anillos de crecimiento) del expediente,
-     tinta sobre papel. Es la FIG. 01 del sitio en miniatura. -->
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' fill='%23F2EDE1'/%3E%3Cg fill='none' stroke='%23241C15' stroke-width='2'%3E%3Ccircle cx='32' cy='32' r='24'/%3E%3Ccircle cx='33' cy='31' r='18'/%3E%3Ccircle cx='31' cy='33' r='12'/%3E%3Ccircle cx='32' cy='32' r='6'/%3E%3C/g%3E%3Ccircle cx='32' cy='32' r='2' fill='%23E1701A'/%3E%3C/svg%3E">
+<!-- Favicon: el símbolo del logo de la empresa, recortado del arte original. -->
+<link rel="icon" href="imagenes/favicon.png" sizes="64x64">
 
 <!-- ============================================================
      TIPOGRAFÍA — el corazón del expediente
@@ -66,45 +66,48 @@ setTimeout(function(){
   "name": "Forestal Robur SpA",
   "description": "Servicios de cosecha forestal de pino y eucalipto en el sur de Chile: madereo con torre en pendiente, excavadora con garra forestal, trineumático Bell y cuadrillas de motosierristas.",
   "areaServed": "Sur de Chile",
+  "slogan": "Raíces de confianza",
+  "image": "https://yordyserna.github.io/forestal-robur/imagenes/portada.jpg",
   "knowsAbout": ["Cosecha forestal", "Madereo con torre", "Pino radiata", "Eucalipto"]
 }
 </script>
 </head>
 <body>
 
+<!-- ══════════════════════════════════════════════════════════════════
+     EL BOSQUE: canvas fijo con las partículas (polen, agujas de pino y
+     motas de luz), dibujadas a mano en main.js. Está detrás de todo el
+     contenido y no intercepta el puntero. Si el JS no corre, queda un
+     canvas vacío sobre el verde profundo: el sitio se lee igual.
+     ══════════════════════════════════════════════════════════════════ -->
+<canvas class="bosque" data-bosque aria-hidden="true"></canvas>
+
 <!-- ╔══════════════════════════════════════════════════════════════╗
-     ║  FOLIO 00 · MEMBRETE Y PORTADA                                ║
-     ║  Sin foto, sin overlay, sin centrado: un rótulo de plano de   ║
-     ║  ingeniería y un titular que ocupa el papel como estampado.   ║
+     ║  FOLIO 00 · MEMBRETE Y PORTADA        [FOTOGRÁFICO]          ║
+     ║  La faena de fondo — la torre con el valle detrás — bajo un  ║
+     ║  velo que la funde con el bosque. Encima, el rótulo de plano ║
+     ║  de ingeniería y el titular estampado.                       ║
      ╚══════════════════════════════════════════════════════════════╝ -->
 <header class="folio folio--portada" id="folio-00">
+
+  <!-- El paisaje de la faena como fondo del documento. Se funde con el
+       bosque por abajo, así la foto no termina en una línea recta y las
+       partículas siguen cayendo sobre ella. -->
+  <div class="hero__fondo" aria-hidden="true">
+    <img src="imagenes/hero-torre.jpg" alt="" width="1600" height="719" decoding="async" fetchpriority="high">
+  </div>
 
   <!-- Membrete: grilla de celdas con bordes compartidos, como el
        rótulo de un plano. Los datos pendientes se estampan. -->
   <div class="membrete" role="banner">
     <div class="membrete__celda membrete__celda--sello" aria-hidden="true">
-      <!-- Sello circular: texto girando alrededor de una hoja de roble.
-           Robur = Quercus robur. El sello gira 60s en CSS, como timbre vivo. -->
-      <svg class="sello" viewBox="0 0 100 100" width="72" height="72">
-        <defs>
-          <path id="sello-arco" d="M50,50 m-38,0 a38,38 0 1,1 76,0 a38,38 0 1,1 -76,0"/>
-        </defs>
-        <circle cx="50" cy="50" r="47" fill="none" stroke="currentColor" stroke-width="1.5"/>
-        <circle cx="50" cy="50" r="28" fill="none" stroke="currentColor" stroke-width="1"/>
-        <text class="sello__texto">
-          <textPath href="#sello-arco" startOffset="0">FORESTAL ROBUR SpA · COSECHA FORESTAL · SUR DE CHILE ·</textPath>
-        </text>
-        <!-- Hoja de roble esquemática: nervio central + lóbulos -->
-        <g fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round">
-          <path d="M50,66 L50,36"/>
-          <path d="M50,38 C44,38 41,35 42,31 C38,32 35,29 36,25 C40,22 44,23 46,26 C46,21 48,18 50,17 C52,18 54,21 54,26 C56,23 60,22 64,25 C65,29 62,32 58,31 C59,35 56,38 50,38 Z"/>
-          <path d="M50,60 C47,57 44,57 42,58"/>
-        </g>
-      </svg>
+      <!-- El logo de la empresa (pino + hoja + sierra), impreso en su
+           crema original: la celda entera es la etiqueta. -->
+      <img class="membrete__logo" src="imagenes/logo.png" alt="" width="190" height="172" decoding="async">
     </div>
     <div class="membrete__celda membrete__celda--razon">
       <p class="membrete__nombre">Forestal Robur <span class="membrete__spa">SpA</span></p>
-      <p class="membrete__giro">SERVICIOS DE COSECHA FORESTAL — PINO Y EUCALIPTO</p>
+      <p class="membrete__giro">COSECHA FORESTAL — PINO Y EUCALIPTO · RAÍCES DE CONFIANZA</p>
     </div>
     <div class="membrete__celda membrete__celda--dato">
       <span class="membrete__etq">RUT</span>
@@ -140,14 +143,6 @@ setTimeout(function(){
       </dl>
       <a class="cta" href="#folio-06">SOLICITAR EVALUACIÓN DE FAENA <span aria-hidden="true">→</span></a>
     </aside>
-
-    <!-- FIG. 01 — la firma del sitio: sección de fuste generativa,
-         acotada como plano. La dibuja main.js con semilla fija:
-         siempre el mismo árbol. -->
-    <figure class="fig fig--corte" id="fig-corte">
-      <div class="fig__lienzo" data-fig="corte" role="img" aria-label="Dibujo técnico: sección transversal de un fuste de pino con sus anillos de crecimiento acotados"></div>
-      <figcaption class="fig__leyenda">FIG. 01 — SECCIÓN DE FUSTE. UN ANILLO POR AÑO.</figcaption>
-    </figure>
   </div>
 
   <p class="portada__intro">
@@ -157,10 +152,12 @@ setTimeout(function(){
     ninguna máquina reemplaza el oficio. Este documento es nuestra carta de
     presentación: léalo como se lee una faena bien llevada.
   </p>
+
+  <p class="portada__pie" aria-hidden="true">FOLIO 00 — SIGUE ▾</p>
 </header>
 
 <!-- ── MARQUESINA DE INVENTARIO ─────────────────────────────────────
-     Franja amarillo CAT. CSS puro: dos copias del contenido y un
+     Franja de savia. CSS puro: dos copias del contenido y un
      translateX infinito. Con reduced-motion queda quieta. -->
 <div class="marquesina" aria-hidden="true">
   <div class="marquesina__tira">
@@ -171,10 +168,10 @@ setTimeout(function(){
 <main>
 
 <!-- ╔══════════════════════════════════════════════════════════════╗
-     ║  FOLIO 01 · LA FAENA COMPLETA                                 ║
-     ║  El ciclo de cosecha como formulario de 7 celdas.             ║
+     ║  FOLIO 01 · LA FAENA COMPLETA                    [HOJA]      ║
+     ║  El ciclo de cosecha como formulario de 7 celdas.            ║
      ╚══════════════════════════════════════════════════════════════╝ -->
-<section class="folio" id="folio-01" aria-labelledby="t-folio-01">
+<section class="folio folio--hoja" id="folio-01" aria-labelledby="t-folio-01">
   <div class="folio__cabecera">
     <span class="folio__numero" aria-hidden="true">01</span>
     <div class="folio__rotulo">
@@ -232,9 +229,26 @@ setTimeout(function(){
   </ol>
 </section>
 
+<!-- ── LÁMINA 01 · PLANCHA ANCHA ────────────────────────────────────
+     Las siete operaciones que se acaban de leer, en una sola foto: la
+     excavadora en la cancha del cerro, la ruma al lado, los volcanes al
+     fondo. Va entre la hoja clara del folio 01 y el bosque del folio 02
+     como respiro, y anuncia la pendiente. -->
+<figure class="lamina">
+  <div class="lamina__lienzo">
+    <img src="imagenes/portada.jpg"
+         alt="Excavadora con garra forestal trabajando en la cancha de un cerro, junto a una ruma de trozas, con volcanes nevados en el horizonte"
+         loading="lazy" decoding="async" width="1500" height="1125">
+  </div>
+  <figcaption class="lamina__leyenda">
+    <span>LÁMINA 01 — CANCHA EN EL CERRO. DEL VOLTEO AL DESPACHO, EN UN SOLO CUADRO.</span>
+    <span class="lamina__folio">SUR DE CHILE</span>
+  </figcaption>
+</figure>
+
 <!-- ╔══════════════════════════════════════════════════════════════╗
-     ║  FOLIO 02 · PENDIENTE (quiebre nocturno)                      ║
-     ║  El único folio oscuro: la ladera, la torre y el cable.       ║
+     ║  FOLIO 02 · PENDIENTE          [BOSQUE PROFUNDO, CON LLUVIA] ║
+     ║  La ladera, la torre y el cable.                             ║
      ╚══════════════════════════════════════════════════════════════╝ -->
 <section class="folio folio--nocturno" id="folio-02" aria-labelledby="t-folio-02">
   <canvas class="lluvia" data-lluvia aria-hidden="true"></canvas>
@@ -270,7 +284,7 @@ setTimeout(function(){
          carro que viaja con su punto naranja. Lo dibuja main.js. -->
     <figure class="fig fig--perfil">
       <div class="fig__lienzo" data-fig="perfil" role="img" aria-label="Dibujo técnico: perfil de una ladera con torre de madereo, cable tendido y carro transportando un fuste hacia la cancha"></div>
-      <figcaption class="fig__leyenda fig__leyenda--nocturna">FIG. 02 — LÍNEA DE MADEREO. PENDIENTE &gt;30% → TORRE.</figcaption>
+      <figcaption class="fig__leyenda">FIG. 02 — LÍNEA DE MADEREO. PENDIENTE &gt;30% → TORRE.</figcaption>
     </figure>
 
     <!-- Cifras del rubro con odómetro: datos generales, no de la empresa. -->
@@ -292,10 +306,10 @@ setTimeout(function(){
 </section>
 
 <!-- ╔══════════════════════════════════════════════════════════════╗
-     ║  FOLIO 03 · PARQUE DE MAQUINARIA                              ║
-     ║  Fichas técnicas tipo catálogo industrial de los 90.          ║
+     ║  FOLIO 03 · PARQUE DE MAQUINARIA                 [HOJA]      ║
+     ║  Fichas técnicas tipo catálogo industrial de los 90.         ║
      ╚══════════════════════════════════════════════════════════════╝ -->
-<section class="folio" id="folio-03" aria-labelledby="t-folio-03">
+<section class="folio folio--hoja" id="folio-03" aria-labelledby="t-folio-03">
   <div class="folio__cabecera">
     <span class="folio__numero" aria-hidden="true">03</span>
     <div class="folio__rotulo">
@@ -316,9 +330,13 @@ setTimeout(function(){
           <div><dt>CUADRILLA</dt><dd>ESTROBEROS · OPERADOR · DESESTROBADOR</dd></div>
         </dl>
       </div>
-      <figure class="fig fig--marco">
-        <div class="fig__lienzo fig__lienzo--veta" data-fig="veta" aria-hidden="true"></div>
-        <figcaption class="fig__leyenda">FIG. 03 — [FOTO DE FAENA PENDIENTE]</figcaption>
+      <figure class="fig fig--marco fig--photo">
+        <div class="fig__lienzo">
+          <img src="imagenes/torre.jpg" style="object-position: 32% 50%"
+               alt="Torre de madereo amarilla instalada junto al camino forestal, con sus líneas tendidas hacia el valle"
+               loading="lazy" decoding="async" width="1200" height="539">
+        </div>
+        <figcaption class="fig__leyenda">FIG. 03 — LA TORRE EN LÍNEA, CABLES TENDIDOS AL VALLE.</figcaption>
       </figure>
     </li>
     <li class="ficha">
@@ -331,9 +349,13 @@ setTimeout(function(){
           <div><dt>APOYO</dt><dd>CONSTRUCCIÓN DE CANCHAS Y ACCESOS</dd></div>
         </dl>
       </div>
-      <figure class="fig fig--marco">
-        <div class="fig__lienzo fig__lienzo--veta" data-fig="veta" aria-hidden="true"></div>
-        <figcaption class="fig__leyenda">FIG. 04 — [FOTO DE FAENA PENDIENTE]</figcaption>
+      <figure class="fig fig--marco fig--photo">
+        <div class="fig__lienzo">
+          <img src="imagenes/excavadora.jpg"
+               alt="Excavadora Doosan DX225LC-A con garra forestal apilando trozas al atardecer, con un volcán nevado al fondo"
+               loading="lazy" decoding="async" width="1000" height="750">
+        </div>
+        <figcaption class="fig__leyenda">FIG. 04 — LA DOOSAN EN CANCHA, A ÚLTIMA LUZ.</figcaption>
       </figure>
     </li>
     <li class="ficha">
@@ -346,9 +368,12 @@ setTimeout(function(){
           <div><dt>VENTAJA</dt><dd>RADIO DE GIRO CORTO — DOS FRENTES A LA VEZ</dd></div>
         </dl>
       </div>
+      <!-- El Bell es el único equipo que todavía no tiene foto: el frame
+           queda con su veta generativa y el hueco declarado. No se
+           rellena con otra máquina. -->
       <figure class="fig fig--marco">
         <div class="fig__lienzo fig__lienzo--veta" data-fig="veta" aria-hidden="true"></div>
-        <figcaption class="fig__leyenda">FIG. 05 — [FOTO DE FAENA PENDIENTE]</figcaption>
+        <figcaption class="fig__leyenda">FIG. 05 — [FOTO DEL BELL PENDIENTE]</figcaption>
       </figure>
     </li>
     <li class="ficha">
@@ -361,23 +386,99 @@ setTimeout(function(){
           <div><dt>TERRENO</dt><dd>DONDE NINGUNA MÁQUINA REEMPLAZA EL OFICIO</dd></div>
         </dl>
       </div>
-      <figure class="fig fig--marco">
-        <div class="fig__lienzo fig__lienzo--veta" data-fig="veta" aria-hidden="true"></div>
-        <figcaption class="fig__leyenda">FIG. 06 — [FOTO DE FAENA PENDIENTE]</figcaption>
+      <figure class="fig fig--marco fig--photo">
+        <div class="fig__lienzo">
+          <img src="imagenes/trozas.jpg"
+               alt="Trozas recién cortadas con su diámetro marcado a lápiz forestal en la testa, y la huincha de medir tendida encima"
+               loading="lazy" decoding="async" width="719" height="479">
+        </div>
+        <figcaption class="fig__leyenda">FIG. 06 — TROZADO A PAUTA: CADA TROZA MEDIDA Y MARCADA.</figcaption>
       </figure>
     </li>
   </ul>
 </section>
 
-<!-- ── DIVISOR: FRANJA DE ESTIBA ────────────────────────────────────
-     La ruma vista de frente: testas de trozas como lámina impresa.
-     La dibuja main.js con la misma semilla del expediente. -->
-<div class="estiba" data-fig="estiba" aria-hidden="true"></div>
+<!-- ╔══════════════════════════════════════════════════════════════╗
+     ║  ANEXO · PLIEGO FOTOGRÁFICO                    [BOSQUE]      ║
+     ║  Seis láminas 3:2 de la faena, con bordes compartidos de 1px ║
+     ║  y pie numerado A-01…A-06.                                   ║
+     ║  Sin número de folio: es un anexo, no rompe la serie 00–06.  ║
+     ╚══════════════════════════════════════════════════════════════╝ -->
+<section class="folio folio--pliego" id="anexo-fotos" aria-labelledby="t-anexo">
+  <div class="folio__cabecera">
+    <span class="folio__numero" aria-hidden="true">A</span>
+    <div class="folio__rotulo">
+      <span class="folio__etq">ANEXO — REGISTRO FOTOGRÁFICO</span>
+      <h2 class="folio__titulo" id="t-anexo">El pliego de la faena</h2>
+    </div>
+  </div>
+  <div class="regla-doble" aria-hidden="true"><span></span><span></span></div>
+
+  <p class="folio__baja">
+    Seis láminas del trabajo en terreno, tal como se ve desde la cancha:
+    la faja, las rumas, el carguío — y los amaneceres que se ganan
+    llegando primero.
+  </p>
+
+  <!-- Cada lámina es un frame 3:2 con marco de plano y pie numerado.
+       Los object-position puntuales mantienen el motivo dentro del
+       recorte (el sol de la A-06 vive en el borde derecho de su foto). -->
+  <ul class="pliego">
+    <li class="pliego__celda">
+      <div class="pliego__lienzo">
+        <img src="imagenes/faja.jpg"
+             alt="Dos excavadoras abriendo la faja de madereo entre pinos altos, con la tierra removida en primer plano"
+             loading="lazy" decoding="async" width="1000" height="563">
+      </div>
+      <p class="pliego__pie"><span>Apertura de faja y accesos</span><span>A-01</span></p>
+    </li>
+    <li class="pliego__celda">
+      <div class="pliego__lienzo">
+        <img src="imagenes/rumas.jpg"
+             alt="Ruma de trozas de pino vista de frente, cada testa numerada a lápiz forestal, con el bosque detrás"
+             loading="lazy" decoding="async" width="1000" height="750">
+      </div>
+      <p class="pliego__pie"><span>Cancha y rumas</span><span>A-02</span></p>
+    </li>
+    <li class="pliego__celda">
+      <div class="pliego__lienzo">
+        <img src="imagenes/volteo.jpg"
+             alt="Ladera recién volteada con los fustes ordenados pendiente abajo y la excavadora trabajando entre ellos"
+             loading="lazy" decoding="async" width="1000" height="563">
+      </div>
+      <p class="pliego__pie"><span>Volteo en ladera</span><span>A-03</span></p>
+    </li>
+    <li class="pliego__celda">
+      <div class="pliego__lienzo">
+        <img src="imagenes/carguio.jpg"
+             alt="Excavadora Doosan cargando un camión Scania junto a la ruma, en una mañana de niebla"
+             loading="lazy" decoding="async" width="1100" height="494">
+      </div>
+      <p class="pliego__pie"><span>Carguío y despacho</span><span>A-04</span></p>
+    </li>
+    <li class="pliego__celda">
+      <div class="pliego__lienzo">
+        <img src="imagenes/niebla-1.jpg"
+             alt="Mar de nubes visto desde la cancha al amanecer, con el valle entero cubierto por la niebla"
+             loading="lazy" decoding="async" width="1000" height="563">
+      </div>
+      <p class="pliego__pie"><span>La cancha sobre la niebla</span><span>A-05</span></p>
+    </li>
+    <li class="pliego__celda">
+      <div class="pliego__lienzo">
+        <img src="imagenes/niebla-2.jpg" style="object-position: 78% 50%"
+             alt="El sol saliendo sobre el mar de nubes, con el suelo de la faena en sombra en primer plano"
+             loading="lazy" decoding="async" width="1000" height="563">
+      </div>
+      <p class="pliego__pie"><span>Amanecer en faena</span><span>A-06</span></p>
+    </li>
+  </ul>
+</section>
 
 <!-- ╔══════════════════════════════════════════════════════════════╗
-     ║  FOLIO 04 · BITÁCORA DE FAMILIA                               ║
+     ║  FOLIO 04 · BITÁCORA DE FAMILIA                  [HOJA]      ║
      ╚══════════════════════════════════════════════════════════════╝ -->
-<section class="folio folio--bitacora" id="folio-04" aria-labelledby="t-folio-04">
+<section class="folio folio--hoja folio--bitacora" id="folio-04" aria-labelledby="t-folio-04">
   <span class="folio__vertical" aria-hidden="true">EMPRESA FAMILIAR — SUR DE CHILE</span>
   <div class="folio__cabecera">
     <span class="folio__numero" aria-hidden="true">04</span>
@@ -404,10 +505,15 @@ setTimeout(function(){
   </p>
 </section>
 
+<!-- ── DIVISOR: FRANJA DE ESTIBA ────────────────────────────────────
+     La ruma vista de frente: testas de trozas sobre el bosque.
+     La dibuja main.js con la misma semilla del expediente. -->
+<div class="estiba" data-fig="estiba" aria-hidden="true"></div>
+
 <!-- ╔══════════════════════════════════════════════════════════════╗
-     ║  FOLIO 05 · SEGURIDAD Y ESTÁNDARES                            ║
+     ║  FOLIO 05 · SEGURIDAD Y ESTÁNDARES               [HOJA]      ║
      ╚══════════════════════════════════════════════════════════════╝ -->
-<section class="folio folio--seguridad" id="folio-05" aria-labelledby="t-folio-05">
+<section class="folio folio--hoja folio--seguridad" id="folio-05" aria-labelledby="t-folio-05">
   <div class="folio__cabecera">
     <span class="folio__numero" aria-hidden="true">05</span>
     <div class="folio__rotulo">
@@ -451,9 +557,9 @@ setTimeout(function(){
 </section>
 
 <!-- ╔══════════════════════════════════════════════════════════════╗
-     ║  FOLIO 06 · CONTACTO Y DESPACHO                               ║
-     ║  El formulario es una guía de despacho: campos subrayados,    ║
-     ║  etiquetas mono, y sale a WhatsApp ya redactado.              ║
+     ║  FOLIO 06 · CONTACTO Y DESPACHO                [BOSQUE]      ║
+     ║  El formulario es una guía de despacho: campos subrayados,   ║
+     ║  etiquetas mono, y sale a WhatsApp ya redactado.             ║
      ╚══════════════════════════════════════════════════════════════╝ -->
 <section class="folio folio--contacto" id="folio-06" aria-labelledby="t-folio-06">
   <div class="folio__cabecera">
@@ -530,19 +636,13 @@ setTimeout(function(){
     </form>
   </div>
 
-  <!-- Colofón de imprenta sobre albura -->
+  <!-- Colofón de imprenta -->
   <footer class="colofon">
-    <svg class="colofon__sello" viewBox="0 0 100 100" width="44" height="44" aria-hidden="true">
-      <circle cx="50" cy="50" r="46" fill="none" stroke="currentColor" stroke-width="2"/>
-      <g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
-        <path d="M50,72 L50,34"/>
-        <path d="M50,38 C42,38 38,34 39,28 C44,24 49,26 50,30 C51,26 56,24 61,28 C62,34 58,38 50,38 Z"/>
-      </g>
-    </svg>
+    <img class="colofon__logo" src="imagenes/logo.png" alt="" width="190" height="172" loading="lazy" decoding="async">
     <p>
-      Forestal Robur SpA — cosecha forestal, sur de Chile.<br>
-      Compuesto en Besley, Piazzolla e IBM Plex Mono.
-      Hecho en el sur de Chile, con lluvia.<br>
+      Forestal Robur SpA — raíces de confianza.<br>
+      Cosecha forestal, sur de Chile.
+      Compuesto en Besley, Piazzolla e IBM Plex Mono. Hecho con lluvia.<br>
       <span class="colofon__fin">FOLIO 06 — FIN DEL DOCUMENTO</span>
     </p>
   </footer>

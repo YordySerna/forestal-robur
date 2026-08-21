@@ -8,19 +8,21 @@
         → html.sin-anim y el documento llega entero, pintado.
      2. PRNG con semilla fija (mulberry32): las figuras generativas son
         SIEMPRE el mismo dibujo — el expediente no cambia entre visitas.
-     3. FIG. 01 — sección de fuste (anillos de crecimiento acotados).
+     3. EL BOSQUE: partículas de fondo (polen a la deriva, agujas de pino
+        que caen, motas de luz que respiran) en un canvas fijo.
      4. FIG. 02 — perfil de ladera: cerros, torre, cable en catenaria que
         se tensa al entrar, y carro que viaja con su fuste.
-     5. Veta de madera generativa en los frames del parque de maquinaria.
+     5. Veta de madera generativa en el frame sin foto del parque.
      6. Franja de estiba (testas de trozas) como divisor.
-     7. Lluvia fina del folio nocturno.
-     8. Entintado por folio: UN IntersectionObserver, entra una sola vez.
+     7. Lluvia fina del folio de pendiente.
+     8. Entintado y revelado: UN IntersectionObserver para los folios y la
+        plancha fotográfica; entra una sola vez.
      9. Odómetro de romana (cifras que ruedan).
     10. Una sola rueda requestAnimationFrame para los bucles CONTINUOS
-        (carro, lluvia): cada uno se registra y se pausa solo fuera de
-        viewport o con la pestaña oculta. El resorte del cable usa su
-        propio rAF corto y autoterminante (~1 s); las animaciones CSS
-        del sello y la marquesina se pausan por clase con un observer.
+        (bosque, carro, lluvia): cada uno se registra y se pausa solo
+        fuera de viewport o con la pestaña oculta. El resorte del cable
+        usa su propio rAF corto y autoterminante (~1 s); la animación CSS
+        de la marquesina se pausa por clase con un observer.
     11. Datos de la empresa (datos.js): membrete, canales, bitácora,
         JSON-LD y reporte en consola de lo que falta.
     12. La guía de despacho → WhatsApp/correo ya redactado.
@@ -33,6 +35,22 @@
 window.__mainVivo = true;
 
 var doc = document, raiz = doc.documentElement;
+
+/* La paleta forestal, en un solo lugar. Si cambia el CSS, cambia acá:
+   los dibujos generativos no pueden leer variables CSS sin pagar un
+   getComputedStyle por color. */
+var C = {
+  bosque:  "#0C1611",
+  bosque2: "#101C16",
+  musgo:   "#24382B",
+  helecho: "#8FBF9A",
+  niebla:  "#E7EFE6",
+  niebla2: "#A8B8AC",
+  hoja:    "#EDF0E6",
+  tinta:   "#14211A",
+  savia:   "#E0A94A",
+  faena:   "#E1701A"
+};
 
 /* ── 1. POLÍTICA DE ANIMACIÓN ─────────────────────────────────────────── */
 var reducido = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -59,9 +77,10 @@ function el(nombre, atributos, padre){
 }
 
 /* ── 10 (adelantado). GESTOR ÚNICO DE rAF ─────────────────────────────────
-   Una sola rueda para todo: el carro del cable y la lluvia se registran
-   como tareas con un elemento de referencia; un IntersectionObserver las
-   enciende/apaga según viewport, y visibilitychange apaga todo. */
+   Una sola rueda para todo: el bosque, el carro del cable y la lluvia se
+   registran como tareas con un elemento de referencia; un
+   IntersectionObserver las enciende/apaga según viewport, y
+   visibilitychange apaga todo. */
 var tareas = [];
 var ruedaViva = false;
 function rueda(t){
@@ -87,73 +106,213 @@ function registrarTarea(elemento, fn){
   tareas.push({ el: elemento, fn: fn, visible: false });
   obsTareas.observe(elemento);
 }
+/* Tarea SIEMPRE visible, sin observer: para lo que es `position: fixed` y
+   por definición no puede salir de la pantalla. Antes esto se registraba
+   contra <html> con el IntersectionObserver de arriba, pero eso deja el
+   fondo entero del sitio colgando de que el observer reporte al elemento
+   raíz como intersectando el viewport. La pausa por pestaña oculta la da
+   igual el gestor, que es la única que hace falta acá. */
+function registrarTareaFija(fn){
+  tareas.push({ el: null, fn: fn, visible: true });
+  despertarRueda();
+}
 doc.addEventListener("visibilitychange", despertarRueda);
 
-/* ── 3. FIG. 01 — SECCIÓN DE FUSTE ────────────────────────────────────────
-   26–34 anillos irregulares con semilla fija: r(θ) = base + Σ sen(kθ+f)·a.
-   Acotado como plano: diámetro, rotación, médula. */
-(function figCorte(){
-  var lienzo = doc.querySelector('[data-fig="corte"]');
-  if (!lienzo) return;
-  var rnd = mulberry32(20260819);
-  var W = 760, H = 470, cx = 470, cy = 235, N = 28;
-  var svg = el("svg", { viewBox: "0 0 " + W + " " + H, "aria-hidden": "true" }, lienzo);
+/* ── 3. EL BOSQUE — partículas de fondo ───────────────────────────────────
+   Tres capas, todas a mano, todas en el MISMO canvas fijo:
 
-  var anillos = [];
-  for (var i = 0; i < N; i++){
-    var base = 10 + i * 7.4;
-    /* Tres armónicos por anillo: el árbol crece parecido año a año,
-       así que las fases derivan poco entre anillos vecinos. */
-    var f1 = rnd() * 6.283, f2 = rnd() * 6.283, f3 = rnd() * 6.283;
-    var a1 = base * (0.035 + rnd() * 0.03);
-    var a2 = base * (0.012 + rnd() * 0.015);
-    var puntos = [];
-    for (var s = 0; s <= 96; s++){
-      var th = (s / 96) * 6.28318;
-      var r = base + Math.sin(3 * th + f1) * a1 + Math.sin(7 * th + f2) * a2 + Math.sin(13 * th + f3) * 1.2;
-      puntos.push((cx + Math.cos(th) * r).toFixed(1) + "," + (cy + Math.sin(th) * r * 0.96).toFixed(1));
-    }
-    var d = "M" + puntos[0] + " L" + puntos.slice(1).join(" ") + " Z";
-    anillos.push(el("path", { d: d, fill: "none", stroke: "#241C15", "stroke-width": i % 7 === 3 ? 1.6 : 1 }, svg));
+     · POLEN    — motas que flotan a la deriva. Se mueven por un campo de
+                  flujo senoidal (dos ondas cruzadas): no hay dos que
+                  sigan la misma línea, y ninguna necesita memoria.
+     · AGUJAS   — agujas de pino cayendo despacio, con giro propio. Son
+                  segmentos, no imágenes: 2 líneas por aguja.
+     · LUCES    — cuatro motas ámbar que respiran, como bichos de luz.
+
+   Las posiciones se guardan NORMALIZADAS (0–1) y se multiplican por el
+   tamaño al dibujar: así el resize no cuesta nada y no hay que recalcular
+   ni reposicionar nada. Las velocidades también son normalizadas, así una
+   mota tarda lo mismo en cruzar un teléfono que un monitor.
+
+   Con reduced-motion NO se apaga: se dibuja una sola vez, quieto. Un
+   fondo vacío se ve roto, no accesible. */
+function bosque(){
+  var cv = doc.querySelector("[data-bosque]");
+  if (!cv) return;
+  var ctx = cv.getContext("2d");
+  /* dpr con tope 1,5: son motas difusas de 1–2px, el detalle extra no se
+     ve y limpiar un respaldo a 2× en pantalla completa sí se siente. */
+  var dpr = Math.min(window.devicePixelRatio || 1, 1.5);
+  var W = 0, H = 0;
+
+  /* Se mide el TAMAÑO REAL DEL ELEMENTO, no window.innerWidth: la ventana
+     incluye el ancho de la barra de scroll y el canvas no, así que con
+     innerWidth el respaldo queda estirado y las motas salen ovaladas. */
+  function medir(){
+    var w = cv.clientWidth, h = cv.clientHeight;
+    if (!w || !h) return false;          /* pestaña sin viewport todavía */
+    if (w === W && h === H) return false;
+    W = w; H = h;
+    cv.width = Math.round(W * dpr);
+    cv.height = Math.round(H * dpr);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    return true;
   }
-  el("circle", { cx: cx, cy: cy, r: 2.4, fill: "#E1701A" }, svg);
+  medir();
 
-  /* Cotas: grupo de textos técnicos que aparecen al final del trazado */
-  var cotas = el("g", { "font-family": "IBM Plex Mono, monospace", "font-size": "11.5",
-                        fill: "#241C15", "letter-spacing": "1" }, svg);
-  var rMax = 10 + (N - 1) * 7.4;
-  /* Línea de diámetro con tics */
-  el("line", { x1: cx - rMax, y1: 448, x2: cx + rMax, y2: 448, stroke: "#241C15", "stroke-width": 1 }, cotas);
-  el("line", { x1: cx - rMax, y1: 443, x2: cx - rMax, y2: 453, stroke: "#241C15", "stroke-width": 1 }, cotas);
-  el("line", { x1: cx + rMax, y1: 443, x2: cx + rMax, y2: 453, stroke: "#241C15", "stroke-width": 1 }, cotas);
-  el("text", { x: cx, y: 440, "text-anchor": "middle" }, cotas).textContent = "Ø 42 CM";
-  /* Rotación, con línea de referencia al anillo exterior */
-  el("line", { x1: 30, y1: 40, x2: cx - rMax * 0.62, y2: cy - rMax * 0.72, stroke: "#241C15", "stroke-width": 1 }, cotas);
-  el("text", { x: 26, y: 30 }, cotas).textContent = "PINO RADIATA — ROTACIÓN 22–28 AÑOS";
-  /* Médula */
-  el("line", { x1: 96, y1: 320, x2: cx - 8, y2: cy + 6, stroke: "#241C15", "stroke-width": 1 }, cotas);
-  el("text", { x: 30, y: 338 }, cotas).textContent = "MÉDULA — AÑO 1";
-  el("text", { x: 30, y: 356, "font-size": "10", opacity: "0.65" }, cotas).textContent = "UN ANILLO POR AÑO, COMO LA EMPRESA.";
+  var rnd = mulberry32(88061945);
 
-  if (sinAnim) return;   /* sin animación: el corte llega dibujado */
-
-  /* Cascada centro→borde con las cotas al final */
-  cotas.style.opacity = "0";
-  cotas.style.transition = "opacity 600ms linear 1600ms";
-  anillos.forEach(function(p, i){
-    var L = p.getTotalLength();
-    p.style.strokeDasharray = L;
-    p.style.strokeDashoffset = L;
-    p.style.transition = "stroke-dashoffset 900ms cubic-bezier(0.22,1,0.36,1) " + (i * 45) + "ms";
-  });
-  /* El trazado parte cuando el hero está listo (fuentes cargadas) */
-  window.__trazarCorte = function(){
-    requestAnimationFrame(function(){
-      anillos.forEach(function(p){ p.style.strokeDashoffset = "0"; });
-      cotas.style.opacity = "1";
+  /* Densidad según el área real: un teléfono no necesita 80 motas, y un
+     monitor de 27" con 30 se ve vacío. */
+  var nPolen = Math.max(26, Math.min(84, Math.round(W * H / 22000)));
+  var polen = [];
+  for (var i = 0; i < nPolen; i++){
+    polen.push({
+      x: rnd(), y: rnd(),
+      r: 0.5 + rnd() * 1.7,
+      /* deriva propia, en fracción de pantalla por segundo */
+      vx: (rnd() - 0.5) * 0.010,
+      vy: -0.004 - rnd() * 0.012,      /* el polen sube: es aire tibio */
+      fase: rnd() * 6.283,
+      banda: Math.floor(rnd() * 3)      /* 3 bandas de opacidad, 3 paths */
     });
-  };
-})();
+  }
+
+  var nAgujas = W < 700 ? 7 : 13;
+  var agujas = [];
+  for (var j = 0; j < nAgujas; j++){
+    agujas.push({
+      x: rnd(), y: rnd(),
+      largo: 7 + rnd() * 12,
+      ang: rnd() * 3.14,
+      giro: (rnd() - 0.5) * 0.5,        /* radianes por segundo */
+      vy: 0.012 + rnd() * 0.022,        /* las agujas caen */
+      vx: (rnd() - 0.5) * 0.008,
+      abre: 0.25 + rnd() * 0.3          /* la V de la aguja doble */
+    });
+  }
+
+  var luces = [];
+  for (var k = 0; k < 4; k++){
+    luces.push({
+      x: 0.12 + rnd() * 0.76, y: 0.12 + rnd() * 0.76,
+      r: 1.1 + rnd() * 0.9,
+      vx: (rnd() - 0.5) * 0.006, vy: (rnd() - 0.5) * 0.006,
+      fase: rnd() * 6.283,
+      pulso: 0.5 + rnd() * 0.7          /* ciclos por segundo */
+    });
+  }
+
+  /* Wrap toroidal con margen: la partícula que sale por un borde vuelve
+     a entrar por el opuesto, un poco afuera, para que nunca se vea
+     aparecer de la nada en pantalla. */
+  function envolver(p){
+    if (p.x < -0.04) p.x = 1.04; else if (p.x > 1.04) p.x = -0.04;
+    if (p.y < -0.04) p.y = 1.04; else if (p.y > 1.04) p.y = -0.04;
+  }
+
+  var OPACIDADES = ["rgba(143,191,154,0.13)", "rgba(199,219,203,0.22)", "rgba(231,239,230,0.36)"];
+
+  function dibujar(t){
+    ctx.clearRect(0, 0, W, H);
+
+    /* POLEN — un path por banda de opacidad: 3 cambios de estado en vez
+       de uno por mota. */
+    for (var b = 0; b < 3; b++){
+      ctx.fillStyle = OPACIDADES[b];
+      ctx.beginPath();
+      for (var i = 0; i < polen.length; i++){
+        var p = polen[i];
+        if (p.banda !== b) continue;
+        var x = p.x * W, y = p.y * H;
+        ctx.moveTo(x + p.r, y);
+        ctx.arc(x, y, p.r, 0, 6.28318);
+      }
+      ctx.fill();
+    }
+
+    /* AGUJAS — dos segmentos en V por aguja, un solo path para todas */
+    ctx.strokeStyle = "rgba(143,191,154,0.20)";
+    ctx.lineWidth = 1;
+    ctx.lineCap = "round";
+    ctx.beginPath();
+    for (var j = 0; j < agujas.length; j++){
+      var a = agujas[j];
+      var ax = a.x * W, ay = a.y * H;
+      var c1 = Math.cos(a.ang - a.abre), s1 = Math.sin(a.ang - a.abre);
+      var c2 = Math.cos(a.ang + a.abre), s2 = Math.sin(a.ang + a.abre);
+      ctx.moveTo(ax, ay); ctx.lineTo(ax + c1 * a.largo, ay + s1 * a.largo);
+      ctx.moveTo(ax, ay); ctx.lineTo(ax + c2 * a.largo, ay + s2 * a.largo);
+    }
+    ctx.stroke();
+
+    /* LUCES — pocas y ámbar: son el único calor del bosque */
+    for (var k = 0; k < luces.length; k++){
+      var l = luces[k];
+      var respira = 0.5 + 0.5 * Math.sin(t * 0.001 * l.pulso + l.fase);
+      ctx.fillStyle = "rgba(224,169,74," + (0.10 + respira * 0.30).toFixed(3) + ")";
+      ctx.beginPath();
+      ctx.arc(l.x * W, l.y * H, l.r * (0.8 + respira * 0.5), 0, 6.28318);
+      ctx.fill();
+    }
+  }
+
+  /* ResizeObserver sobre el propio canvas, no un listener de window: así
+     también cubre el caso de la pestaña que carga SIN viewport (segundo
+     plano, ventana minimizada) y recién después recibe su tamaño.
+     Nada se recalcula al remedir — las posiciones son normalizadas —,
+     pero cambiar cv.width LIMPIA el canvas: en modo quieto hay que volver
+     a dibujar o el fondo queda vacío para siempre. Es exactamente lo que
+     pasa al girar el teléfono. */
+  new ResizeObserver(function(){
+    if (medir() && reducido) dibujar(0);
+  }).observe(cv);
+
+  /* Acá se mira SOLO prefers-reduced-motion, no `sinAnim`: que la pestaña
+     haya cargado en segundo plano es motivo para no animar el hero de
+     entrada, pero no para dejar el bosque muerto cuando el visitante
+     por fin la mire. La rueda global ya está pausada mientras la pestaña
+     esté oculta, así que registrarse no cuesta nada. */
+  if (reducido){ dibujar(0); return; }   /* quieto, pero nunca vacío */
+
+  var previo = null, acumulado = 0;
+  /* 30 fps, no 60: este canvas cubre la pantalla completa y se recompone
+     sobre TODO el contenido en cada repintado. Las motas se mueven a 0,01
+     de pantalla por segundo — a 30 fps nadie nota la diferencia, y el
+     trabajo de composición se corta a la mitad en las gráficas integradas
+     que son la mayoría de las máquinas donde se va a ver esto. */
+  var PASO = 1 / 30;
+
+  registrarTareaFija(function(t){
+    if (previo === null) previo = t;
+    var dt = Math.min((t - previo) / 1000, 0.05); previo = t;
+    acumulado += dt;
+    if (acumulado < PASO) return;
+    dt = acumulado; acumulado = 0;
+    var seg = t * 0.001;
+
+    for (var i = 0; i < polen.length; i++){
+      var p = polen[i];
+      /* Campo de flujo: dos senos cruzados, uno por eje. Barato y da la
+         sensación de aire que cambia de dirección sin turbulencia real. */
+      p.x += (p.vx + Math.sin(p.y * 5.5 + seg * 0.25 + p.fase) * 0.006) * dt;
+      p.y += (p.vy + Math.cos(p.x * 4.2 + seg * 0.20) * 0.004) * dt;
+      envolver(p);
+    }
+    for (var j = 0; j < agujas.length; j++){
+      var a = agujas[j];
+      a.x += (a.vx + Math.sin(a.y * 3.1 + seg * 0.4) * 0.005) * dt;
+      a.y += a.vy * dt;
+      a.ang += a.giro * dt;
+      envolver(a);
+    }
+    for (var k = 0; k < luces.length; k++){
+      var l = luces[k];
+      l.x += l.vx * dt; l.y += l.vy * dt;
+      envolver(l);
+    }
+    dibujar(t);
+  });
+}
 
 /* ── 4. FIG. 02 — PERFIL DE LADERA ────────────────────────────────────────
    (Se construye en tiempo ocioso: está varios viewports bajo el pliegue.) */
@@ -180,8 +339,8 @@ function figPerfil(){
      un velo vertical que hunde los cerros lejanos en la niebla. */
   var defs = el("defs", {}, svg);
   var grad = el("linearGradient", { id: "niebla", x1: "0", y1: "0", x2: "0", y2: "1" }, defs);
-  el("stop", { offset: "0", "stop-color": "#C6CCC3", "stop-opacity": "0.16" }, grad);
-  el("stop", { offset: "1", "stop-color": "#C6CCC3", "stop-opacity": "0.02" }, grad);
+  el("stop", { offset: "0", "stop-color": C.helecho, "stop-opacity": "0.14" }, grad);
+  el("stop", { offset: "1", "stop-color": C.helecho, "stop-opacity": "0.02" }, grad);
 
   function cerro(baseY, amp, semilla, relleno, trazo, opacidadTrazo){
     var n = ruido1D(9, amp, semilla), pts = "M0," + H + " ";
@@ -193,7 +352,7 @@ function figPerfil(){
                         "stroke-width": 1, "stroke-opacity": opacidadTrazo || 1 }, svg);
   }
   cerro(300, 150, 41, "url(#niebla)");
-  cerro(330, 120, 87, "rgba(198,204,195,0.10)");
+  cerro(330, 120, 87, "rgba(143,191,154,0.09)");
 
   /* Cerro frontal: la ladera de la faena. Alto a la izquierda (cancha),
      baja al valle y repunta a la derecha (anclaje). */
@@ -207,26 +366,26 @@ function figPerfil(){
   }
   for (var x = 0; x <= W; x += 10) frente += "L" + x + "," + yFrente(x).toFixed(1) + " ";
   frente += "L" + W + "," + H + " L0," + H + " Z";
-  el("path", { d: frente, fill: "#20362A", stroke: "#E9DCC3", "stroke-opacity": "0.5", "stroke-width": 1 }, svg);
+  el("path", { d: frente, fill: "#16281E", stroke: C.helecho, "stroke-opacity": "0.45", "stroke-width": 1 }, svg);
 
   /* Cancha: plano corto arriba a la izquierda */
-  el("line", { x1: 20, y1: 150, x2: 175, y2: 150, stroke: "#E9DCC3", "stroke-width": 1.5 }, svg);
+  el("line", { x1: 20, y1: 150, x2: 175, y2: 150, stroke: C.niebla, "stroke-width": 1.5 }, svg);
 
   /* Torre con vientos sobre la cancha */
   var torreX = 120, torreBase = 150, torreTope = 52;
-  el("line", { x1: torreX, y1: torreBase, x2: torreX, y2: torreTope, stroke: "#E9DCC3", "stroke-width": 2.5 }, svg);
-  el("line", { x1: torreX, y1: torreTope, x2: torreX - 74, y2: torreBase, stroke: "#E9DCC3", "stroke-width": 0.8, "stroke-opacity": "0.75" }, svg);
-  el("line", { x1: torreX, y1: torreTope, x2: torreX + 62, y2: torreBase + 4, stroke: "#E9DCC3", "stroke-width": 0.8, "stroke-opacity": "0.75" }, svg);
-  el("circle", { cx: torreX, cy: torreTope, r: 3.5, fill: "none", stroke: "#E9DCC3", "stroke-width": 1.2 }, svg);
+  el("line", { x1: torreX, y1: torreBase, x2: torreX, y2: torreTope, stroke: C.niebla, "stroke-width": 2.5 }, svg);
+  el("line", { x1: torreX, y1: torreTope, x2: torreX - 74, y2: torreBase, stroke: C.niebla, "stroke-width": 0.8, "stroke-opacity": "0.7" }, svg);
+  el("line", { x1: torreX, y1: torreTope, x2: torreX + 62, y2: torreBase + 4, stroke: C.niebla, "stroke-width": 0.8, "stroke-opacity": "0.7" }, svg);
+  el("circle", { cx: torreX, cy: torreTope, r: 3.5, fill: "none", stroke: C.niebla, "stroke-width": 1.2 }, svg);
   /* Base de la torre: la máquina, esquemática */
-  el("rect", { x: torreX - 17, y: torreBase - 12, width: 34, height: 12, fill: "none", stroke: "#E9DCC3", "stroke-width": 1.2 }, svg);
+  el("rect", { x: torreX - 17, y: torreBase - 12, width: 34, height: 12, fill: "none", stroke: C.niebla, "stroke-width": 1.2 }, svg);
 
   /* Anclaje al otro lado: tocón */
   var ancX = 1085, ancY = yFrente(ancX);
-  el("line", { x1: ancX, y1: ancY, x2: ancX, y2: ancY - 16, stroke: "#E9DCC3", "stroke-width": 3 }, svg);
+  el("line", { x1: ancX, y1: ancY, x2: ancX, y2: ancY - 16, stroke: C.niebla, "stroke-width": 3 }, svg);
 
   /* El cable: catenaria (cuadrática). Parte CAÍDO y se tensa al entrar. */
-  var cable = el("path", { fill: "none", stroke: "#E9DCC3", "stroke-width": 1.4 }, svg);
+  var cable = el("path", { fill: "none", stroke: C.niebla, "stroke-width": 1.4 }, svg);
   var caida = 150;              /* estado suelto */
   var CAIDA_TENSA = 46;         /* estado de trabajo */
   function trazarCable(c){
@@ -237,19 +396,19 @@ function figPerfil(){
 
   /* El carro con su fuste, punto naranja incluido */
   var carro = el("g", { opacity: "0" }, svg);
-  el("rect", { x: -7, y: -4, width: 14, height: 8, fill: "none", stroke: "#E9DCC3", "stroke-width": 1.2 }, carro);
-  el("circle", { cx: 0, cy: 0, r: 2.6, fill: "#E1701A" }, carro);
-  var estrobo = el("line", { x1: 0, y1: 4, x2: 0, y2: 26, stroke: "#E9DCC3", "stroke-width": 0.9 }, carro);
-  var fuste = el("line", { x1: -20, y1: 26, x2: 20, y2: 26, stroke: "#E9DCC3", "stroke-width": 3.4, "stroke-linecap": "round" }, carro);
+  el("rect", { x: -7, y: -4, width: 14, height: 8, fill: "none", stroke: C.niebla, "stroke-width": 1.2 }, carro);
+  el("circle", { cx: 0, cy: 0, r: 2.6, fill: C.faena }, carro);
+  var estrobo = el("line", { x1: 0, y1: 4, x2: 0, y2: 26, stroke: C.niebla, "stroke-width": 0.9 }, carro);
+  var fuste = el("line", { x1: -20, y1: 26, x2: 20, y2: 26, stroke: C.niebla, "stroke-width": 3.4, "stroke-linecap": "round" }, carro);
 
-  /* Cotas en ámbar */
+  /* Cotas en savia */
   var cotas = el("g", { "font-family": "IBM Plex Mono, monospace", "font-size": "12",
-                        fill: "#D9A45B", "letter-spacing": "1.2" }, svg);
+                        fill: C.savia, "letter-spacing": "1.2" }, svg);
   el("text", { x: 30, y: 135 }, cotas).textContent = "CANCHA";
   el("text", { x: ancX - 78, y: ancY + 26 }, cotas).textContent = "ANCLAJE";
   el("text", { x: 445, y: 96 }, cotas).textContent = "LÍNEA DE MADEREO — CLARO";
   el("text", { x: 585, y: 372 }, cotas).textContent = "PENDIENTE >30% → MADEREO CON TORRE";
-  el("line", { x1: 578, y1: 352, x2: 578, y2: 378, stroke: "#D9A45B", "stroke-width": 1 }, cotas);
+  el("line", { x1: 578, y1: 352, x2: 578, y2: 378, stroke: C.savia, "stroke-width": 1 }, cotas);
 
   var seccion = doc.getElementById("folio-02");
 
@@ -261,7 +420,7 @@ function figPerfil(){
     return;
   }
 
-  /* Tensado con resorte amortiguado (~15 líneas, como pedía el plano) */
+  /* Tensado con resorte amortiguado */
   var tensando = false;
   function tensar(){
     if (tensando) return; tensando = true;
@@ -314,7 +473,8 @@ function figPerfil(){
   });
 }
 
-/* ── 5. VETA DE MADERA en los frames del parque ───────────────────────────
+/* ── 5. VETA DE MADERA en el frame sin foto del parque ───────────────────────────
+   Van sobre HOJA clara: tinta sobre papel verde-niebla.
    El respaldo del canvas se dimensiona al tamaño real del frame × DPR
    (tope 2): las líneas de 1px son la firma del expediente y en HiDPI
    no pueden llegar borrosas. Se dibuja una sola vez. */
@@ -330,7 +490,7 @@ function vetas(){
     var ctx = cv.getContext("2d");
     ctx.scale(k, k);
     var rnd = mulberry32(7300 + idx * 991);
-    ctx.fillStyle = "#F2EDE1"; ctx.fillRect(0, 0, W, H);
+    ctx.fillStyle = C.hoja; ctx.fillRect(0, 0, W, H);
 
     /* 2–3 nudos gaussianos que deforman las líneas horizontales */
     var nudos = [];
@@ -339,15 +499,15 @@ function vetas(){
       nudos.push({ x: 60 + rnd() * (W - 120), y: 50 + rnd() * (H - 100),
                    r: 34 + rnd() * 46, fuerza: 16 + rnd() * 22 });
     }
-    ctx.strokeStyle = "rgba(36,28,21,0.5)";
+    ctx.strokeStyle = "rgba(20,33,26,0.45)";
     ctx.lineWidth = 1;
     for (var y0 = -20; y0 < H + 20; y0 += 8 + rnd() * 3){
       ctx.beginPath();
       var deriva = (rnd() - 0.5) * 6;
       for (var x = 0; x <= W; x += 6){
         var y = y0 + Math.sin(x * 0.004 + y0) * 3 + deriva * (x / W);
-        for (var k = 0; k < nudos.length; k++){
-          var nu = nudos[k];
+        for (var k2 = 0; k2 < nudos.length; k2++){
+          var nu = nudos[k2];
           var dx = x - nu.x, dy = y0 - nu.y;
           var d2 = dx * dx + dy * dy;
           y += (dy > 0 ? 1 : -1) * nu.fuerza * Math.exp(-d2 / (2 * nu.r * nu.r));
@@ -368,30 +528,30 @@ function vetas(){
   });
 }
 
-/* ── 6. FRANJA DE ESTIBA — testas de trozas ─────────────────────────────── */
+/* ── 6. FRANJA DE ESTIBA — testas de trozas ───────────────────────────────
+   Sobre el bosque, sin fondo: las partículas se ven entre las trozas. */
 function estiba(){
   var banda = doc.querySelector('[data-fig="estiba"]');
   if (!banda) return;
   var rnd = mulberry32(4411);
   var W = 1400, H = 130;
   var svg = el("svg", { viewBox: "0 0 " + W + " " + H, preserveAspectRatio: "xMidYMid slice" }, banda);
-  el("rect", { width: W, height: H, fill: "#F2EDE1" }, svg);
   var x = -10;
   while (x < W + 40){
     var r = 20 + rnd() * 26;
     var cy = H / 2 + (rnd() - 0.5) * (H - 2 * r) * 0.7;
-    var g = el("g", { fill: "none", stroke: "#241C15", "stroke-width": 1 }, svg);
+    var g = el("g", { fill: "none", stroke: C.helecho, "stroke-opacity": 0.5, "stroke-width": 1 }, svg);
     for (var i = 0; i < 4; i++){
       var f = [1, 0.7, 0.46, 0.22][i];
       el("ellipse", { cx: x + r, cy: cy, rx: r * f, ry: r * f * (0.94 + rnd() * 0.08),
                       transform: "rotate(" + ((rnd() - 0.5) * 10) + " " + (x + r) + " " + cy + ")" }, g);
     }
-    el("circle", { cx: x + r, cy: cy, r: 1.4, fill: "#241C15", stroke: "none" }, g);
+    el("circle", { cx: x + r, cy: cy, r: 1.5, fill: C.savia, stroke: "none" }, g);
     x += r * 2 + 3 + rnd() * 8;
   }
 }
 
-/* ── 7. LLUVIA FINA del folio nocturno ──────────────────────────────────── */
+/* ── 7. LLUVIA FINA del folio de pendiente ──────────────────────────────── */
 function lluvia(){
   if (sinAnim) return;
   var cv = doc.querySelector("[data-lluvia]");
@@ -420,7 +580,7 @@ function lluvia(){
     if (previo === null) previo = t;
     var dt = Math.min((t - previo) / 1000, 0.05); previo = t;
     ctx.clearRect(0, 0, W, H);
-    ctx.strokeStyle = "rgba(198,204,195,0.18)";
+    ctx.strokeStyle = "rgba(231,239,230,0.16)";
     ctx.lineWidth = 1;
     ctx.beginPath();
     for (var i = 0; i < gotas.length; i++){
@@ -435,6 +595,10 @@ function lluvia(){
   });
 }
 
+/* El bosque parte al tiro: es el fondo de todo, y hasta el primer pintado
+   del hero ya tiene que estar vivo. */
+bosque();
+
 /* Construcción diferida de lo que está bajo el pliegue: FIG. 02, vetas,
    estiba y lluvia se arman en tiempo ocioso para no estorbar el primer
    pintado del hero. (FIG. 01 es el hero: esa va al tiro, ver arriba.) */
@@ -442,9 +606,12 @@ function lluvia(){
   figPerfil(); vetas(); estiba(); lluvia();
 });
 
-/* ── 8. ENTINTADO POR FOLIO ─────────────────────────────────────────────── */
+/* ── 8. ENTINTADO Y REVELADO ─────────────────────────────────────────────── */
 (function entintado(){
-  var folios = doc.querySelectorAll(".folio");
+  /* La plancha fotográfica (.lamina) va de borde a borde y no es un folio,
+     pero se revela con el mismo mecanismo: un solo observer para todo lo
+     que entra en escena. */
+  var folios = doc.querySelectorAll(".folio, .lamina");
   if (sinAnim){
     Array.prototype.forEach.call(folios, function(f){
       f.classList.add("is-inked");
@@ -472,7 +639,7 @@ function lluvia(){
   });
 })();
 
-/* ── 9. ODÓMETRO DE ROMANA ──────────────────────────────────────────────── */
+/* ── 9. ODÓMETRO DE ROMANA ─────────────────────────────────────────────── */
 (function odometros(){
   var nodos = doc.querySelectorAll("[data-odometro]");
   if (!nodos.length) return;
@@ -662,14 +829,13 @@ function lluvia(){
   var portada = doc.getElementById("folio-00");
   function arrancar(){
     if (portada.classList.contains("hero-listo")) return;
-    /* Doble rAF: el estado inicial (titular abajo, anillos sin trazar)
-       tiene que alcanzar a pintarse antes del estado final, o con las
-       fuentes en caché la transición entera se salta. */
+    /* Doble rAF: el estado inicial (titular abajo) tiene que alcanzar a
+       pintarse antes del estado final, o con las fuentes en caché la
+       transición entera se salta. */
     requestAnimationFrame(function(){ requestAnimationFrame(function(){
       portada.classList.add("hero-listo");
       portada.classList.add("is-inked");
       portada.dispatchEvent(new CustomEvent("folio:inked"));
-      if (window.__trazarCorte) window.__trazarCorte();
     }); });
   }
   if (sinAnim){
@@ -689,17 +855,19 @@ function lluvia(){
 })();
 
 /* ── PAUSA DE LAS ANIMACIONES CSS INFINITAS ─────────────────────────────── */
-/* El sello (60s) y la marquesina (40s) son CSS puro: fuera del viewport
-   se pausan por clase, para que la promesa de "todo se pausa" sea cierta. */
+/* La marquesina (40s) es CSS puro: fuera del viewport se pausa por clase,
+   para que la promesa de "todo se pausa" sea cierta. (Era ella y el sello
+   giratorio; el sello se reemplazó por el logo real de la empresa.) */
 (function pausaCSS(){
   if (sinAnim) return;
-  var infinitas = [doc.querySelector(".marquesina"), doc.querySelector(".membrete__celda--sello")];
+  var marquesina = doc.querySelector(".marquesina");
+  if (!marquesina) return;
   var obs = new IntersectionObserver(function(entradas){
     entradas.forEach(function(e){
       e.target.classList.toggle("anim-pausada", !e.isIntersecting);
     });
   }, { rootMargin: "40px" });
-  infinitas.forEach(function(n){ if (n) obs.observe(n); });
+  obs.observe(marquesina);
 })();
 
 })();
