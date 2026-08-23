@@ -219,11 +219,10 @@ a{ color: inherit; }
   text-decoration: none; flex-shrink: 0;
   min-height: 44px;    /* es un enlace: tiene que ser tocable en móvil */
 }
-.barra__marca img{
-  width: 42px; height: auto;
-  background: #F2EFE7;      /* el logo vive sobre su crema original */
-  padding: 4px 5px;
-}
+/* El logo va en blanco sobre transparente: sin recuadro, hereda el fondo y
+   contrasta contra el acero. La versión con papel crema del arte original
+   metía un parche claro en medio de una superficie oscura. */
+.barra__marca img{ width: 40px; height: auto; }
 .barra__nombre{
   font-family: var(--f-display);
   font-weight: 800;
@@ -915,7 +914,7 @@ html:not(.js) .formulario .boton{ display: none; }
   align-items: flex-start; justify-content: space-between;
 }
 .pie__marca{ display: flex; align-items: center; gap: 1rem; }
-.pie__marca img{ width: 54px; height: auto; background: #F2EFE7; padding: 5px 6px; }
+.pie__marca img{ width: 56px; height: auto; }
 .pie__nombre{
   font-family: var(--f-display);
   font-weight: 800;

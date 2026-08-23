@@ -148,6 +148,20 @@ bajo los cuales se trabaja, que es lo correcto y verificable.
   la esquina) hasta el primer frame, y ese frame no llega nunca si la
   pestaña se abrió en segundo plano.
 
+**Del logo**
+
+- El arte original del cliente es trazo oscuro sobre papel crema, sin
+  transparencia. En el sitio va **invertido**: la luminancia se convierte en
+  canal alfa y el trazo pasa a blanco, así el logo hereda el fondo en vez de
+  meter un parche claro en medio de una superficie de acero.
+- La inversión conserva el antialias del borde porque interpola entre dos
+  umbrales de luminancia (200 y 70) en vez de recortar en seco. Si se
+  recorta con un solo umbral, el contorno queda con diente de sierra.
+- El **favicon es la excepción**: va blanco sobre carbón sólido, no sobre
+  transparente. En una pestaña de navegador en modo claro, un logo blanco
+  transparente desaparece.
+- El arte original sin invertir queda en `imagenes/originales/`.
+
 **De accesibilidad**
 
 - El carro es un bucle continuo de 22 s, así que **tiene botón de pausa**
