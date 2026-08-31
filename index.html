@@ -34,12 +34,19 @@
      El trío es deliberado: display expresiva + texto neutro + mono de
      datos es el esquema de un catálogo de maquinaria, no de un folleto.
      ============================================================ -->
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600;800&family=Saira:wght@400;500;600&family=Azeret+Mono:wght@400;600&display=swap">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600;800&family=Saira:wght@400;500;600&family=Azeret+Mono:wght@400;600&display=swap" media="print" onload="this.media='all'">
-<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600;800&family=Saira:wght@400;500;600&family=Azeret+Mono:wght@400;600&display=swap"></noscript>
+<!-- Politica de seguridad de contenido: el navegador solo puede cargar
+     archivos de este mismo sitio. Sin CDN, sin librerias de terceros, sin
+     rastreadores. Las directivas que exigen cabecera HTTP (frame-ancestors,
+     X-Frame-Options, HSTS) no se declaran aca: GitHub Pages no permite
+     cabeceras. Ver skills/web-blindada/references/csp-en-pages.md -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' data:; font-src 'self'; connect-src 'self'; media-src 'self'; form-action 'self'; base-uri 'none'; frame-src 'none'; object-src 'none'">
+<!-- Al salir del sitio se envia solo el dominio, nunca la pagina exacta. -->
+<meta name="referrer" content="strict-origin-when-cross-origin">
 
+<!-- Fuentes propias: cero peticiones a Google. El preload va solo para la
+     display del titular. -->
+<link rel="preload" href="assets/fuentes/bigshouldersdisplay-800-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="assets/fuentes.css">
 <link rel="stylesheet" href="assets/css/estilo.css">
 
 <!-- Marca que el JS está vivo, ANTES de que se pinte nada: los estados
@@ -47,12 +54,7 @@
      los 4 s, así que si main.js no llega (red rural a medias, error de
      carga), la página se muestra entera igual. main.js cancela este
      temporizador apenas arranca. -->
-<script>
-document.documentElement.classList.add('js');
-window.rescate = setTimeout(function(){
-  document.documentElement.classList.remove('js');
-}, 4000);
-</script>
+<script src="assets/js/respaldo.js"></script>
 
 <!-- Datos duros de la empresa. ÚNICO archivo a editar. -->
 <script defer src="assets/js/datos.js"></script>
@@ -299,7 +301,7 @@ window.rescate = setTimeout(function(){
 
     <article class="equipo">
       <div class="equipo__foto">
-        <img src="imagenes/torre.jpg" style="object-position:32% 50%"
+        <img src="imagenes/torre.jpg" class="foto--torre"
              alt="Torre de madereo instalada junto al camino forestal, con las líneas tendidas hacia el valle"
              loading="lazy" decoding="async" width="1600" height="719">
       </div>

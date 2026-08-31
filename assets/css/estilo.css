@@ -961,3 +961,7 @@ html:not(.js) .formulario .boton{ display: none; }
   .portada{ min-height: 0; }
   .hitos li{ grid-template-columns: 1fr; gap: 0.3rem; }
 }
+
+/* Encuadre de la foto de la torre: estaba como style="object-position" en el
+   HTML y lo bloquea la CSP con style-src 'self' (30-08-2026). */
+.foto--torre { object-position: 32% 50%; }
